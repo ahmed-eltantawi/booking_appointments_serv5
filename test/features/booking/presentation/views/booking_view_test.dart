@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:booking_appointments/core/services/services_locator.dart';
 import 'package:booking_appointments/core/services/settings_cubit.dart';
 import 'package:booking_appointments/features/booking/presentation/widgets/app_drawer_widget.dart';
@@ -8,6 +9,7 @@ import 'package:booking_appointments/main.dart';
 
 void main() {
   setUp(() async {
+    SharedPreferences.setMockInitialValues({});
     await GetIt.I.reset();
     await setupServiceLocator();
   });

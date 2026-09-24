@@ -7,14 +7,17 @@
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:booking_appointments/core/services/services_locator.dart';
 import 'package:booking_appointments/main.dart';
 
 void main() {
   testWidgets('BookingApp smoke test', (WidgetTester tester) async {
+    SharedPreferences.setMockInitialValues({});
     await GetIt.I.reset();
     await setupServiceLocator();
     await tester.pumpWidget(const BookingApp());
     await tester.pumpAndSettle();
   });
 }
+

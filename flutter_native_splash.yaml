@@ -1,0 +1,10 @@
+flutter_native_splash:
+  color: "#149DFD"
+  image: "assets/images/app_icon.png"
+  android: true
+  ios: true
+  #  عشان ندرويد 12 عشان اللوجو ميطلعش صغير ومقصوص
+  android_12:
+    image: "assets/images/app_icon.png"
+    icon_background_color: "#149DFD"
+    web: false
