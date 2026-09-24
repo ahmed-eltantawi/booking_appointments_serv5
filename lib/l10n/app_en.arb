@@ -1,0 +1,84 @@
+{
+  "@@locale": "en",
+
+  "appTitle": "Appointment Booking",
+  "@appTitle": { "description": "Application title shown in the app bar and system." },
+
+  "bookAppointment": "Book an Appointment",
+  "@bookAppointment": { "description": "Main screen heading." },
+
+  "workingHours": "Working hours: 9:00 AM – 6:00 PM",
+  "@workingHours": { "description": "Displayed below the main heading as context." },
+
+  "selectDuration": "Select Duration",
+  "@selectDuration": { "description": "Label above the duration chip row." },
+
+  "duration30Min": "30 min",
+  "@duration30Min": { "description": "Label for the 30-minute booking duration chip." },
+
+  "duration1Hour": "1 hr",
+  "@duration1Hour": { "description": "Label for the 1-hour booking duration chip." },
+
+  "duration1Half": "1.5 hr",
+  "@duration1Half": { "description": "Label for the 1.5-hour booking duration chip." },
+
+  "duration2Hours": "2 hr",
+  "@duration2Hours": { "description": "Label for the 2-hour booking duration chip." },
+
+  "timeSlots": "Time Slots",
+  "@timeSlots": { "description": "Label above the time-slot grid." },
+
+  "selectStartTimeHint": "Tap an available slot to choose a start time.",
+  "@selectStartTimeHint": { "description": "Hint text shown below the time slots label." },
+
+  "legend": "Legend",
+  "@legend": { "description": "Label above the slot legend row." },
+
+  "available": "Available",
+  "@available": { "description": "Legend item and slot status label." },
+
+  "booked": "Booked",
+  "@booked": { "description": "Legend item and slot status label." },
+
+  "unavailable": "Unavailable",
+  "@unavailable": { "description": "Legend item and slot status label." },
+
+  "selected": "Selected",
+  "@selected": { "description": "Legend item and slot status label." },
+
+  "bookingSummary": "Booking Summary",
+  "@bookingSummary": { "description": "Section heading for the booking summary card." },
+
+  "startLabel": "Start",
+  "@startLabel": { "description": "Label for the booking start time row." },
+
+  "endLabel": "End",
+  "@endLabel": { "description": "Label for the booking end time row." },
+
+  "durationLabel": "Duration",
+  "@durationLabel": { "description": "Label for the booking duration row." },
+
+  "noSelectionYet": "No time slot selected yet.",
+  "@noSelectionYet": { "description": "Shown in summary when no start time is selected." },
+
+  "reset": "Reset",
+  "@reset": { "description": "Reset button label." },
+
+  "confirmBooking": "Confirm Booking",
+  "@confirmBooking": { "description": "Confirm booking button label." },
+
+  "bookingSuccessful": "Your appointment has been booked successfully!",
+  "@bookingSuccessful": { "description": "Success message shown after a booking is confirmed." },
+
+  "errorExceedsWorkingHours": "Booking cannot extend past 6:00 PM.",
+  "@errorExceedsWorkingHours": { "description": "Validation error when booking exceeds working hours." },
+
+  "errorContainsBookedSlot": "One or more required time slots are already booked.",
+  "@errorContainsBookedSlot": { "description": "Validation error when required slots overlap an existing booking." },
+
+  "errorContainsUnavailableSlot": "One or more required time slots are unavailable.",
+  "@errorContainsUnavailableSlot": { "description": "Validation error when required slots are marked unavailable." },
+
+  "errorCreatesInvalidGap": "This booking would leave an isolated 30-minute gap in the schedule.",
+  "@errorCreatesInvalidGap": { "description": "Validation error when the booking creates a forbidden isolated gap." }
+}
