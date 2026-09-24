@@ -38,6 +38,7 @@ class SlotCellWidget extends StatelessWidget {
 
     return GestureDetector(
       onTap: onTap,
+      behavior: HitTestBehavior.opaque,
       child: Opacity(
         opacity: isAvailableButNotValid ? 0.45 : 1.0,
         child: AnimatedContainer(

@@ -7,11 +7,7 @@ import 'package:booking_appointments/features/booking/domain/slot_model.dart';
 import 'package:booking_appointments/features/booking/presentation/manager/booking_cubit.dart';
 import 'package:booking_appointments/features/booking/presentation/widgets/slot_cell_widget.dart';
 
-/// Displays the 18-slot working day as a 3-column grid.
-///
-/// Only slots whose index is in [validStartIndexes] AND whose current status
-/// is [SlotStatus.available] receive an [onTap] handler. All other slots are
-/// rendered as non-interactive.
+/// Displays the 18-slot working day as a 3-column grid using [GridView.builder].
 class TimeSlotGridWidget extends StatelessWidget {
   const TimeSlotGridWidget({
     super.key,
@@ -62,9 +58,8 @@ class TimeSlotGridWidget extends StatelessWidget {
             return SlotCellWidget(
               slot: slot,
               isValidStart: isValidStart,
-              onTap: isValidStart
-                  ? () => context.read<BookingCubit>().selectStartTime(slot.index)
-                  : null,
+              onTap: () =>
+                  context.read<BookingCubit>().handleSlotTap(slot.index),
             );
           },
         ),

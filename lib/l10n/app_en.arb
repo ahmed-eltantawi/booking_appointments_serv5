@@ -80,5 +80,17 @@
   "@errorContainsUnavailableSlot": { "description": "Validation error when required slots are marked unavailable." },
 
   "errorCreatesInvalidGap": "This booking would leave an isolated 30-minute gap in the schedule.",
-  "@errorCreatesInvalidGap": { "description": "Validation error when the booking creates a forbidden isolated gap." }
+  "@errorCreatesInvalidGap": { "description": "Validation error when the booking creates a forbidden isolated gap." },
+
+  "theme": "Theme",
+  "@theme": { "description": "Label for theme setting option." },
+
+  "themeSystem": "System Default",
+  "@themeSystem": { "description": "Label for system default theme option." },
+
+  "themeLight": "Light Theme",
+  "@themeLight": { "description": "Label for light theme option." },
+
+  "themeDark": "Dark Theme",
+  "@themeDark": { "description": "Label for dark theme option." }
 }

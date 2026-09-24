@@ -258,6 +258,30 @@ abstract class S {
   /// In en, this message translates to:
   /// **'This booking would leave an isolated 30-minute gap in the schedule.'**
   String get errorCreatesInvalidGap;
+
+  /// Label for theme setting option.
+  ///
+  /// In en, this message translates to:
+  /// **'Theme'**
+  String get theme;
+
+  /// Label for system default theme option.
+  ///
+  /// In en, this message translates to:
+  /// **'System Default'**
+  String get themeSystem;
+
+  /// Label for light theme option.
+  ///
+  /// In en, this message translates to:
+  /// **'Light Theme'**
+  String get themeLight;
+
+  /// Label for dark theme option.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark Theme'**
+  String get themeDark;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

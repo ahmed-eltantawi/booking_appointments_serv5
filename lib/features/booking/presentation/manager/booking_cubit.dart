@@ -117,6 +117,11 @@ class BookingCubit extends Cubit<BookingState> {
     ));
   }
 
+  /// Handles user tapping any time slot in the grid (valid, booked, unavailable, or invalid).
+  void handleSlotTap(int slotIndex) {
+    selectStartTime(slotIndex);
+  }
+
   /// Resets the schedule to the original seed data and clears all selections.
   void reset() {
     _baseSlots = List.from(_originalSlots);

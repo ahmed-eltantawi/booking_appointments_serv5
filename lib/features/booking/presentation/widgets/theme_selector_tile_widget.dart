@@ -63,3 +63,12 @@ class ThemeSelectorTileWidget extends StatelessWidget {
                   style: AppTextStyles.regular14.copyWith(
                     color: Theme.of(context).colorScheme.primary,
                   ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

@@ -94,4 +94,16 @@ class SEn extends S {
   @override
   String get errorCreatesInvalidGap =>
       'This booking would leave an isolated 30-minute gap in the schedule.';
+
+  @override
+  String get theme => 'Theme';
+
+  @override
+  String get themeSystem => 'System Default';
+
+  @override
+  String get themeLight => 'Light Theme';
+
+  @override
+  String get themeDark => 'Dark Theme';
 }

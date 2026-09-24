@@ -93,4 +93,16 @@ class SAr extends S {
   @override
   String get errorCreatesInvalidGap =>
       'هذا الحجز سيترك فترة 30 دقيقة معزولة في الجدول.';
+
+  @override
+  String get theme => 'المظهر';
+
+  @override
+  String get themeSystem => 'افتراضي النظام';
+
+  @override
+  String get themeLight => 'المظهر الفاتح';
+
+  @override
+  String get themeDark => 'المظهر الداكن';
 }

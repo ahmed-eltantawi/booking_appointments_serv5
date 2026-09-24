@@ -95,6 +95,7 @@ void main() {
       final bookedSlotFinder = find.text('10:00 AM');
       expect(bookedSlotFinder, findsOneWidget);
 
+      await tester.ensureVisible(bookedSlotFinder);
       await tester.tap(bookedSlotFinder);
       await tester.pumpAndSettle();
 
@@ -114,6 +115,7 @@ void main() {
       final unavailableSlotFinder = find.text('1:30 PM');
       expect(unavailableSlotFinder, findsOneWidget);
 
+      await tester.ensureVisible(unavailableSlotFinder);
       await tester.tap(unavailableSlotFinder);
       await tester.pumpAndSettle();
 

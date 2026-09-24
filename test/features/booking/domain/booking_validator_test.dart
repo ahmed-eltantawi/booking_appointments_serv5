@@ -6,6 +6,7 @@ import 'package:booking_appointments/features/booking/domain/booking_validator.d
 import 'package:booking_appointments/features/booking/domain/slot_model.dart';
 import 'package:booking_appointments/features/booking/presentation/manager/booking_cubit.dart';
 
+
 // =============================================================================
 // Test schedule builder helpers
 // =============================================================================
