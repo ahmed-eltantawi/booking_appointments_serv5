@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:booking_appointments/core/services/services_locator.dart';
+import 'package:booking_appointments/core/services/settings_cubit.dart';
+import 'package:booking_appointments/features/booking/presentation/widgets/app_drawer_widget.dart';
 import 'package:booking_appointments/main.dart';
 
 void main() {
@@ -27,8 +29,8 @@ void main() {
       await tester.pumpWidget(createWidgetToTest());
       await tester.pumpAndSettle();
 
-      // Verify header title in app bar
-      expect(find.text('Book an Appointment'), findsOneWidget);
+      // Verify title in app bar and header
+      expect(find.text('Book an Appointment'), findsNWidgets(2));
 
       // Verify working hours header
       expect(find.text('Working hours: 9:00 AM – 6:00 PM'), findsOneWidget);
@@ -81,7 +83,45 @@ void main() {
       expect(find.text('Start'), findsOneWidget);
     });
 
-    testWidgets('confirming booking updates schedule and shows confirmation dialog', (tester) async {
+    testWidgets('tapping booked slot displays contextual booked snackbar', (tester) async {
+      tester.view.physicalSize = const Size(800, 1600);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+
+      await tester.pumpWidget(createWidgetToTest());
+      await tester.pumpAndSettle();
+
+      // Slot 2 (10:00 AM) is pre-booked in seed schedule
+      final bookedSlotFinder = find.text('10:00 AM');
+      expect(bookedSlotFinder, findsOneWidget);
+
+      await tester.tap(bookedSlotFinder);
+      await tester.pumpAndSettle();
+
+      // Verify feedback snackbar is displayed
+      expect(find.text('10:00 AM is already booked.'), findsOneWidget);
+    });
+
+    testWidgets('tapping unavailable slot displays contextual unavailable snackbar', (tester) async {
+      tester.view.physicalSize = const Size(800, 1600);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+
+      await tester.pumpWidget(createWidgetToTest());
+      await tester.pumpAndSettle();
+
+      // Slot 9 (1:30 PM) is marked unavailable in seed schedule
+      final unavailableSlotFinder = find.text('1:30 PM');
+      expect(unavailableSlotFinder, findsOneWidget);
+
+      await tester.tap(unavailableSlotFinder);
+      await tester.pumpAndSettle();
+
+      // Verify feedback snackbar is displayed
+      expect(find.text('1:30 PM is currently unavailable.'), findsOneWidget);
+    });
+
+    testWidgets('confirming booking updates schedule and shows confirmation snackbar', (tester) async {
       tester.view.physicalSize = const Size(800, 2400);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.resetPhysicalSize);
@@ -100,6 +140,37 @@ void main() {
 
       // Confirmation snack bar should display success text
       expect(find.text('Your appointment has been booked successfully!'), findsOneWidget);
+    });
+
+    testWidgets('configures AppDrawerWidget on Scaffold drawer', (tester) async {
+      tester.view.physicalSize = const Size(800, 1600);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+
+      await tester.pumpWidget(createWidgetToTest());
+      await tester.pumpAndSettle();
+
+      final scaffold = tester.widget<Scaffold>(find.byType(Scaffold));
+      expect(scaffold.drawer, isA<AppDrawerWidget>());
+    });
+
+    testWidgets('allows dynamic language switching via SettingsCubit', (tester) async {
+      tester.view.physicalSize = const Size(800, 1600);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+
+      await tester.pumpWidget(createWidgetToTest());
+      await tester.pumpAndSettle();
+
+      // Initial English title check (in AppBar and DrawerHeader)
+      expect(find.text('Book an Appointment'), findsNWidgets(2));
+
+      // Switch language to Arabic via SettingsCubit
+      GetIt.I<SettingsCubit>().setLocale(const Locale('ar'));
+      await tester.pumpAndSettle();
+
+      // Verify Arabic title is now rendered in UI
+      expect(find.text('حجز موعد'), findsNWidgets(2));
     });
   });
 }

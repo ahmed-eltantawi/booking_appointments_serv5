@@ -94,4 +94,68 @@ class SEn extends S {
   @override
   String get errorCreatesInvalidGap =>
       'This booking would leave an isolated 30-minute gap in the schedule.';
+
+  @override
+  String get settings => 'Settings';
+
+  @override
+  String get language => 'Language';
+
+  @override
+  String get english => 'English';
+
+  @override
+  String get arabic => 'العربية';
+
+  @override
+  String get theme => 'Theme';
+
+  @override
+  String get themeSystem => 'System Default';
+
+  @override
+  String get themeLight => 'Light';
+
+  @override
+  String get themeDark => 'Dark';
+
+  @override
+  String get about => 'About';
+
+  @override
+  String get aboutAppDescription =>
+      'Appointment Booking application built for scheduling appointments with real-time validation rules.';
+
+  @override
+  String get close => 'Close';
+
+  @override
+  String slotFeedbackBooked(String time) {
+    return '$time is already booked.';
+  }
+
+  @override
+  String slotFeedbackUnavailable(String time) {
+    return '$time is currently unavailable.';
+  }
+
+  @override
+  String slotFeedbackExceedsHours(String time, String duration) {
+    return 'A $duration booking starting at $time would extend past 6:00 PM.';
+  }
+
+  @override
+  String slotFeedbackOverlap(String time, String duration) {
+    return 'A $duration booking starting at $time overlaps with an existing booking.';
+  }
+
+  @override
+  String slotFeedbackContainsUnavailable(String time, String duration) {
+    return 'A $duration booking starting at $time includes unavailable slots.';
+  }
+
+  @override
+  String slotFeedbackCreatesGap(String time) {
+    return 'A booking starting at $time would leave an unusable 30-minute gap.';
+  }
 }

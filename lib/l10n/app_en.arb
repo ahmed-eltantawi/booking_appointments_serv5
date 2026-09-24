@@ -80,5 +80,89 @@
   "@errorContainsUnavailableSlot": { "description": "Validation error when required slots are marked unavailable." },
 
   "errorCreatesInvalidGap": "This booking would leave an isolated 30-minute gap in the schedule.",
-  "@errorCreatesInvalidGap": { "description": "Validation error when the booking creates a forbidden isolated gap." }
+  "@errorCreatesInvalidGap": { "description": "Validation error when the booking creates a forbidden isolated gap." },
+
+  "settings": "Settings",
+  "@settings": { "description": "Drawer section header for settings." },
+
+  "language": "Language",
+  "@language": { "description": "Label for language selection setting." },
+
+  "english": "English",
+  "@english": { "description": "English language option." },
+
+  "arabic": "العربية",
+  "@arabic": { "description": "Arabic language option." },
+
+  "theme": "Theme",
+  "@theme": { "description": "Label for theme mode setting." },
+
+  "themeSystem": "System Default",
+  "@themeSystem": { "description": "System default theme mode option." },
+
+  "themeLight": "Light",
+  "@themeLight": { "description": "Light theme mode option." },
+
+  "themeDark": "Dark",
+  "@themeDark": { "description": "Dark theme mode option." },
+
+  "about": "About",
+  "@about": { "description": "Drawer item for app info." },
+
+  "aboutAppDescription": "Appointment Booking application built for scheduling appointments with real-time validation rules.",
+  "@aboutAppDescription": { "description": "Description shown in the about dialog." },
+
+  "close": "Close",
+  "@close": { "description": "Close button label for dialogs." },
+
+  "slotFeedbackBooked": "{time} is already booked.",
+  "@slotFeedbackBooked": {
+    "description": "Feedback message when a booked slot is tapped.",
+    "placeholders": {
+      "time": { "type": "String" }
+    }
+  },
+
+  "slotFeedbackUnavailable": "{time} is currently unavailable.",
+  "@slotFeedbackUnavailable": {
+    "description": "Feedback message when an unavailable slot is tapped.",
+    "placeholders": {
+      "time": { "type": "String" }
+    }
+  },
+
+  "slotFeedbackExceedsHours": "A {duration} booking starting at {time} would extend past 6:00 PM.",
+  "@slotFeedbackExceedsHours": {
+    "description": "Feedback message when a start time exceeds working hours for duration.",
+    "placeholders": {
+      "time": { "type": "String" },
+      "duration": { "type": "String" }
+    }
+  },
+
+  "slotFeedbackOverlap": "A {duration} booking starting at {time} overlaps with an existing booking.",
+  "@slotFeedbackOverlap": {
+    "description": "Feedback message when required consecutive slots contain a booked slot.",
+    "placeholders": {
+      "time": { "type": "String" },
+      "duration": { "type": "String" }
+    }
+  },
+
+  "slotFeedbackContainsUnavailable": "A {duration} booking starting at {time} includes unavailable slots.",
+  "@slotFeedbackContainsUnavailable": {
+    "description": "Feedback message when required consecutive slots contain an unavailable slot.",
+    "placeholders": {
+      "time": { "type": "String" },
+      "duration": { "type": "String" }
+    }
+  },
+
+  "slotFeedbackCreatesGap": "A booking starting at {time} would leave an unusable 30-minute gap.",
+  "@slotFeedbackCreatesGap": {
+    "description": "Feedback message when booking creates an invalid gap.",
+    "placeholders": {
+      "time": { "type": "String" }
+    }
+  }
 }

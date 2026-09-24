@@ -93,4 +93,68 @@ class SAr extends S {
   @override
   String get errorCreatesInvalidGap =>
       'هذا الحجز سيترك فترة 30 دقيقة معزولة في الجدول.';
+
+  @override
+  String get settings => 'الإعدادات';
+
+  @override
+  String get language => 'اللغة';
+
+  @override
+  String get english => 'English';
+
+  @override
+  String get arabic => 'العربية';
+
+  @override
+  String get theme => 'المظهر';
+
+  @override
+  String get themeSystem => 'افتراضي النظام';
+
+  @override
+  String get themeLight => 'فاتح';
+
+  @override
+  String get themeDark => 'داكن';
+
+  @override
+  String get about => 'حول التطبيق';
+
+  @override
+  String get aboutAppDescription =>
+      'تطبيق حجز المواعيد لجدولة المواعيد بسهولة وفاعلية مع التحقق المباشر للقواعد.';
+
+  @override
+  String get close => 'إغلاق';
+
+  @override
+  String slotFeedbackBooked(String time) {
+    return 'الوقت $time محجوز بالفعل.';
+  }
+
+  @override
+  String slotFeedbackUnavailable(String time) {
+    return 'الوقت $time غير متاح حالياً.';
+  }
+
+  @override
+  String slotFeedbackExceedsHours(String time, String duration) {
+    return 'حجز مدته $duration يبدأ في $time يتجاوز الساعة 6:00 مساءً.';
+  }
+
+  @override
+  String slotFeedbackOverlap(String time, String duration) {
+    return 'حجز مدته $duration يبدأ في $time يتعارض مع حجز محجوز سابقاً.';
+  }
+
+  @override
+  String slotFeedbackContainsUnavailable(String time, String duration) {
+    return 'حجز مدته $duration يبدأ في $time يتضمن فترات غير متاحة.';
+  }
+
+  @override
+  String slotFeedbackCreatesGap(String time) {
+    return 'حجز يبدأ في $time سيترك فترة 30 دقيقة معزولة في الجدول.';
+  }
 }

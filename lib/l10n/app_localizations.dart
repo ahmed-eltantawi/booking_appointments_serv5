@@ -258,6 +258,108 @@ abstract class S {
   /// In en, this message translates to:
   /// **'This booking would leave an isolated 30-minute gap in the schedule.'**
   String get errorCreatesInvalidGap;
+
+  /// Drawer section header for settings.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get settings;
+
+  /// Label for language selection setting.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get language;
+
+  /// English language option.
+  ///
+  /// In en, this message translates to:
+  /// **'English'**
+  String get english;
+
+  /// Arabic language option.
+  ///
+  /// In en, this message translates to:
+  /// **'العربية'**
+  String get arabic;
+
+  /// Label for theme mode setting.
+  ///
+  /// In en, this message translates to:
+  /// **'Theme'**
+  String get theme;
+
+  /// System default theme mode option.
+  ///
+  /// In en, this message translates to:
+  /// **'System Default'**
+  String get themeSystem;
+
+  /// Light theme mode option.
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get themeLight;
+
+  /// Dark theme mode option.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark'**
+  String get themeDark;
+
+  /// Drawer item for app info.
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get about;
+
+  /// Description shown in the about dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Appointment Booking application built for scheduling appointments with real-time validation rules.'**
+  String get aboutAppDescription;
+
+  /// Close button label for dialogs.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get close;
+
+  /// Feedback message when a booked slot is tapped.
+  ///
+  /// In en, this message translates to:
+  /// **'{time} is already booked.'**
+  String slotFeedbackBooked(String time);
+
+  /// Feedback message when an unavailable slot is tapped.
+  ///
+  /// In en, this message translates to:
+  /// **'{time} is currently unavailable.'**
+  String slotFeedbackUnavailable(String time);
+
+  /// Feedback message when a start time exceeds working hours for duration.
+  ///
+  /// In en, this message translates to:
+  /// **'A {duration} booking starting at {time} would extend past 6:00 PM.'**
+  String slotFeedbackExceedsHours(String time, String duration);
+
+  /// Feedback message when required consecutive slots contain a booked slot.
+  ///
+  /// In en, this message translates to:
+  /// **'A {duration} booking starting at {time} overlaps with an existing booking.'**
+  String slotFeedbackOverlap(String time, String duration);
+
+  /// Feedback message when required consecutive slots contain an unavailable slot.
+  ///
+  /// In en, this message translates to:
+  /// **'A {duration} booking starting at {time} includes unavailable slots.'**
+  String slotFeedbackContainsUnavailable(String time, String duration);
+
+  /// Feedback message when booking creates an invalid gap.
+  ///
+  /// In en, this message translates to:
+  /// **'A booking starting at {time} would leave an unusable 30-minute gap.'**
+  String slotFeedbackCreatesGap(String time);
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {
