@@ -521,5 +521,50 @@ void main() {
         expect(state.selectedDuration, BookingDuration.twoHours);
       },
     );
+
+    // T45: selectDuration preserves selection when start is still valid for new duration
+    blocTest<BookingCubit, BookingState>(
+      'T45: selectDuration from 30min to 1hr when start=13 → preserves selection',
+      build: BookingCubit.new,
+      act: (cubit) {
+        cubit.initialize();
+        cubit.selectStartTime(13); // slot 13 (03:30 PM) is valid for 30min
+        cubit.selectDuration(BookingDuration.oneHour); // slots 13,14 both available & no gap → preserves selection
+      },
+      verify: (cubit) {
+        final state = cubit.state as BookingData;
+        expect(state.selectedStartIndex, 13);
+        expect(state.selectedEndIndex, 14);
+        expect(state.status, BookingStatus.selected);
+        expect(state.selectedDuration, BookingDuration.oneHour);
+      },
+    );
+
+    // T46: validateBooking for 1.5hr from slot 15 → ends at slot 17 (06:00 PM) → valid
+    test('T46: 1.5hr from slot 15 → valid boundary at 18:00', () {
+      final result = validateBooking(
+        slots: _allAvailable(),
+        startIndex: 15,
+        duration: BookingDuration.oneHalfHour,
+      );
+      expect(result.isValid, isTrue);
+    });
+
+    // T47: reset after invalid selection → clears error and restores idle state
+    blocTest<BookingCubit, BookingState>(
+      'T47: reset() after invalid selection → clears error and emits idle state',
+      build: BookingCubit.new,
+      act: (cubit) {
+        cubit.initialize();
+        cubit.handleSlotTap(2); // slot 2 is booked → invalid selection
+        cubit.reset();
+      },
+      verify: (cubit) {
+        final state = cubit.state as BookingData;
+        expect(state.status, BookingStatus.idle);
+        expect(state.selectedStartIndex, isNull);
+        expect(state.validationResult, isNull);
+      },
+    );
   });
 }
