@@ -12,22 +12,39 @@ class LanguageSelectorTileWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final settingsCubit = context.watch<SettingsCubit>();
     final currentLocale = settingsCubit.state.locale;
+    final colorScheme = Theme.of(context).colorScheme;
 
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),
+      padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainer,
+        borderRadius: BorderRadius.circular(12.r),
+        border: Border.all(
+          color: colorScheme.outlineVariant.withValues(alpha: 0.5),
+        ),
+      ),
       child: Row(
         children: [
-          Icon(
-            Icons.language_rounded,
-            size: 22.r,
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          Container(
+            width: 36.r,
+            height: 36.r,
+            decoration: BoxDecoration(
+              color: colorScheme.primaryContainer.withValues(alpha: 0.6),
+              borderRadius: BorderRadius.circular(10.r),
+            ),
+            child: Icon(
+              Icons.language_rounded,
+              size: 20.r,
+              color: colorScheme.primary,
+            ),
           ),
           SizedBox(width: 12.w),
           Expanded(
             child: Text(
               'Language / اللغة',
               style: AppTextStyles.medium14.copyWith(
-                color: Theme.of(context).colorScheme.onSurface,
+                color: colorScheme.onSurface,
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
@@ -38,10 +55,12 @@ class LanguageSelectorTileWidget extends StatelessWidget {
             child: DropdownButton<Locale>(
               value: currentLocale,
               isDense: true,
+              dropdownColor: colorScheme.surfaceContainerHigh,
+              borderRadius: BorderRadius.circular(12.r),
               icon: Icon(
-                Icons.arrow_drop_down_rounded,
-                size: 20.r,
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                Icons.keyboard_arrow_down_rounded,
+                size: 22.r,
+                color: colorScheme.onSurfaceVariant,
               ),
               onChanged: (locale) {
                 if (locale != null) {
@@ -53,8 +72,10 @@ class LanguageSelectorTileWidget extends StatelessWidget {
                   value: const Locale('en'),
                   child: Text(
                     'English',
-                    style: AppTextStyles.regular14.copyWith(
-                      color: Theme.of(context).colorScheme.primary,
+                    style: AppTextStyles.medium14.copyWith(
+                      color: currentLocale.languageCode == 'en'
+                          ? colorScheme.primary
+                          : colorScheme.onSurface,
                     ),
                   ),
                 ),
@@ -62,8 +83,10 @@ class LanguageSelectorTileWidget extends StatelessWidget {
                   value: const Locale('ar'),
                   child: Text(
                     'العربية',
-                    style: AppTextStyles.regular14.copyWith(
-                      color: Theme.of(context).colorScheme.primary,
+                    style: AppTextStyles.medium14.copyWith(
+                      color: currentLocale.languageCode == 'ar'
+                          ? colorScheme.primary
+                          : colorScheme.onSurface,
                     ),
                   ),
                 ),
@@ -75,3 +98,4 @@ class LanguageSelectorTileWidget extends StatelessWidget {
     );
   }
 }
+

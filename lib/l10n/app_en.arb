@@ -92,5 +92,18 @@
   "@themeLight": { "description": "Label for light theme option." },
 
   "themeDark": "Dark Theme",
-  "@themeDark": { "description": "Label for dark theme option." }
+  "@themeDark": { "description": "Label for dark theme option." },
+
+  "settings": "Settings",
+  "@settings": { "description": "Drawer settings section header." },
+
+  "about": "About",
+  "@about": { "description": "Drawer about option label." },
+
+  "appSubtitle": "Serv5 Booking System",
+  "@appSubtitle": { "description": "Subtitle shown in the drawer header." },
+
+  "copyright": "© 2026 Serv5. All rights reserved.",
+  "@copyright": { "description": "Copyright notice shown at the bottom of the drawer." }
 }
+

@@ -59,4 +59,17 @@ abstract class AppTextStyles {
     fontWeight: FontWeight.w500,
     height: 1.4,
   );
+
+  static TextStyle get bold12 => TextStyle(
+    fontSize: 12.sp,
+    fontWeight: FontWeight.w700,
+    height: 1.4,
+  );
+
+  static TextStyle get bold14 => TextStyle(
+    fontSize: 14.sp,
+    fontWeight: FontWeight.w700,
+    height: 1.4,
+  );
 }
+

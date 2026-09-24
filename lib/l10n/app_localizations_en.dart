@@ -106,4 +106,16 @@ class SEn extends S {
 
   @override
   String get themeDark => 'Dark Theme';
+
+  @override
+  String get settings => 'Settings';
+
+  @override
+  String get about => 'About';
+
+  @override
+  String get appSubtitle => 'Serv5 Booking System';
+
+  @override
+  String get copyright => '© 2026 Serv5. All rights reserved.';
 }

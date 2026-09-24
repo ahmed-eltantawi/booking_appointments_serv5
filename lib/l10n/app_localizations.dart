@@ -282,6 +282,30 @@ abstract class S {
   /// In en, this message translates to:
   /// **'Dark Theme'**
   String get themeDark;
+
+  /// Drawer settings section header.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get settings;
+
+  /// Drawer about option label.
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get about;
+
+  /// Subtitle shown in the drawer header.
+  ///
+  /// In en, this message translates to:
+  /// **'Serv5 Booking System'**
+  String get appSubtitle;
+
+  /// Copyright notice shown at the bottom of the drawer.
+  ///
+  /// In en, this message translates to:
+  /// **'© 2026 Serv5. All rights reserved.'**
+  String get copyright;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

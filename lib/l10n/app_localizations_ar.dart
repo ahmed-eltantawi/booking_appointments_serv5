@@ -105,4 +105,16 @@ class SAr extends S {
 
   @override
   String get themeDark => 'المظهر الداكن';
+
+  @override
+  String get settings => 'الإعدادات';
+
+  @override
+  String get about => 'حول التطبيق';
+
+  @override
+  String get appSubtitle => 'نظام Serv5 للحجز';
+
+  @override
+  String get copyright => '© 2026 Serv5. جميع الحقوق محفوظة.';
 }

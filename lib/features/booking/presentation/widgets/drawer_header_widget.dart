@@ -10,24 +10,69 @@ class DrawerHeaderWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = S.of(context);
-    return DrawerHeader(
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Container(
+      margin: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 12.h),
+      padding: EdgeInsets.all(20.r),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primaryContainer,
+        color: colorScheme.primaryContainer,
+        borderRadius: BorderRadius.circular(16.r),
+        boxShadow: [
+          BoxShadow(
+            color: colorScheme.shadow.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            Icons.calendar_today_rounded,
-            size: 32.r,
-            color: Theme.of(context).colorScheme.onPrimaryContainer,
+          Row(
+            children: [
+              Container(
+                width: 44.r,
+                height: 44.r,
+                decoration: BoxDecoration(
+                  color: colorScheme.primary,
+                  borderRadius: BorderRadius.circular(12.r),
+                ),
+                child: Icon(
+                  Icons.calendar_month_rounded,
+                  size: 24.r,
+                  color: colorScheme.onPrimary,
+                ),
+              ),
+              const Spacer(),
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+                decoration: BoxDecoration(
+                  color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                  borderRadius: BorderRadius.circular(20.r),
+                ),
+                child: Text(
+                  'v1.0.0',
+                  style: AppTextStyles.medium12.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ),
+            ],
           ),
-          SizedBox(height: 12.h),
+          SizedBox(height: 16.h),
           Text(
             l10n.appTitle,
             style: AppTextStyles.bold18.copyWith(
-              color: Theme.of(context).colorScheme.onPrimaryContainer,
+              color: colorScheme.onPrimaryContainer,
+            ),
+          ),
+          SizedBox(height: 2.h),
+          Text(
+            l10n.appSubtitle,
+            style: AppTextStyles.regular12.copyWith(
+              color: colorScheme.onPrimaryContainer.withValues(alpha: 0.7),
             ),
           ),
         ],
@@ -35,3 +80,4 @@ class DrawerHeaderWidget extends StatelessWidget {
     );
   }
 }
+

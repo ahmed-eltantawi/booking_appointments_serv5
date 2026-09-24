@@ -5,7 +5,7 @@ import 'package:booking_appointments/l10n/app_localizations.dart';
 import 'package:booking_appointments/core/services/settings_cubit.dart';
 import 'package:booking_appointments/core/utils/app_text_styles.dart';
 
-/// Drawer tile for selecting theme mode (System / Light / Dark) via a popup menu.
+/// Drawer tile for selecting theme mode (System / Light / Dark) via a popup dropdown.
 class ThemeSelectorTileWidget extends StatelessWidget {
   const ThemeSelectorTileWidget({super.key});
 
@@ -14,22 +14,39 @@ class ThemeSelectorTileWidget extends StatelessWidget {
     final l10n = S.of(context);
     final settingsCubit = context.watch<SettingsCubit>();
     final currentThemeMode = settingsCubit.state.themeMode;
+    final colorScheme = Theme.of(context).colorScheme;
 
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),
+      padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainer,
+        borderRadius: BorderRadius.circular(12.r),
+        border: Border.all(
+          color: colorScheme.outlineVariant.withValues(alpha: 0.5),
+        ),
+      ),
       child: Row(
         children: [
-          Icon(
-            Icons.palette_outlined,
-            size: 22.r,
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          Container(
+            width: 36.r,
+            height: 36.r,
+            decoration: BoxDecoration(
+              color: colorScheme.primaryContainer.withValues(alpha: 0.6),
+              borderRadius: BorderRadius.circular(10.r),
+            ),
+            child: Icon(
+              Icons.palette_outlined,
+              size: 20.r,
+              color: colorScheme.primary,
+            ),
           ),
           SizedBox(width: 12.w),
           Expanded(
             child: Text(
               l10n.theme,
               style: AppTextStyles.medium14.copyWith(
-                color: Theme.of(context).colorScheme.onSurface,
+                color: colorScheme.onSurface,
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
@@ -40,10 +57,12 @@ class ThemeSelectorTileWidget extends StatelessWidget {
             child: DropdownButton<ThemeMode>(
               value: currentThemeMode,
               isDense: true,
+              dropdownColor: colorScheme.surfaceContainerHigh,
+              borderRadius: BorderRadius.circular(12.r),
               icon: Icon(
-                Icons.arrow_drop_down_rounded,
-                size: 20.r,
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                Icons.keyboard_arrow_down_rounded,
+                size: 22.r,
+                color: colorScheme.onSurfaceVariant,
               ),
               onChanged: (mode) {
                 if (mode != null) {
@@ -55,8 +74,10 @@ class ThemeSelectorTileWidget extends StatelessWidget {
                   value: ThemeMode.system,
                   child: Text(
                     l10n.themeSystem,
-                    style: AppTextStyles.regular14.copyWith(
-                      color: Theme.of(context).colorScheme.primary,
+                    style: AppTextStyles.medium14.copyWith(
+                      color: currentThemeMode == ThemeMode.system
+                          ? colorScheme.primary
+                          : colorScheme.onSurface,
                     ),
                   ),
                 ),
@@ -64,8 +85,10 @@ class ThemeSelectorTileWidget extends StatelessWidget {
                   value: ThemeMode.light,
                   child: Text(
                     l10n.themeLight,
-                    style: AppTextStyles.regular14.copyWith(
-                      color: Theme.of(context).colorScheme.primary,
+                    style: AppTextStyles.medium14.copyWith(
+                      color: currentThemeMode == ThemeMode.light
+                          ? colorScheme.primary
+                          : colorScheme.onSurface,
                     ),
                   ),
                 ),
@@ -73,8 +96,10 @@ class ThemeSelectorTileWidget extends StatelessWidget {
                   value: ThemeMode.dark,
                   child: Text(
                     l10n.themeDark,
-                    style: AppTextStyles.regular14.copyWith(
-                      color: Theme.of(context).colorScheme.primary,
+                    style: AppTextStyles.medium14.copyWith(
+                      color: currentThemeMode == ThemeMode.dark
+                          ? colorScheme.primary
+                          : colorScheme.onSurface,
                     ),
                   ),
                 ),
@@ -86,3 +111,4 @@ class ThemeSelectorTileWidget extends StatelessWidget {
     );
   }
 }
+
