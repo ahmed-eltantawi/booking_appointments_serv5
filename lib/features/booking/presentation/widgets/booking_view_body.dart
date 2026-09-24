@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:booking_appointments/l10n/app_localizations.dart';
-import 'package:booking_appointments/core/utils/app_colors.dart';
+import 'package:booking_appointments/core/extensions/snack_bar_extensions.dart';
 import 'package:booking_appointments/features/booking/domain/booking_validation_result.dart';
 import 'package:booking_appointments/features/booking/presentation/manager/booking_cubit.dart';
 import 'package:booking_appointments/features/booking/presentation/widgets/booking_action_bar_widget.dart';
@@ -31,13 +31,7 @@ class BookingViewBody extends StatelessWidget {
       listener: (context, state) {
         if (state is! BookingData) return;
         if (state.status == BookingStatus.confirmed) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(l10n.bookingSuccessful),
-              backgroundColor: AppColors.success,
-              duration: const Duration(seconds: 3),
-            ),
-          );
+          context.showSuccessSnackBar(l10n.bookingSuccessful);
         } else if (state.validationResult != null && !state.validationResult!.isValid) {
           final slotName = state.selectedStartIndex != null &&
                   state.selectedStartIndex! < state.slots.length
@@ -53,13 +47,7 @@ class BookingViewBody extends StatelessWidget {
             BookingInvalidReason.createsInvalidGap =>
               l10n.errorCreatesInvalidGap,
           };
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(msg),
-              backgroundColor: Theme.of(context).colorScheme.error,
-              duration: const Duration(seconds: 3),
-            ),
-          );
+          context.showErrorSnackBar(msg);
         }
       },
       builder: (context, state) {
