@@ -5,6 +5,7 @@ import 'package:booking_appointments/core/utils/app_text_styles.dart';
 import 'package:booking_appointments/features/booking/domain/booking_duration.dart';
 import 'package:booking_appointments/features/booking/domain/slot_model.dart';
 import 'package:booking_appointments/features/booking/presentation/manager/booking_cubit.dart';
+import 'package:booking_appointments/features/booking/presentation/widgets/summary_row_widget.dart';
 
 /// Card showing the user's current booking selection.
 /// When no selection is active, shows a placeholder message.
@@ -43,19 +44,19 @@ class BookingSummaryWidget extends StatelessWidget {
 
             // --- Summary rows when a start time is selected ---
             if (hasSelection) ...[
-              _SummaryRow(
+              SummaryRowWidget(
                 label: l10n.startLabel,
                 value: slotIndexToTimeLabel(data.selectedStartIndex!),
               ),
               SizedBox(height: 6.h),
-              _SummaryRow(
+              SummaryRowWidget(
                 label: l10n.endLabel,
                 value: data.selectedEndIndex != null
                     ? slotIndexToTimeLabel(data.selectedEndIndex! + 1)
                     : '—',
               ),
               SizedBox(height: 6.h),
-              _SummaryRow(
+              SummaryRowWidget(
                 label: l10n.durationLabel,
                 value: _durationLabel(l10n, data.selectedDuration),
               ),
@@ -73,35 +74,5 @@ class BookingSummaryWidget extends StatelessWidget {
       BookingDuration.oneHalfHour   => l10n.duration1Half,
       BookingDuration.twoHours      => l10n.duration2Hours,
     };
-  }
-}
-
-class _SummaryRow extends StatelessWidget {
-  const _SummaryRow({required this.label, required this.value});
-
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          label,
-          style: AppTextStyles.medium14.copyWith(
-            color: colorScheme.onSurfaceVariant,
-          ),
-        ),
-        Text(
-          value,
-          style: AppTextStyles.semiBold18.copyWith(
-            fontSize: 14,
-            color: colorScheme.onSurface,
-          ),
-        ),
-      ],
-    );
   }
 }

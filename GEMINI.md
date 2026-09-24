@@ -13,7 +13,7 @@
 - `core/` contains exactly these top-level folders: `cache/`, `errors/`, `functions/`, `networking/`, `routing/`, `services/`, `theme/`, `utils/`, `widgets/`.
 - No `di/`, `helpers/`, `extensions/`, or `constants/` folders exist — those concepts are absorbed into `utils/`, `cache/`, and `services/`.
 - Each sub-folder is flat (zero nesting inside). No sub-sub-folders.
-- One class per file, with very rare exceptions (e.g., `AuthEventBus` + `AuthEvent` enum in the same file as the interceptor, because they are tightly coupled).
+- Strictly one class per file. Do not put two classes in one file under any circumstances.
 
 #### Naming Conventions
 - **Abstract classes used as namespaces** (no instances): `abstract class AppColors`, `abstract class AppConstants`, `abstract class AppTextStyles`, `abstract class CacheKey`, `abstract class EndPoint`, `abstract class ApiKey`, `abstract class ApiHeaderKey`.
@@ -208,7 +208,7 @@
 1. The `core/` folder contains only shared, reusable, feature-agnostic infrastructure.
 2. Never place feature-specific business logic, repositories, Cubits, or UI inside `core/`.
 3. When in doubt whether something belongs in `core/`, ask: "Would every feature in the app potentially need this?" If yes → `core/`. If no → the specific feature.
-4. Each file in `core/` must contain one primary class or one cohesive group of tightly coupled declarations (e.g., `AuthEventBus` + `AuthEvent` in the same file as `ApiInterceptor` because they are architecturally coupled).
+4. Each file in the application must contain strictly one class. Do not put two classes in one file under any circumstances. Every sub-widget, inner component, model, or helper class must be extracted into its own dedicated file.
 
 ---
 

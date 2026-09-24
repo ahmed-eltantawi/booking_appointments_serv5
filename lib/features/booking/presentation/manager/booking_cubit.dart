@@ -7,6 +7,8 @@ import 'package:booking_appointments/features/booking/domain/booking_validator.d
 import 'package:booking_appointments/features/booking/domain/slot_model.dart';
 
 part 'booking_state.dart';
+part 'booking_initial_state.dart';
+part 'booking_data_state.dart';
 
 /// Manages all booking screen state.
 ///

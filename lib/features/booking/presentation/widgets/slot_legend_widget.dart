@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:booking_appointments/l10n/app_localizations.dart';
 import 'package:booking_appointments/core/utils/app_colors.dart';
 import 'package:booking_appointments/core/utils/app_text_styles.dart';
+import 'package:booking_appointments/features/booking/presentation/widgets/legend_item_widget.dart';
 
 /// A compact color-coded legend explaining the four slot statuses.
 class SlotLegendWidget extends StatelessWidget {
@@ -26,22 +27,22 @@ class SlotLegendWidget extends StatelessWidget {
           spacing: 12.w,
           runSpacing: 8.h,
           children: [
-            _LegendItem(
+            LegendItemWidget(
               bg: isDark ? AppColors.slotAvailableBgDark : AppColors.slotAvailableBg,
               fg: isDark ? AppColors.slotAvailableFgDark : AppColors.slotAvailableFg,
               label: l10n.available,
             ),
-            _LegendItem(
+            LegendItemWidget(
               bg: isDark ? AppColors.slotBookedBgDark : AppColors.slotBookedBg,
               fg: isDark ? AppColors.slotBookedFgDark : AppColors.slotBookedFg,
               label: l10n.booked,
             ),
-            _LegendItem(
+            LegendItemWidget(
               bg: isDark ? AppColors.slotUnavailableBgDark : AppColors.slotUnavailableBg,
               fg: isDark ? AppColors.slotUnavailableFgDark : AppColors.slotUnavailableFg,
               label: l10n.unavailable,
             ),
-            _LegendItem(
+            LegendItemWidget(
               bg: isDark ? AppColors.slotSelectedBgDark : AppColors.slotSelectedBg,
               fg: isDark ? AppColors.slotSelectedFgDark : AppColors.slotSelectedFg,
               label: l10n.selected,
@@ -49,34 +50,6 @@ class SlotLegendWidget extends StatelessWidget {
           ],
         ),
       ],
-    );
-  }
-}
-
-class _LegendItem extends StatelessWidget {
-  const _LegendItem({
-    required this.bg,
-    required this.fg,
-    required this.label,
-  });
-
-  final Color bg;
-  final Color fg;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: BorderRadius.circular(6.r),
-        border: Border.all(color: AppColors.outline.withValues(alpha: 0.4)),
-      ),
-      child: Text(
-        label,
-        style: AppTextStyles.regular12.copyWith(color: fg),
-      ),
     );
   }
 }
