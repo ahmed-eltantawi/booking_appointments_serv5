@@ -14,7 +14,7 @@ void main() {
     test('getSchedule returns initial schedule successfully', () async {
       final result = await repository.getSchedule();
 
-      expect(result.isRight, isTrue);
+      expect(result.isRight(), isTrue);
       result.fold(
         (failure) => fail('Should not return failure'),
         (schedule) {
@@ -28,7 +28,7 @@ void main() {
     test('selectStartTime updates schedule with selection overlay', () async {
       final result = await repository.selectStartTime(0, BookingDuration.thirtyMinutes);
 
-      expect(result.isRight, isTrue);
+      expect(result.isRight(), isTrue);
       result.fold(
         (failure) => fail('Should not return failure'),
         (schedule) {
@@ -46,7 +46,7 @@ void main() {
         duration: BookingDuration.thirtyMinutes,
       );
 
-      expect(confirmResult.isRight, isTrue);
+      expect(confirmResult.isRight(), isTrue);
       confirmResult.fold(
         (failure) => fail('Should not return failure'),
         (schedule) {
@@ -65,7 +65,7 @@ void main() {
 
       final resetResult = await repository.resetSchedule();
 
-      expect(resetResult.isRight, isTrue);
+      expect(resetResult.isRight(), isTrue);
       resetResult.fold(
         (failure) => fail('Should not return failure'),
         (schedule) {

@@ -3,26 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:booking_appointments/core/cache/shared_preferences_service.dart';
 
-//! ============================================================================
-//! Settings State
-//! ============================================================================
-
-class SettingsState extends Equatable {
-  const SettingsState({
-    required this.locale,
-    required this.themeMode,
-  });
-
-  final Locale locale;
-  final ThemeMode themeMode;
-
-  @override
-  List<Object?> get props => [locale, themeMode];
-}
-
-//! ============================================================================
-//! Settings Cubit
-//! ============================================================================
+part 'settings_state.dart';
 
 /// App-level cubit for managing theme mode and locale settings with persistence.
 class SettingsCubit extends Cubit<SettingsState> {

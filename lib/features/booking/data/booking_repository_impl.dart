@@ -1,4 +1,4 @@
-import 'package:booking_appointments/core/errors/either.dart';
+import 'package:dartz/dartz.dart';
 import 'package:booking_appointments/core/errors/failures.dart';
 import 'package:booking_appointments/features/booking/data/local_schedule.dart';
 import 'package:booking_appointments/features/booking/domain/booking_duration.dart';
