@@ -55,6 +55,7 @@ class BookingRepositoryImpl implements BookingRepository {
       final validStarts = _validator.getValidStartTimes(
         schedule: _baseSlots,
         duration: duration,
+        selectedStart: currentStart,
       );
 
       // ISSUE-002: Preserve selectedStart even when duration changes!
@@ -102,6 +103,7 @@ class BookingRepositoryImpl implements BookingRepository {
         final validStarts = _validator.getValidStartTimes(
           schedule: _baseSlots,
           duration: selectionResult.duration,
+          selectedStart: null,
         );
 
         return Right(BookingSchedule(
@@ -119,6 +121,7 @@ class BookingRepositoryImpl implements BookingRepository {
       final validStarts = _validator.getValidStartTimes(
         schedule: _baseSlots,
         duration: newDuration,
+        selectedStart: newStart,
       );
 
       final validation = _validator.validateBooking(
@@ -155,6 +158,7 @@ class BookingRepositoryImpl implements BookingRepository {
         final validStarts = _validator.getValidStartTimes(
           schedule: _baseSlots,
           duration: duration,
+          selectedStart: startTime,
         );
 
         return Right(BookingSchedule(

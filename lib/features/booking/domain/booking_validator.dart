@@ -184,22 +184,38 @@ class BookingValidator {
   }
 
   /// Returns all valid start times in [schedule] for [duration].
+  ///
+  /// Takes [selectedStart] into account when evaluating slot validity so that
+  /// neighboring slots (which extend/modify an active selection into a valid
+  /// multi-slot booking) are correctly identified as valid.
   List<TimeOfDay> getValidStartTimes({
     required List<TimeSlot> schedule,
     required BookingDuration duration,
+    TimeOfDay? selectedStart,
     TimeOfDay dayEndTime = kDayEndTime,
   }) {
     final validStarts = <TimeOfDay>[];
     for (final slot in schedule) {
       if (slot.status != SlotStatus.available) continue;
-      final result = validateBooking(
-        schedule: schedule,
-        startTime: slot.start,
-        duration: duration,
-        dayEndTime: dayEndTime,
+
+      final selectionResult = calculateSelectionOnTap(
+        tappedTime: slot.start,
+        currentStart: selectedStart,
+        currentDuration: duration,
       );
-      if (result.isValid) {
+
+      if (selectionResult.isDeselected) {
         validStarts.add(slot.start);
+      } else {
+        final result = validateBooking(
+          schedule: schedule,
+          startTime: selectionResult.selectedStart,
+          duration: selectionResult.duration,
+          dayEndTime: dayEndTime,
+        );
+        if (result.isValid) {
+          validStarts.add(slot.start);
+        }
       }
     }
     return validStarts;

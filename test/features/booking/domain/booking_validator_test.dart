@@ -319,6 +319,37 @@ void main() {
         expect(state.schedule.selectedDuration, BookingDuration.oneHour);
       },
     );
+
+    blocTest<BookingCubit, BookingState>(
+      'recalculates slot availability reactively when selecting 11:00 (10:30 booked, 11:30 initially unavailable becomes available)',
+      build: () => BookingCubit(repository),
+      act: (cubit) async {
+        await cubit.initialize();
+        // 1. Initial state: 11:30 AM is invalid (creating gap at 11:00)
+        final s0 = (cubit.state as BookingLoaded).schedule;
+        expect(s0.validStartTimes.contains(const TimeOfDay(hour: 11, minute: 30)), isFalse);
+
+        // 2. Select 11:00 AM -> 11:30 AM becomes valid start
+        await cubit.selectStartTime(const TimeOfDay(hour: 11, minute: 0));
+        final s1 = (cubit.state as BookingLoaded).schedule;
+        expect(s1.selectedStart, const TimeOfDay(hour: 11, minute: 0));
+        expect(s1.selectedDuration, BookingDuration.thirtyMinutes);
+        expect(s1.validStartTimes.contains(const TimeOfDay(hour: 11, minute: 30)), isTrue);
+
+        // 3. Select 11:30 AM -> expands selection to 1 hour (11:00 - 12:00)
+        await cubit.selectStartTime(const TimeOfDay(hour: 11, minute: 30));
+        final s2 = (cubit.state as BookingLoaded).schedule;
+        expect(s2.selectedStart, const TimeOfDay(hour: 11, minute: 0));
+        expect(s2.selectedDuration, BookingDuration.oneHour);
+
+        // 4. Deselect 11:00 AM while 11:30 AM is selected -> selection cleared, 11:30 becomes unavailable again
+        await cubit.selectStartTime(const TimeOfDay(hour: 11, minute: 0)); // trims to 11:30
+        await cubit.selectStartTime(const TimeOfDay(hour: 11, minute: 30)); // clears selection
+        final s3 = (cubit.state as BookingLoaded).schedule;
+        expect(s3.selectedStart, isNull);
+        expect(s3.validStartTimes.contains(const TimeOfDay(hour: 11, minute: 30)), isFalse);
+      },
+    );
   });
 
   group('BookingValidator — calculateSelectionOnTap Unit Tests', () {

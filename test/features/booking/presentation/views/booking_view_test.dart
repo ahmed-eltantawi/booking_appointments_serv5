@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:booking_appointments/core/services/services_locator.dart';
 import 'package:booking_appointments/core/services/settings_cubit.dart';
 import 'package:booking_appointments/features/booking/presentation/widgets/app_drawer_widget.dart';
+import 'package:booking_appointments/features/booking/presentation/widgets/booking_summary_widget.dart';
 import 'package:booking_appointments/features/booking/presentation/widgets/slot_cell_widget.dart';
 import 'package:booking_appointments/main.dart';
 
@@ -243,6 +244,54 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byType(SnackBar), findsNothing);
+    });
+
+    testWidgets('selecting 11:00 AM dynamically updates 11:30 AM availability allowing consecutive 1hr booking', (tester) async {
+      tester.view.physicalSize = const Size(800, 2400);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+
+      await tester.pumpWidget(createWidgetToTest());
+      await tester.pumpAndSettle();
+
+      final slot1100 = find.widgetWithText(SlotCellWidget, '11:00 AM');
+      final slot1130 = find.widgetWithText(SlotCellWidget, '11:30 AM');
+
+      expect(slot1100, findsOneWidget);
+      expect(slot1130, findsOneWidget);
+
+      // Verify initial state: 11:30 AM is not valid start (dimmed/invalid)
+      final initialCell1130 = tester.widget<SlotCellWidget>(slot1130);
+      expect(initialCell1130.isValidStart, isFalse);
+
+      // 1. Tap 11:00 AM
+      await tester.ensureVisible(slot1100);
+      await tester.tap(slot1100);
+      await tester.pumpAndSettle();
+
+      // Verify 11:30 AM is now valid start
+      final updatedCell1130 = tester.widget<SlotCellWidget>(slot1130);
+      expect(updatedCell1130.isValidStart, isTrue);
+
+      // 2. Tap 11:30 AM
+      await tester.ensureVisible(slot1130);
+      await tester.tap(slot1130);
+      await tester.pumpAndSettle();
+
+      // Verify both are selected and duration is 1 hr
+      final selected1100 = tester.widget<SlotCellWidget>(slot1100);
+      final selected1130 = tester.widget<SlotCellWidget>(slot1130);
+      expect(selected1100.isSelected, isTrue);
+      expect(selected1130.isSelected, isTrue);
+
+      expect(find.text('Booking Summary'), findsOneWidget);
+      expect(
+        find.descendant(
+          of: find.byType(BookingSummaryWidget),
+          matching: find.text('1 hr'),
+        ),
+        findsAtLeastNWidgets(1),
+      );
     });
   });
 }
