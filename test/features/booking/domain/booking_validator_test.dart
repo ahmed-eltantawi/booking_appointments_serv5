@@ -175,11 +175,12 @@ void main() {
       );
       expect(result.isValid, isFalse);
       expect(result.reason, BookingInvalidReason.containsBookedSlot);
+      expect(result.conflictingTimeLabels, ['11:30 AM']);
     });
 
     // T19: booked slot in the MIDDLE of a 2hr range
-    test('T19: booked slot mid-range → containsBookedSlot', () {
-      final slots = _scheduleWith(booked: [6]); // range 4-7 for 2hr from 4
+    test('T19: booked slot mid-range → containsBookedSlot with only conflicting label', () {
+      final slots = _scheduleWith(booked: [6]); // range 4-7 for 2hr from 4 (11:00 AM)
       final result = validateBooking(
         slots: slots,
         startIndex: 4,
@@ -187,6 +188,34 @@ void main() {
       );
       expect(result.isValid, isFalse);
       expect(result.reason, BookingInvalidReason.containsBookedSlot);
+      expect(result.conflictingTimeLabels, ['12:00 PM']);
+    });
+
+    // T19b: start available, later slots booked (user prompt 2-hour example)
+    test('T19b: 2hr from 9:00 AM with 10:00 AM & 10:30 AM booked → collects only booked slots', () {
+      final slots = _scheduleWith(booked: [2, 3]); // slot 2 = 10:00 AM, slot 3 = 10:30 AM
+      final result = validateBooking(
+        slots: slots,
+        startIndex: 0, // 9:00 AM
+        duration: BookingDuration.twoHours,
+      );
+      expect(result.isValid, isFalse);
+      expect(result.reason, BookingInvalidReason.containsBookedSlot);
+      expect(result.conflictingTimeLabels, ['10:00 AM', '10:30 AM']);
+      expect(result.conflictingTimeLabels.contains('9:00 AM'), isFalse);
+    });
+
+    // T19c: multiple non-adjacent booked slots in range
+    test('T19c: 2hr range with multiple booked slots collects all conflicts', () {
+      final slots = _scheduleWith(booked: [1, 3]); // 9:30 AM and 10:30 AM
+      final result = validateBooking(
+        slots: slots,
+        startIndex: 0, // 9:00 AM
+        duration: BookingDuration.twoHours,
+      );
+      expect(result.isValid, isFalse);
+      expect(result.reason, BookingInvalidReason.containsBookedSlot);
+      expect(result.conflictingTimeLabels, ['9:30 AM', '10:30 AM']);
     });
 
     // T20: booked slot immediately AFTER range → valid (not in range)
@@ -198,6 +227,7 @@ void main() {
         duration: BookingDuration.twoHours,
       );
       expect(result.isValid, isTrue);
+      expect(result.conflictingTimeLabels, isEmpty);
     });
   });
 

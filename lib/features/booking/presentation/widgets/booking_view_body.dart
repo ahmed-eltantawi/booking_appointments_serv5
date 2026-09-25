@@ -4,7 +4,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:booking_appointments/l10n/app_localizations.dart';
 import 'package:booking_appointments/core/extensions/snack_bar_extensions.dart';
 import 'package:booking_appointments/features/booking/domain/booking_schedule.dart';
-import 'package:booking_appointments/features/booking/domain/booking_validation_result.dart';
 import 'package:booking_appointments/features/booking/presentation/manager/booking_cubit.dart';
 import 'package:booking_appointments/features/booking/presentation/widgets/booking_action_bar_widget.dart';
 import 'package:booking_appointments/features/booking/presentation/widgets/booking_header_widget.dart';
@@ -41,20 +40,10 @@ class BookingViewBody extends StatelessWidget {
           final schedule = state.schedule;
           final vr = schedule.validationResult;
           if (vr != null && !vr.isValid) {
-            final slotName = schedule.selectedStartIndex != null &&
-                    schedule.selectedStartIndex! < schedule.slots.length
-                ? schedule.slots[schedule.selectedStartIndex!].timeLabel
-                : '';
-            final String msg = switch (vr.reason!) {
-              BookingInvalidReason.containsBookedSlot =>
-                '$slotName is already booked.',
-              BookingInvalidReason.containsUnavailableSlot =>
-                '$slotName is currently unavailable.',
-              BookingInvalidReason.exceedsWorkingHours =>
-                l10n.errorExceedsWorkingHours,
-              BookingInvalidReason.createsInvalidGap =>
-                l10n.errorCreatesInvalidGap,
-            };
+            final String msg = formatValidationErrorMessage(
+              validationResult: vr,
+              l10n: l10n,
+            );
             context.showErrorSnackBar(msg);
           }
         }

@@ -176,5 +176,33 @@ void main() {
       // Verify Arabic title is now rendered in UI
       expect(find.text('حجز موعد'), findsNWidgets(2));
     });
+
+    testWidgets('selecting 2hr duration starting at 9:00 AM reports 10:00 AM and 10:30 AM as booked conflicts', (tester) async {
+      tester.view.physicalSize = const Size(800, 1600);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+
+      await tester.pumpWidget(createWidgetToTest());
+      await tester.pumpAndSettle();
+
+      // Tap '2 hr' duration chip
+      final duration2HrFinder = find.text('2 hr');
+      expect(duration2HrFinder, findsOneWidget);
+      await tester.ensureVisible(duration2HrFinder);
+      await tester.tap(duration2HrFinder);
+      await tester.pumpAndSettle();
+
+      // Tap 9:00 AM (which is available, but 10:00 AM & 10:30 AM are booked)
+      final slot0Finder = find.text('9:00 AM');
+      expect(slot0Finder, findsOneWidget);
+      await tester.ensureVisible(slot0Finder);
+      await tester.tap(slot0Finder);
+      await tester.pumpAndSettle();
+
+      // Verify snackbar displays exact conflicting booked slots ('10:00 AM and 10:30 AM are booked.')
+      // and does NOT claim '9:00 AM is already booked.'
+      expect(find.text('10:00 AM and 10:30 AM are booked.'), findsOneWidget);
+      expect(find.text('9:00 AM is already booked.'), findsNothing);
+    });
   });
 }

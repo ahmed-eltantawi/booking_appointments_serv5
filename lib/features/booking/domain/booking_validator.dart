@@ -101,16 +101,23 @@ BookingValidationResult validateBooking({
   );
 
   // --- Rule 2: Booked slot check (also covers all overlap patterns) ---
-  if (requiredSlots.any((s) => s.status == SlotStatus.booked)) {
-    return const BookingValidationResult.invalid(
+  final bookedSlots =
+      requiredSlots.where((s) => s.status == SlotStatus.booked).toList();
+  if (bookedSlots.isNotEmpty) {
+    return BookingValidationResult.invalid(
       BookingInvalidReason.containsBookedSlot,
+      conflictingTimeLabels: bookedSlots.map((s) => s.timeLabel).toList(),
     );
   }
 
   // --- Rule 3: Unavailable slot check ---
-  if (requiredSlots.any((s) => s.status == SlotStatus.unavailable)) {
-    return const BookingValidationResult.invalid(
+  final unavailableSlots =
+      requiredSlots.where((s) => s.status == SlotStatus.unavailable).toList();
+  if (unavailableSlots.isNotEmpty) {
+    return BookingValidationResult.invalid(
       BookingInvalidReason.containsUnavailableSlot,
+      conflictingTimeLabels:
+          unavailableSlots.map((s) => s.timeLabel).toList(),
     );
   }
 

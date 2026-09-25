@@ -28,18 +28,26 @@ class BookingValidationResult extends Equatable {
   const BookingValidationResult._({
     required this.isValid,
     this.reason,
+    this.conflictingTimeLabels = const [],
   });
 
   /// Creates a valid result (booking may proceed).
   const BookingValidationResult.valid() : this._(isValid: true);
 
-  /// Creates an invalid result with a specific [reason].
-  const BookingValidationResult.invalid(BookingInvalidReason reason)
-      : this._(isValid: false, reason: reason);
+  /// Creates an invalid result with a specific [reason] and optional [conflictingTimeLabels].
+  const BookingValidationResult.invalid(
+    BookingInvalidReason reason, {
+    List<String> conflictingTimeLabels = const [],
+  })  : this._(
+          isValid: false,
+          reason: reason,
+          conflictingTimeLabels: conflictingTimeLabels,
+        );
 
   final bool isValid;
   final BookingInvalidReason? reason;
+  final List<String> conflictingTimeLabels;
 
   @override
-  List<Object?> get props => [isValid, reason];
+  List<Object?> get props => [isValid, reason, conflictingTimeLabels];
 }

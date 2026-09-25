@@ -4,6 +4,52 @@ import 'package:booking_appointments/l10n/app_localizations.dart';
 import 'package:booking_appointments/core/utils/app_text_styles.dart';
 import 'package:booking_appointments/features/booking/domain/booking_validation_result.dart';
 
+/// Formats a human-readable validation error message based on [validationResult].
+String formatValidationErrorMessage({
+  required BookingValidationResult validationResult,
+  required S l10n,
+}) {
+  final reason = validationResult.reason;
+  if (reason == null) return '';
+
+  final conflictingTimeLabels = validationResult.conflictingTimeLabels;
+
+  if (conflictingTimeLabels.isEmpty) {
+    return switch (reason) {
+      BookingInvalidReason.exceedsWorkingHours => l10n.errorExceedsWorkingHours,
+      BookingInvalidReason.containsBookedSlot => l10n.errorContainsBookedSlot,
+      BookingInvalidReason.containsUnavailableSlot => l10n.errorContainsUnavailableSlot,
+      BookingInvalidReason.createsInvalidGap => l10n.errorCreatesInvalidGap,
+    };
+  }
+
+  final String formattedTimes;
+  if (conflictingTimeLabels.length == 1) {
+    formattedTimes = conflictingTimeLabels.first;
+    return switch (reason) {
+      BookingInvalidReason.containsBookedSlot => '$formattedTimes is already booked.',
+      BookingInvalidReason.containsUnavailableSlot => '$formattedTimes is currently unavailable.',
+      BookingInvalidReason.exceedsWorkingHours => l10n.errorExceedsWorkingHours,
+      BookingInvalidReason.createsInvalidGap => l10n.errorCreatesInvalidGap,
+    };
+  } else if (conflictingTimeLabels.length == 2) {
+    formattedTimes = '${conflictingTimeLabels[0]} and ${conflictingTimeLabels[1]}';
+  } else {
+    final allButLast = conflictingTimeLabels
+        .sublist(0, conflictingTimeLabels.length - 1)
+        .join(', ');
+    final last = conflictingTimeLabels.last;
+    formattedTimes = '$allButLast and $last';
+  }
+
+  return switch (reason) {
+    BookingInvalidReason.containsBookedSlot => '$formattedTimes are booked.',
+    BookingInvalidReason.containsUnavailableSlot => '$formattedTimes are unavailable.',
+    BookingInvalidReason.exceedsWorkingHours => l10n.errorExceedsWorkingHours,
+    BookingInvalidReason.createsInvalidGap => l10n.errorCreatesInvalidGap,
+  };
+}
+
 /// Banner widget displaying validation error messages when a booking selection is invalid.
 class ValidationErrorWidget extends StatelessWidget {
   const ValidationErrorWidget({
