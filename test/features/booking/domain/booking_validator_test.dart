@@ -269,5 +269,111 @@ void main() {
         expect(state.schedule.validationResult?.isValid ?? true, isTrue);
       },
     );
+
+    blocTest<BookingCubit, BookingState>(
+      'toggling selected 30-min slot deselects it',
+      build: () => BookingCubit(repository),
+      act: (cubit) async {
+        await cubit.initialize();
+        await cubit.selectStartTime(const TimeOfDay(hour: 9, minute: 0));
+        await cubit.selectStartTime(const TimeOfDay(hour: 9, minute: 0));
+      },
+      verify: (cubit) {
+        final state = cubit.state as BookingLoaded;
+        expect(state.schedule.selectedStart, isNull);
+        expect(state.schedule.validationResult, isNull);
+      },
+    );
+
+    blocTest<BookingCubit, BookingState>(
+      'tapping consecutive slots expands duration dynamically (9:00 -> 9:30 -> 10:00 -> 10:30)',
+      build: () => BookingCubit(repository),
+      act: (cubit) async {
+        await cubit.initialize();
+        await cubit.selectStartTime(const TimeOfDay(hour: 9, minute: 0));
+        await cubit.selectStartTime(const TimeOfDay(hour: 9, minute: 30));
+        await cubit.selectStartTime(const TimeOfDay(hour: 10, minute: 0));
+        await cubit.selectStartTime(const TimeOfDay(hour: 10, minute: 30));
+      },
+      verify: (cubit) {
+        final state = cubit.state as BookingLoaded;
+        expect(state.schedule.selectedStart, const TimeOfDay(hour: 9, minute: 0));
+        expect(state.schedule.selectedDuration, BookingDuration.twoHours);
+      },
+    );
+
+    blocTest<BookingCubit, BookingState>(
+      'tapping end slot of multi-slot selection trims range and updates duration',
+      build: () => BookingCubit(repository),
+      act: (cubit) async {
+        await cubit.initialize();
+        await cubit.selectStartTime(const TimeOfDay(hour: 9, minute: 0));
+        await cubit.selectStartTime(const TimeOfDay(hour: 9, minute: 30));
+        await cubit.selectStartTime(const TimeOfDay(hour: 10, minute: 0));
+        // Deselect end slot 10:00
+        await cubit.selectStartTime(const TimeOfDay(hour: 10, minute: 0));
+      },
+      verify: (cubit) {
+        final state = cubit.state as BookingLoaded;
+        expect(state.schedule.selectedStart, const TimeOfDay(hour: 9, minute: 0));
+        expect(state.schedule.selectedDuration, BookingDuration.oneHour);
+      },
+    );
+  });
+
+  group('BookingValidator — calculateSelectionOnTap Unit Tests', () {
+    test('selects tapped slot with 30 min duration when no prior selection', () {
+      final res = validator.calculateSelectionOnTap(
+        tappedTime: const TimeOfDay(hour: 9, minute: 0),
+        currentStart: null,
+        currentDuration: BookingDuration.thirtyMinutes,
+      );
+      expect(res.selectedStart, const TimeOfDay(hour: 9, minute: 0));
+      expect(res.duration, BookingDuration.thirtyMinutes);
+      expect(res.isDeselected, isFalse);
+    });
+
+    test('toggling same slot deselects when current duration is 30 min', () {
+      final res = validator.calculateSelectionOnTap(
+        tappedTime: const TimeOfDay(hour: 9, minute: 0),
+        currentStart: const TimeOfDay(hour: 9, minute: 0),
+        currentDuration: BookingDuration.thirtyMinutes,
+      );
+      expect(res.selectedStart, isNull);
+      expect(res.isDeselected, isTrue);
+    });
+
+    test('tapping adjacent slot expands range forward (9:00 + 9:30 -> 1 hr)', () {
+      final res = validator.calculateSelectionOnTap(
+        tappedTime: const TimeOfDay(hour: 9, minute: 30),
+        currentStart: const TimeOfDay(hour: 9, minute: 0),
+        currentDuration: BookingDuration.thirtyMinutes,
+      );
+      expect(res.selectedStart, const TimeOfDay(hour: 9, minute: 0));
+      expect(res.duration, BookingDuration.oneHour);
+      expect(res.isDeselected, isFalse);
+    });
+
+    test('tapping adjacent slot expands range backward (10:00 + 9:30 -> 1 hr starting at 9:30)', () {
+      final res = validator.calculateSelectionOnTap(
+        tappedTime: const TimeOfDay(hour: 9, minute: 30),
+        currentStart: const TimeOfDay(hour: 10, minute: 0),
+        currentDuration: BookingDuration.thirtyMinutes,
+      );
+      expect(res.selectedStart, const TimeOfDay(hour: 9, minute: 30));
+      expect(res.duration, BookingDuration.oneHour);
+      expect(res.isDeselected, isFalse);
+    });
+
+    test('tapping non-adjacent slot resets selection to new slot', () {
+      final res = validator.calculateSelectionOnTap(
+        tappedTime: const TimeOfDay(hour: 14, minute: 0),
+        currentStart: const TimeOfDay(hour: 9, minute: 0),
+        currentDuration: BookingDuration.thirtyMinutes,
+      );
+      expect(res.selectedStart, const TimeOfDay(hour: 14, minute: 0));
+      expect(res.duration, BookingDuration.thirtyMinutes);
+      expect(res.isDeselected, isFalse);
+    });
   });
 }

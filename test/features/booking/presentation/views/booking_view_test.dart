@@ -199,7 +199,7 @@ void main() {
       );
     });
 
-    testWidgets('tapping an already selected valid slot does not trigger invalid error feedback', (tester) async {
+    testWidgets('tapping an already selected 30-min slot deselects it without triggering error feedback', (tester) async {
       tester.view.physicalSize = const Size(800, 1600);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.resetPhysicalSize);
@@ -212,13 +212,14 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Booking Summary'), findsOneWidget);
+      expect(find.text('Start'), findsOneWidget);
 
       await tester.tap(slotFinder);
       await tester.pumpAndSettle();
 
       expect(find.text('One or more required time slots are already booked.'), findsNothing);
       expect(find.text('One or more required time slots are unavailable.'), findsNothing);
-      expect(find.text('Booking Summary'), findsOneWidget);
+      expect(find.text('No time slot selected yet.'), findsOneWidget);
     });
 
     testWidgets('ISSUE-018: pressing Reset clears active snackbar and resets state', (tester) async {

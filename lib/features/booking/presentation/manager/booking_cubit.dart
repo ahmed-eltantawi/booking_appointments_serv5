@@ -45,7 +45,13 @@ class BookingCubit extends Cubit<BookingState> {
     final schedule = _getCurrentSchedule();
     final duration =
         schedule?.selectedDuration ?? BookingDuration.thirtyMinutes;
-    final result = await _repository.selectStartTime(startTime, duration);
+    final currentStart = schedule?.selectedStart;
+
+    final result = await _repository.selectStartTime(
+      startTime,
+      duration,
+      currentStart: currentStart,
+    );
     result.fold(
       (failure) => emit(BookingFailure(failure.message)),
       (newSchedule) => emit(BookingLoaded(schedule: newSchedule)),

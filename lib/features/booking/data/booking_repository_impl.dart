@@ -88,24 +88,50 @@ class BookingRepositoryImpl implements BookingRepository {
   @override
   Future<Either<Failure, BookingSchedule>> selectStartTime(
     TimeOfDay startTime,
-    BookingDuration duration,
-  ) async {
+    BookingDuration duration, {
+    TimeOfDay? currentStart,
+  }) async {
     try {
+      final selectionResult = _validator.calculateSelectionOnTap(
+        tappedTime: startTime,
+        currentStart: currentStart,
+        currentDuration: duration,
+      );
+
+      if (selectionResult.isDeselected) {
+        final validStarts = _validator.getValidStartTimes(
+          schedule: _baseSlots,
+          duration: selectionResult.duration,
+        );
+
+        return Right(BookingSchedule(
+          slots: List.unmodifiable(_baseSlots),
+          selectedDuration: selectionResult.duration,
+          validStartTimes: validStarts,
+          selectedStart: null,
+          validationResult: null,
+        ));
+      }
+
+      final newStart = selectionResult.selectedStart!;
+      final newDuration = selectionResult.duration;
+
       final validStarts = _validator.getValidStartTimes(
         schedule: _baseSlots,
-        duration: duration,
+        duration: newDuration,
       );
+
       final validation = _validator.validateBooking(
         schedule: _baseSlots,
-        startTime: startTime,
-        duration: duration,
+        startTime: newStart,
+        duration: newDuration,
       );
 
       return Right(BookingSchedule(
         slots: List.unmodifiable(_baseSlots),
-        selectedDuration: duration,
+        selectedDuration: newDuration,
         validStartTimes: validStarts,
-        selectedStart: startTime,
+        selectedStart: newStart,
         validationResult: validation,
       ));
     } catch (e) {

@@ -19,8 +19,9 @@ abstract class BookingRepository {
   /// Selects a start time slot and validates the selection.
   Future<Either<Failure, BookingSchedule>> selectStartTime(
     TimeOfDay startTime,
-    BookingDuration duration,
-  );
+    BookingDuration duration, {
+    TimeOfDay? currentStart,
+  });
 
   /// Confirms the current booking, updating the schedule data if valid.
   Future<Either<Failure, BookingSchedule>> confirmBooking({

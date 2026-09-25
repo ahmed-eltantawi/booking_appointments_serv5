@@ -4,12 +4,119 @@ import 'package:booking_appointments/features/booking/domain/booking_duration.da
 import 'package:booking_appointments/features/booking/domain/booking_validation_result.dart';
 import 'package:booking_appointments/features/booking/domain/time_slot.dart';
 
+/// Encapsulates the resulting start time and duration after processing a slot tap.
+class SlotSelectionResult {
+  const SlotSelectionResult({
+    required this.selectedStart,
+    required this.duration,
+    required this.isDeselected,
+  });
+
+  /// The new selected start time, or null if the selection was cleared/deselected.
+  final TimeOfDay? selectedStart;
+
+  /// The calculated selected duration.
+  final BookingDuration duration;
+
+  /// True if the tap resulted in clearing the active selection.
+  final bool isDeselected;
+}
+
 /// Core domain service for appointment scheduling and validation rules.
 ///
 /// Encapsulates all business logic for slot availability, working hours,
 /// conflict detection, and gap detection without Flutter UI dependencies.
 class BookingValidator {
   const BookingValidator();
+
+  /// Calculates the updated selection ([TimeOfDay? selectedStart], [BookingDuration duration], [bool isDeselected])
+  /// when a slot at [tappedTime] is tapped, given the current [currentStart] and [currentDuration].
+  SlotSelectionResult calculateSelectionOnTap({
+    required TimeOfDay tappedTime,
+    required TimeOfDay? currentStart,
+    required BookingDuration currentDuration,
+  }) {
+    if (currentStart == null) {
+      return SlotSelectionResult(
+        selectedStart: tappedTime,
+        duration: currentDuration,
+        isDeselected: false,
+      );
+    }
+
+    final startMins = currentStart.hour * 60 + currentStart.minute;
+    final currentSlots = currentDuration.slotCount;
+    final endMins = startMins + currentSlots * 30;
+    final tappedMins = tappedTime.hour * 60 + tappedTime.minute;
+
+    // Tapped slot is inside the current selection range [startMins, endMins)
+    if (tappedMins >= startMins && tappedMins < endMins) {
+      final index = (tappedMins - startMins) ~/ 30;
+
+      if (currentSlots == 1) {
+        return const SlotSelectionResult(
+          selectedStart: null,
+          duration: BookingDuration.thirtyMinutes,
+          isDeselected: true,
+        );
+      }
+
+      if (index == 0) {
+        final newStartMins = startMins + 30;
+        final newStart = TimeOfDay(
+          hour: (newStartMins ~/ 60) % 24,
+          minute: newStartMins % 60,
+        );
+        return SlotSelectionResult(
+          selectedStart: newStart,
+          duration: _durationFromSlotCount(currentSlots - 1),
+          isDeselected: false,
+        );
+      }
+
+      return SlotSelectionResult(
+        selectedStart: currentStart,
+        duration: _durationFromSlotCount(index),
+        isDeselected: false,
+      );
+    }
+
+    // Tapped slot is unselected: check adjacency to current range [startMins, endMins)
+    if (tappedMins == endMins) {
+      if (currentSlots < 4) {
+        return SlotSelectionResult(
+          selectedStart: currentStart,
+          duration: _durationFromSlotCount(currentSlots + 1),
+          isDeselected: false,
+        );
+      }
+    }
+
+    if (tappedMins == startMins - 30) {
+      if (currentSlots < 4) {
+        return SlotSelectionResult(
+          selectedStart: tappedTime,
+          duration: _durationFromSlotCount(currentSlots + 1),
+          isDeselected: false,
+        );
+      }
+    }
+
+    return SlotSelectionResult(
+      selectedStart: tappedTime,
+      duration: BookingDuration.thirtyMinutes,
+      isDeselected: false,
+    );
+  }
+
+  static BookingDuration _durationFromSlotCount(int count) {
+    return switch (count) {
+      1 => BookingDuration.thirtyMinutes,
+      2 => BookingDuration.oneHour,
+      3 => BookingDuration.oneHalfHour,
+      _ => BookingDuration.twoHours,
+    };
+  }
 
   /// Calculates the inclusive/exclusive end time for a booking starting at
   /// [startTime] with the specified [duration].
@@ -208,3 +315,4 @@ class BookingValidator {
     );
   }
 }
+
