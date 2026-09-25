@@ -1,11 +1,11 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:bloc_test/bloc_test.dart';
+import 'package:booking_appointments/features/booking/data/booking_repository_impl.dart';
 import 'package:booking_appointments/features/booking/domain/booking_duration.dart';
 import 'package:booking_appointments/features/booking/domain/booking_validation_result.dart';
 import 'package:booking_appointments/features/booking/domain/booking_validator.dart';
 import 'package:booking_appointments/features/booking/domain/slot_model.dart';
 import 'package:booking_appointments/features/booking/presentation/manager/booking_cubit.dart';
-
 
 // =============================================================================
 // Test schedule builder helpers
@@ -418,125 +418,122 @@ void main() {
   // Group 9 — BookingCubit
   // ===========================================================================
   group('BookingCubit', () {
-    // T39: initialize emits BookingData with idle status
+    late BookingRepositoryImpl repository;
+
+    setUp(() {
+      repository = BookingRepositoryImpl();
+    });
+
+    // T39: initialize emits BookingLoading then BookingSuccess
     blocTest<BookingCubit, BookingState>(
-      'T39: initialize() → emits BookingData(idle)',
-      build: BookingCubit.new,
+      'T39: initialize() → emits [BookingLoading, BookingSuccess]',
+      build: () => BookingCubit(repository),
       act: (cubit) => cubit.initialize(),
       expect: () => [
-        isA<BookingData>()
-            .having((s) => s.status, 'status', BookingStatus.idle)
-            .having((s) => s.selectedStartIndex, 'selectedStartIndex', isNull),
+        const BookingLoading(),
+        isA<BookingSuccess>()
+            .having((s) => s.schedule.selectedStartIndex, 'selectedStartIndex', isNull),
       ],
     );
 
-    // T40: selectStartTime emits BookingData(selected)
+    // T40: selectStartTime emits BookingSuccess with selection
     blocTest<BookingCubit, BookingState>(
-      'T40: selectStartTime(0) after init → emits BookingData(selected)',
-      build: BookingCubit.new,
-      act: (cubit) {
-        cubit.initialize();
-        cubit.selectStartTime(0);
+      'T40: selectStartTime(0) after init → emits BookingSuccess(selected)',
+      build: () => BookingCubit(repository),
+      act: (cubit) async {
+        await cubit.initialize();
+        await cubit.selectStartTime(0);
       },
       expect: () => [
-        isA<BookingData>().having((s) => s.status, 'status', BookingStatus.idle),
-        isA<BookingData>()
-            .having((s) => s.status, 'status', BookingStatus.selected)
-            .having((s) => s.selectedStartIndex, 'selectedStartIndex', 0),
+        const BookingLoading(),
+        isA<BookingSuccess>(),
+        isA<BookingSuccess>()
+            .having((s) => s.schedule.selectedStartIndex, 'selectedStartIndex', 0),
       ],
     );
 
-    // T41: confirmBooking on a valid selection → emits confirmed, schedule updated
+    // T41: confirmBooking on a valid selection → emits BookingConfirmed, schedule updated
     blocTest<BookingCubit, BookingState>(
-      'T41: confirmBooking() with valid selection → emits BookingData(confirmed)',
-      build: BookingCubit.new,
-      act: (cubit) {
-        cubit.initialize();
-        cubit.selectStartTime(1); // slot 1 is valid in seed schedule (fills boundary 0 and booked 2)
-        cubit.confirmBooking();
+      'T41: confirmBooking() with valid selection → emits BookingConfirmed',
+      build: () => BookingCubit(repository),
+      act: (cubit) async {
+        await cubit.initialize();
+        await cubit.selectStartTime(1); // slot 1 is valid in seed schedule
+        await cubit.confirmBooking();
       },
       expect: () => [
-        isA<BookingData>().having((s) => s.status, 'status', BookingStatus.idle),
-        isA<BookingData>().having((s) => s.status, 'status', BookingStatus.selected),
-        isA<BookingData>()
-            .having((s) => s.status, 'status', BookingStatus.confirmed)
-            .having((s) => s.selectedStartIndex, 'selectedStartIndex', isNull),
+        const BookingLoading(),
+        isA<BookingSuccess>(),
+        isA<BookingSuccess>(),
+        isA<BookingConfirmed>(),
       ],
       verify: (cubit) {
-        // After confirmation, slot 1 should now be booked in the live schedule
-        final state = cubit.state as BookingData;
-        expect(state.slots[1].status, SlotStatus.booked);
+        final state = cubit.state as BookingConfirmed;
+        expect(state.schedule.slots[1].status, SlotStatus.booked);
       },
     );
 
     // T42: reset restores original schedule after a confirmed booking
     blocTest<BookingCubit, BookingState>(
       'T42: reset() after confirm → restores original schedule',
-      build: BookingCubit.new,
-      act: (cubit) {
-        cubit.initialize();
-        cubit.selectStartTime(0);
-        cubit.confirmBooking();
-        cubit.reset();
+      build: () => BookingCubit(repository),
+      act: (cubit) async {
+        await cubit.initialize();
+        await cubit.selectStartTime(0);
+        await cubit.confirmBooking();
+        await cubit.reset();
       },
       verify: (cubit) {
-        final state = cubit.state as BookingData;
-        expect(state.slots[0].status, SlotStatus.available); // restored
-        expect(state.slots[2].status, SlotStatus.booked);    // original pre-booking intact
-        expect(state.status, BookingStatus.idle);
+        final state = cubit.state as BookingSuccess;
+        expect(state.schedule.slots[0].status, SlotStatus.available); // restored
+        expect(state.schedule.slots[2].status, SlotStatus.booked);    // original intact
       },
     );
 
-    // T43: confirmBooking re-validates — emits with invalid result when stale
-    // We select slot 0 (valid), then change duration to make it invalid
-    // by selecting a start that now produces a gap. We use a schedule known
-    // to trigger a gap to verify re-validation fires.
+    // T43: confirmBooking without selection → no state change
     blocTest<BookingCubit, BookingState>(
       'T43: confirmBooking without selection → no state change',
-      build: BookingCubit.new,
-      act: (cubit) {
-        cubit.initialize();
-        cubit.confirmBooking(); // no start selected → should be a no-op
+      build: () => BookingCubit(repository),
+      act: (cubit) async {
+        await cubit.initialize();
+        await cubit.confirmBooking(); // no start selected → no-op
       },
       expect: () => [
-        isA<BookingData>().having((s) => s.status, 'status', BookingStatus.idle),
-        // confirmBooking with null selectedStartIndex → no emission
+        const BookingLoading(),
+        isA<BookingSuccess>(),
       ],
     );
 
     // T44: selectDuration clears selection when new duration makes start OOB
     blocTest<BookingCubit, BookingState>(
-      'T44: selectDuration to 2hr when start=16 → clears selection (16+4>17)',
-      build: BookingCubit.new,
-      act: (cubit) {
-        cubit.initialize();
-        cubit.selectStartTime(16); // valid for 30min (default)
-        cubit.selectDuration(BookingDuration.twoHours); // 16+4=20 > 17 → invalid
+      'T44: selectDuration to 2hr when start=16 → clears selection',
+      build: () => BookingCubit(repository),
+      act: (cubit) async {
+        await cubit.initialize();
+        await cubit.selectStartTime(16); // valid for 30min
+        await cubit.selectDuration(BookingDuration.twoHours); // OOB
       },
       verify: (cubit) {
-        final state = cubit.state as BookingData;
-        // Selection is cleared because 2hr from slot 16 exceeds working hours
-        expect(state.selectedStartIndex, isNull);
-        expect(state.status, BookingStatus.idle);
-        expect(state.selectedDuration, BookingDuration.twoHours);
+        final state = cubit.state as BookingSuccess;
+        expect(state.schedule.selectedStartIndex, isNull);
+        expect(state.schedule.selectedDuration, BookingDuration.twoHours);
       },
     );
 
-    // T45: selectDuration preserves selection when start is still valid for new duration
+    // T45: selectDuration preserves selection when start is still valid
     blocTest<BookingCubit, BookingState>(
       'T45: selectDuration from 30min to 1hr when start=13 → preserves selection',
-      build: BookingCubit.new,
-      act: (cubit) {
-        cubit.initialize();
-        cubit.selectStartTime(13); // slot 13 (03:30 PM) is valid for 30min
-        cubit.selectDuration(BookingDuration.oneHour); // slots 13,14 both available & no gap → preserves selection
+      build: () => BookingCubit(repository),
+      act: (cubit) async {
+        await cubit.initialize();
+        await cubit.selectStartTime(13);
+        await cubit.selectDuration(BookingDuration.oneHour);
       },
       verify: (cubit) {
-        final state = cubit.state as BookingData;
-        expect(state.selectedStartIndex, 13);
-        expect(state.selectedEndIndex, 14);
-        expect(state.status, BookingStatus.selected);
-        expect(state.selectedDuration, BookingDuration.oneHour);
+        final state = cubit.state as BookingSuccess;
+        expect(state.schedule.selectedStartIndex, 13);
+        expect(state.schedule.selectedEndIndex, 14);
+        expect(state.schedule.selectedDuration, BookingDuration.oneHour);
       },
     );
 
@@ -550,20 +547,19 @@ void main() {
       expect(result.isValid, isTrue);
     });
 
-    // T47: reset after invalid selection → clears error and restores idle state
+    // T47: reset after invalid selection → clears error and restores success state
     blocTest<BookingCubit, BookingState>(
-      'T47: reset() after invalid selection → clears error and emits idle state',
-      build: BookingCubit.new,
-      act: (cubit) {
-        cubit.initialize();
-        cubit.handleSlotTap(2); // slot 2 is booked → invalid selection
-        cubit.reset();
+      'T47: reset() after invalid selection → clears error and emits success state',
+      build: () => BookingCubit(repository),
+      act: (cubit) async {
+        await cubit.initialize();
+        await cubit.handleSlotTap(2); // slot 2 is booked
+        await cubit.reset();
       },
       verify: (cubit) {
-        final state = cubit.state as BookingData;
-        expect(state.status, BookingStatus.idle);
-        expect(state.selectedStartIndex, isNull);
-        expect(state.validationResult, isNull);
+        final state = cubit.state as BookingSuccess;
+        expect(state.schedule.selectedStartIndex, isNull);
+        expect(state.schedule.validationResult, isNull);
       },
     );
   });

@@ -1,212 +1,155 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:booking_appointments/features/booking/data/local_schedule.dart';
+import 'package:equatable/equatable.dart';
 import 'package:booking_appointments/features/booking/domain/booking_duration.dart';
-import 'package:booking_appointments/features/booking/domain/booking_validation_result.dart';
-import 'package:booking_appointments/features/booking/domain/booking_validator.dart';
-import 'package:booking_appointments/features/booking/domain/slot_model.dart';
+import 'package:booking_appointments/features/booking/domain/booking_repository.dart';
+import 'package:booking_appointments/features/booking/domain/booking_schedule.dart';
 
-part 'booking_state.dart';
-part 'booking_initial_state.dart';
-part 'booking_data_state.dart';
+//! ============================================================================
+//! Booking States
+//! ============================================================================
 
-/// Manages all booking screen state.
+/// Base state for the booking feature.
+@immutable
+sealed class BookingState extends Equatable {
+  const BookingState();
+
+  @override
+  List<Object?> get props => [];
+}
+
+/// Initial uninitialized state before schedule loading starts.
+final class BookingInitial extends BookingState {
+  const BookingInitial();
+}
+
+/// Transitory state emitted when loading schedule data.
+final class BookingLoading extends BookingState {
+  const BookingLoading();
+}
+
+/// Operational state emitted on successful schedule queries or selections.
+final class BookingSuccess extends BookingState {
+  const BookingSuccess(this.schedule);
+
+  final BookingSchedule schedule;
+
+  @override
+  List<Object?> get props => [schedule];
+}
+
+/// State emitted when a booking is confirmed successfully.
+final class BookingConfirmed extends BookingState {
+  const BookingConfirmed(this.schedule);
+
+  final BookingSchedule schedule;
+
+  @override
+  List<Object?> get props => [schedule];
+}
+
+/// State emitted when an unrecoverable failure occurs.
+final class BookingFailure extends BookingState {
+  const BookingFailure(this.message);
+
+  final String message;
+
+  @override
+  List<Object?> get props => [message];
+}
+
+//! ============================================================================
+//! Booking Cubit
+//! ============================================================================
+
+/// Orchestrates state management for the booking feature.
 ///
-/// Flow:
-///   User Action → Cubit method → domain functions → emit(BookingData)
-///
-/// The cubit maintains [_baseSlots] (the actual schedule) separately from the
-/// [BookingData.slots] display list (which may include [SlotStatus.selected]
-/// overlays). Validators always receive [_baseSlots] — never the display list.
+/// Responsible strictly for handling UI actions, invoking repository methods,
+/// and emitting clear lifecycle states. All business math and data updates
+/// are encapsulated in [BookingRepository].
 class BookingCubit extends Cubit<BookingState> {
-  BookingCubit() : super(const BookingInitial());
+  BookingCubit(this._repository) : super(const BookingInitial());
 
-  static const _defaultDuration = BookingDuration.thirtyMinutes;
+  final BookingRepository _repository;
 
-  //! ===== Internal Schedule =====
-
-  /// The authoritative schedule state (no selection overlay).
-  /// Updated only when a booking is confirmed.
-  late List<SlotModel> _baseSlots;
-
-  /// The original seed schedule, held for reset operations.
-  /// Never modified after construction.
-  final List<SlotModel> _originalSlots = initialSchedule;
-
-  //! ===== Public API =====
-
-  /// Loads the initial schedule and emits the first [BookingData] state.
-  void initialize() {
-    _baseSlots = List.from(_originalSlots);
-    final validStarts = getValidStartIndexes(_baseSlots, _defaultDuration);
-    emit(BookingData(
-      slots: List.unmodifiable(_baseSlots),
-      selectedDuration: _defaultDuration,
-      validStartIndexes: validStarts,
-      status: BookingStatus.idle,
-    ));
-  }
-
-  /// Changes the selected duration chip and recalculates valid start times.
-  ///
-  /// If the previously selected start index is still valid for [duration],
-  /// the selection is preserved and the end index / validation are updated.
-  /// Otherwise the selection is cleared.
-  void selectDuration(BookingDuration duration) {
-    final current = state;
-    if (current is! BookingData) return;
-
-    final validStarts = getValidStartIndexes(_baseSlots, duration);
-    final prevStart = current.selectedStartIndex;
-
-    // --- Preserve selection if still valid for the new duration ---
-    if (prevStart != null && validStarts.contains(prevStart)) {
-      final endIndex = calculateEndIndex(prevStart, duration);
-      final validation = validateBooking(
-        slots: _baseSlots,
-        startIndex: prevStart,
-        duration: duration,
-      );
-      final displaySlots = _buildDisplaySlots(_baseSlots, prevStart, endIndex);
-      emit(BookingData(
-        slots: displaySlots,
-        selectedDuration: duration,
-        validStartIndexes: validStarts,
-        status: BookingStatus.selected,
-        selectedStartIndex: prevStart,
-        selectedEndIndex: endIndex,
-        validationResult: validation,
-      ));
-      return;
-    }
-
-    // --- Clear selection when previous start is no longer valid ---
-    emit(BookingData(
-      slots: List.unmodifiable(_baseSlots),
-      selectedDuration: duration,
-      validStartIndexes: validStarts,
-      status: BookingStatus.idle,
-    ));
-  }
-
-  /// Records the user's start time tap and validates the booking.
-  ///
-  /// The [slots] in the emitted state include a [SlotStatus.selected] overlay
-  /// for the chosen range. The [validationResult] reflects the full validation
-  /// including the gap rule.
-  void selectStartTime(int slotIndex) {
-    final current = state;
-    if (current is! BookingData) return;
-
-    final endIndex = calculateEndIndex(slotIndex, current.selectedDuration);
-    final validation = validateBooking(
-      slots: _baseSlots,
-      startIndex: slotIndex,
-      duration: current.selectedDuration,
+  /// Loads initial schedule data and emits [BookingSuccess].
+  Future<void> initialize() async {
+    emit(const BookingLoading());
+    final result = await _repository.getSchedule();
+    result.fold(
+      (failure) => emit(BookingFailure(failure.message)),
+      (schedule) => emit(BookingSuccess(schedule)),
     );
-    final displaySlots = _buildDisplaySlots(_baseSlots, slotIndex, endIndex);
-
-    emit(BookingData(
-      slots: displaySlots,
-      selectedDuration: current.selectedDuration,
-      validStartIndexes: current.validStartIndexes,
-      status: BookingStatus.selected,
-      selectedStartIndex: slotIndex,
-      selectedEndIndex: endIndex,
-      validationResult: validation,
-    ));
   }
 
-  /// Handles user tapping any time slot in the grid (valid, booked, unavailable, or invalid).
-  void handleSlotTap(int slotIndex) {
-    selectStartTime(slotIndex);
+  /// Updates selected booking duration and recalculates valid slots.
+  Future<void> selectDuration(BookingDuration duration) async {
+    final schedule = _getCurrentSchedule();
+    final result = await _repository.selectDuration(
+      duration,
+      schedule?.selectedStartIndex,
+    );
+    result.fold(
+      (failure) => emit(BookingFailure(failure.message)),
+      (newSchedule) => emit(BookingSuccess(newSchedule)),
+    );
   }
 
-  /// Resets the schedule to the original seed data and clears all selections.
-  void reset() {
-    _baseSlots = List.from(_originalSlots);
-    final validStarts = getValidStartIndexes(_baseSlots, _defaultDuration);
-    emit(BookingData(
-      slots: List.unmodifiable(_baseSlots),
-      selectedDuration: _defaultDuration,
-      validStartIndexes: validStarts,
-      status: BookingStatus.idle,
-    ));
+  /// Selects a start time slot and validates selection.
+  Future<void> selectStartTime(int slotIndex) async {
+    final schedule = _getCurrentSchedule();
+    final duration =
+        schedule?.selectedDuration ?? BookingDuration.thirtyMinutes;
+    final result = await _repository.selectStartTime(slotIndex, duration);
+    result.fold(
+      (failure) => emit(BookingFailure(failure.message)),
+      (newSchedule) => emit(BookingSuccess(newSchedule)),
+    );
   }
 
-  /// Confirms the current booking after re-running full validation.
-  ///
-  /// Re-validation is mandatory — the UI state may be stale if the schedule
-  /// changed between the last [selectStartTime] call and the confirm tap.
-  ///
-  /// On success: applies the booking to [_baseSlots] and emits a confirmed state.
-  /// On failure: emits the current state with the updated [validationResult].
-  void confirmBooking() {
-    final current = state;
-    if (current is! BookingData) return;
-    final startIndex = current.selectedStartIndex;
-    if (startIndex == null) return;
+  /// Alias method for user slot taps.
+  Future<void> handleSlotTap(int slotIndex) async {
+    await selectStartTime(slotIndex);
+  }
 
-    // --- Re-validate against the base schedule, not the UI state ---
-    final validation = validateBooking(
-      slots: _baseSlots,
-      startIndex: startIndex,
-      duration: current.selectedDuration,
+  /// Re-validates and commits the currently selected booking.
+  Future<void> confirmBooking() async {
+    final schedule = _getCurrentSchedule();
+    if (schedule == null || schedule.selectedStartIndex == null) return;
+
+    final result = await _repository.confirmBooking(
+      startIndex: schedule.selectedStartIndex!,
+      duration: schedule.selectedDuration,
     );
 
-    if (!validation.isValid) {
-      // Invalid — update error without applying changes.
-      emit(BookingData(
-        slots: current.slots,
-        selectedDuration: current.selectedDuration,
-        validStartIndexes: current.validStartIndexes,
-        status: current.status,
-        selectedStartIndex: current.selectedStartIndex,
-        selectedEndIndex: current.selectedEndIndex,
-        validationResult: validation,
-      ));
-      return;
-    }
-
-    // --- Apply booking to the base schedule ---
-    _baseSlots = List.from(
-      applyBooking(
-        slots: _baseSlots,
-        startIndex: startIndex,
-        duration: current.selectedDuration,
-      ),
-    );
-
-    final validStarts = getValidStartIndexes(_baseSlots, _defaultDuration);
-
-    emit(BookingData(
-      slots: List.unmodifiable(_baseSlots),
-      selectedDuration: _defaultDuration,
-      validStartIndexes: validStarts,
-      status: BookingStatus.confirmed,
-    ));
-  }
-
-  //! ===== Private Helpers =====
-
-  /// Builds the display slot list by overlaying [SlotStatus.selected] on
-  /// all slots in [[startIndex]..[safeEndIndex]].
-  ///
-  /// When [endIndex] is null (booking exceeds working hours), only [startIndex]
-  /// is marked as selected to provide visual feedback for the invalid attempt.
-  List<SlotModel> _buildDisplaySlots(
-    List<SlotModel> baseSlots,
-    int startIndex,
-    int? endIndex,
-  ) {
-    final safeEndIndex = endIndex ?? startIndex;
-    return List.unmodifiable(
-      baseSlots.map((slot) {
-        if (slot.index >= startIndex && slot.index <= safeEndIndex) {
-          return slot.copyWith(status: SlotStatus.selected);
+    result.fold(
+      (failure) => emit(BookingFailure(failure.message)),
+      (newSchedule) {
+        if (newSchedule.validationResult != null &&
+            !newSchedule.validationResult!.isValid) {
+          emit(BookingSuccess(newSchedule));
+        } else {
+          emit(BookingConfirmed(newSchedule));
         }
-        return slot;
-      }).toList(),
+      },
     );
+  }
+
+  /// Resets schedule state back to initial seed data.
+  Future<void> reset() async {
+    emit(const BookingLoading());
+    final result = await _repository.resetSchedule();
+    result.fold(
+      (failure) => emit(BookingFailure(failure.message)),
+      (schedule) => emit(BookingSuccess(schedule)),
+    );
+  }
+
+  /// Helper to extract current [BookingSchedule] if present.
+  BookingSchedule? _getCurrentSchedule() {
+    final current = state;
+    if (current is BookingSuccess) return current.schedule;
+    if (current is BookingConfirmed) return current.schedule;
+    return null;
   }
 }

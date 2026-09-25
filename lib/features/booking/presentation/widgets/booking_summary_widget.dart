@@ -3,22 +3,22 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:booking_appointments/l10n/app_localizations.dart';
 import 'package:booking_appointments/core/utils/app_text_styles.dart';
 import 'package:booking_appointments/features/booking/domain/booking_duration.dart';
+import 'package:booking_appointments/features/booking/domain/booking_schedule.dart';
 import 'package:booking_appointments/features/booking/domain/slot_model.dart';
-import 'package:booking_appointments/features/booking/presentation/manager/booking_cubit.dart';
 import 'package:booking_appointments/features/booking/presentation/widgets/summary_row_widget.dart';
 
 /// Card showing the user's current booking selection.
 /// When no selection is active, shows a placeholder message.
 class BookingSummaryWidget extends StatelessWidget {
-  const BookingSummaryWidget({super.key, required this.data});
+  const BookingSummaryWidget({super.key, required this.schedule});
 
-  final BookingData data;
+  final BookingSchedule schedule;
 
   @override
   Widget build(BuildContext context) {
     final l10n = S.of(context);
     final colorScheme = Theme.of(context).colorScheme;
-    final hasSelection = data.selectedStartIndex != null;
+    final hasSelection = schedule.selectedStartIndex != null;
 
     return Card(
       child: Padding(
@@ -46,19 +46,19 @@ class BookingSummaryWidget extends StatelessWidget {
             if (hasSelection) ...[
               SummaryRowWidget(
                 label: l10n.startLabel,
-                value: slotIndexToTimeLabel(data.selectedStartIndex!),
+                value: slotIndexToTimeLabel(schedule.selectedStartIndex!),
               ),
               SizedBox(height: 6.h),
               SummaryRowWidget(
                 label: l10n.endLabel,
-                value: data.selectedEndIndex != null
-                    ? slotIndexToTimeLabel(data.selectedEndIndex! + 1)
+                value: schedule.selectedEndIndex != null
+                    ? slotIndexToTimeLabel(schedule.selectedEndIndex! + 1)
                     : '—',
               ),
               SizedBox(height: 6.h),
               SummaryRowWidget(
                 label: l10n.durationLabel,
-                value: _durationLabel(l10n, data.selectedDuration),
+                value: _durationLabel(l10n, schedule.selectedDuration),
               ),
             ],
           ],
