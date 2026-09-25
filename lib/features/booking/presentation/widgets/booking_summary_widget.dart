@@ -136,14 +136,6 @@ class BookingSummaryWidget extends StatelessWidget {
                               schedule.selectedDuration,
                             ),
                           ),
-                          SizedBox(height: 6.h),
-                          SummaryRowWidget(
-                            label: l10n.totalDurationLabel,
-                            value: _durationLabel(
-                              l10n,
-                              schedule.selectedDuration,
-                            ),
-                          ),
                         ],
                       ),
               ),
