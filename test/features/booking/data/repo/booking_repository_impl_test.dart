@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:booking_appointments/features/booking/data/booking_repository_impl.dart';
-import 'package:booking_appointments/features/booking/domain/booking_duration.dart';
-import 'package:booking_appointments/features/booking/domain/time_slot.dart';
+import 'package:booking_appointments/features/booking/data/repo/booking_repository_impl.dart';
+import 'package:booking_appointments/features/booking/domain/Entities/booking_duration.dart';
+import 'package:booking_appointments/features/booking/domain/Entities/time_slot.dart';
 
 void main() {
   late BookingRepositoryImpl repository;

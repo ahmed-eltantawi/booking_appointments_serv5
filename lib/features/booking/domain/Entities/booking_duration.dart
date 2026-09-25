@@ -19,4 +19,3 @@ extension BookingDurationX on BookingDuration {
   /// Total duration in minutes.
   int get minutes => slotCount * 30;
 }
-

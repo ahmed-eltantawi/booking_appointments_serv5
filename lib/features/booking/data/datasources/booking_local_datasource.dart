@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:booking_appointments/features/booking/domain/time_slot.dart';
-
-/// Working day boundaries.
-const TimeOfDay kDayStartTime = TimeOfDay(hour: 9, minute: 0);
-const TimeOfDay kDayEndTime = TimeOfDay(hour: 18, minute: 0);
+import 'package:booking_appointments/features/booking/domain/Entities/time_slot.dart';
 
 ///* initialSchedule — the seed schedule loaded when the app starts or resets.
 /// Contains a realistic mix of booked, unavailable, and available 30-minute slots.

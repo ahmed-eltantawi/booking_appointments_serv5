@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:bloc_test/bloc_test.dart';
-import 'package:booking_appointments/features/booking/data/booking_repository_impl.dart';
-import 'package:booking_appointments/features/booking/domain/booking_duration.dart';
-import 'package:booking_appointments/features/booking/domain/booking_validation_result.dart';
+import 'package:booking_appointments/features/booking/data/repo/booking_repository_impl.dart';
+import 'package:booking_appointments/features/booking/domain/Entities/booking_duration.dart';
+import 'package:booking_appointments/features/booking/domain/Entities/booking_validation_result.dart';
 import 'package:booking_appointments/features/booking/domain/booking_validator.dart';
-import 'package:booking_appointments/features/booking/domain/time_slot.dart';
+import 'package:booking_appointments/features/booking/domain/Entities/time_slot.dart';
 import 'package:booking_appointments/features/booking/presentation/manager/booking_cubit.dart';
 
 // Helper to create an 18-slot schedule (09:00 to 18:00) with all available by default

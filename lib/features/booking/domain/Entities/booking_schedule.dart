@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:equatable/equatable.dart';
-import 'package:booking_appointments/features/booking/domain/booking_duration.dart';
-import 'package:booking_appointments/features/booking/domain/booking_validation_result.dart';
+import 'package:booking_appointments/features/booking/domain/Entities/booking_duration.dart';
+import 'package:booking_appointments/features/booking/domain/Entities/booking_validation_result.dart';
 import 'package:booking_appointments/features/booking/domain/booking_validator.dart';
-import 'package:booking_appointments/features/booking/domain/time_slot.dart';
+import 'package:booking_appointments/features/booking/domain/Entities/time_slot.dart';
 
 /// Value object representing the immutable state of the booking schedule.
 class BookingSchedule extends Equatable {

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:booking_appointments/features/booking/domain/booking_duration.dart';
-import 'package:booking_appointments/features/booking/domain/booking_repository.dart';
-import 'package:booking_appointments/features/booking/domain/booking_schedule.dart';
+import 'package:booking_appointments/features/booking/domain/Entities/booking_duration.dart';
+import 'package:booking_appointments/features/booking/domain/repo/booking_repository.dart';
+import 'package:booking_appointments/features/booking/domain/Entities/booking_schedule.dart';
 
 part 'booking_state.dart';
 

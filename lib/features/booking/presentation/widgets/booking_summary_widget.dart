@@ -3,8 +3,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:booking_appointments/l10n/app_localizations.dart';
 import 'package:booking_appointments/core/utils/app_colors.dart';
 import 'package:booking_appointments/core/utils/app_text_styles.dart';
-import 'package:booking_appointments/features/booking/domain/booking_duration.dart';
-import 'package:booking_appointments/features/booking/domain/booking_schedule.dart';
+import 'package:booking_appointments/features/booking/domain/Entities/booking_duration.dart';
+import 'package:booking_appointments/features/booking/domain/Entities/booking_schedule.dart';
 import 'package:booking_appointments/features/booking/presentation/widgets/summary_row_widget.dart';
 
 /// Card showing the user's current booking selection with smooth animated transitions.

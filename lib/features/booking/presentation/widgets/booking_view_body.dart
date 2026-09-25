@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:booking_appointments/l10n/app_localizations.dart';
 import 'package:booking_appointments/core/extensions/snack_bar_extensions.dart';
-import 'package:booking_appointments/features/booking/domain/booking_schedule.dart';
+import 'package:booking_appointments/features/booking/domain/Entities/booking_schedule.dart';
 import 'package:booking_appointments/features/booking/presentation/manager/booking_cubit.dart';
 import 'package:booking_appointments/features/booking/presentation/widgets/booking_action_bar_widget.dart';
 import 'package:booking_appointments/features/booking/presentation/widgets/booking_header_widget.dart';

@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:booking_appointments/features/booking/data/local_schedule.dart';
-import 'package:booking_appointments/features/booking/domain/booking_duration.dart';
-import 'package:booking_appointments/features/booking/domain/booking_validation_result.dart';
-import 'package:booking_appointments/features/booking/domain/time_slot.dart';
+import 'package:booking_appointments/features/booking/domain/Entities/booking_duration.dart';
+import 'package:booking_appointments/features/booking/domain/Entities/booking_validation_result.dart';
+import 'package:booking_appointments/features/booking/domain/Entities/time_slot.dart';
+
+/// Working day boundaries.
+const TimeOfDay kDayStartTime = TimeOfDay(hour: 9, minute: 0);
+const TimeOfDay kDayEndTime = TimeOfDay(hour: 18, minute: 0);
 
 /// Encapsulates the resulting start time and duration after processing a slot tap.
 class SlotSelectionResult {
@@ -331,4 +334,3 @@ class BookingValidator {
     );
   }
 }
-

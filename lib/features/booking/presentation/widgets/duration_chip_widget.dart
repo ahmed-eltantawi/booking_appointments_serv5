@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:booking_appointments/core/utils/app_colors.dart';
 import 'package:booking_appointments/core/utils/app_text_styles.dart';
-import 'package:booking_appointments/features/booking/domain/booking_duration.dart';
+import 'package:booking_appointments/features/booking/domain/Entities/booking_duration.dart';
 import 'package:booking_appointments/features/booking/presentation/manager/booking_cubit.dart';
 
 /// Single interactive duration chip with press micro-interactions and smooth selection animations.
@@ -106,4 +106,3 @@ class _DurationChipWidgetState extends State<DurationChipWidget> {
     );
   }
 }
-

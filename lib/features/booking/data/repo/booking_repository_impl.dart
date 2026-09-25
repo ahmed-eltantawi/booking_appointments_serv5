@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:dartz/dartz.dart';
 import 'package:booking_appointments/core/errors/failures.dart';
-import 'package:booking_appointments/features/booking/data/local_schedule.dart';
-import 'package:booking_appointments/features/booking/domain/booking_duration.dart';
-import 'package:booking_appointments/features/booking/domain/booking_repository.dart';
-import 'package:booking_appointments/features/booking/domain/booking_schedule.dart';
+import 'package:booking_appointments/features/booking/data/datasources/booking_local_datasource.dart';
+import 'package:booking_appointments/features/booking/domain/Entities/booking_duration.dart';
+import 'package:booking_appointments/features/booking/domain/repo/booking_repository.dart';
+import 'package:booking_appointments/features/booking/domain/Entities/booking_schedule.dart';
 import 'package:booking_appointments/features/booking/domain/booking_validator.dart';
-import 'package:booking_appointments/features/booking/domain/time_slot.dart';
+import 'package:booking_appointments/features/booking/domain/Entities/time_slot.dart';
 
 /// Concrete implementation of [BookingRepository] handling schedule data state
 /// and delegating validation to [BookingValidator].

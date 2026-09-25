@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:dartz/dartz.dart';
 import 'package:booking_appointments/core/errors/failures.dart';
-import 'package:booking_appointments/features/booking/domain/booking_duration.dart';
-import 'package:booking_appointments/features/booking/domain/booking_schedule.dart';
+import 'package:booking_appointments/features/booking/domain/Entities/booking_duration.dart';
+import 'package:booking_appointments/features/booking/domain/Entities/booking_schedule.dart';
 
 /// Repository contract for appointment booking business and data operations.
 abstract class BookingRepository {
