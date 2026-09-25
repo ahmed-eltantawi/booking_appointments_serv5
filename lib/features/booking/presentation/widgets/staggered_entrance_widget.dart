@@ -1,23 +1,29 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 
-/// Wraps a widget to provide a staggered fade and slide entrance animation.
+/// Wraps a widget to provide a smooth fade and slide entrance animation.
 ///
-/// The animation delay is determined by multiplying [index] by [delayStep].
+/// The animation delay can be specified directly via [delay] or computed
+/// using [initialDelay] + ([index] * [delayStep]).
 class StaggeredEntranceWidget extends StatefulWidget {
   const StaggeredEntranceWidget({
     super.key,
-    required this.index,
     required this.child,
-    this.duration = const Duration(milliseconds: 350),
-    this.delayStep = const Duration(milliseconds: 40),
+    this.index = 0,
+    this.duration = const Duration(milliseconds: 450),
+    this.delayStep = const Duration(milliseconds: 50),
     this.slideOffset = const Offset(0, 0.15),
+    this.initialDelay = Duration.zero,
+    this.delay,
   });
 
-  final int index;
   final Widget child;
+  final int index;
   final Duration duration;
   final Duration delayStep;
   final Offset slideOffset;
+  final Duration initialDelay;
+  final Duration? delay;
 
   @override
   State<StaggeredEntranceWidget> createState() =>
@@ -29,6 +35,7 @@ class _StaggeredEntranceWidgetState extends State<StaggeredEntranceWidget>
   late final AnimationController _controller;
   late final Animation<double> _fadeAnimation;
   late final Animation<Offset> _slideAnimation;
+  Timer? _timer;
   bool _isDisposed = false;
 
   @override
@@ -50,22 +57,40 @@ class _StaggeredEntranceWidgetState extends State<StaggeredEntranceWidget>
       end: Offset.zero,
     ).animate(curve);
 
-    _startDelayedAnimation();
+    _scheduleEntranceAnimation();
   }
 
-  void _startDelayedAnimation() async {
-    final delay = widget.delayStep * widget.index;
-    if (delay > Duration.zero) {
-      await Future.delayed(delay);
+  void _scheduleEntranceAnimation() {
+    final effectiveDelay =
+        widget.delay ?? (widget.initialDelay + (widget.delayStep * widget.index));
+
+    if (effectiveDelay == Duration.zero) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!_isDisposed && mounted && _controller.status == AnimationStatus.dismissed) {
+          _controller.forward();
+        }
+      });
+    } else {
+      _timer = Timer(effectiveDelay, () {
+        if (!_isDisposed && mounted && _controller.status == AnimationStatus.dismissed) {
+          _controller.forward();
+        }
+      });
     }
-    if (!_isDisposed && mounted) {
-      _controller.forward();
+  }
+
+  @override
+  void didUpdateWidget(StaggeredEntranceWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (_controller.status == AnimationStatus.completed || _controller.value >= 1.0) {
+      _controller.value = 1.0;
     }
   }
 
   @override
   void dispose() {
     _isDisposed = true;
+    _timer?.cancel();
     _controller.dispose();
     super.dispose();
   }
@@ -81,3 +106,5 @@ class _StaggeredEntranceWidgetState extends State<StaggeredEntranceWidget>
     );
   }
 }
+
+

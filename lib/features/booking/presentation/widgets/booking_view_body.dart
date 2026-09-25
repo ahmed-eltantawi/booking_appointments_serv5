@@ -75,26 +75,30 @@ class BookingViewBody extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // --- 1. Header / Title (FadeInDown) ---
               StaggeredEntranceWidget(
-                index: 0,
+                key: const ValueKey('entrance_header'),
+                initialDelay: Duration.zero,
+                duration: const Duration(milliseconds: 450),
+                slideOffset: const Offset(0, -0.15),
                 child: BookingHeaderWidget(l10n: l10n),
               ),
               SizedBox(height: 24.h),
-              StaggeredEntranceWidget(
-                index: 1,
-                child: DurationSelectorWidget(
-                  selectedDuration: schedule.selectedDuration,
-                ),
+
+              // --- 2. Duration Selection ---
+              DurationSelectorWidget(
+                selectedDuration: schedule.selectedDuration,
               ),
               SizedBox(height: 20.h),
-              StaggeredEntranceWidget(
-                index: 2,
-                child: TimeSlotGridWidget(
-                  slots: schedule.slots,
-                  validStartIndexes: schedule.validStartIndexes,
-                  selectedStartIndex: schedule.selectedStartIndex,
-                ),
+
+              // --- 3. Time Slots (Staggered Grid Entrance) ---
+              TimeSlotGridWidget(
+                key: const ValueKey('entrance_slots_grid'),
+                slots: schedule.slots,
+                validStartIndexes: schedule.validStartIndexes,
+                selectedStartIndex: schedule.selectedStartIndex,
               ),
+
               AnimatedSize(
                 duration: const Duration(milliseconds: 220),
                 curve: Curves.easeInOut,
@@ -105,7 +109,9 @@ class BookingViewBody extends StatelessWidget {
                       ? Padding(
                           padding: EdgeInsets.only(top: 12.h),
                           child: StaggeredEntranceWidget(
-                            index: 3,
+                            key: const ValueKey('entrance_no_slots'),
+                            initialDelay: const Duration(milliseconds: 500),
+                            duration: const Duration(milliseconds: 450),
                             child: NoAvailableSlotsWidget(
                               duration: schedule.selectedDuration,
                             ),
@@ -115,13 +121,21 @@ class BookingViewBody extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 16.h),
+
+              // --- 4. Other Sections (Legend, Summary, Validation, Action Bar) ---
               const StaggeredEntranceWidget(
-                index: 4,
+                key: ValueKey('entrance_legend'),
+                initialDelay: Duration(milliseconds: 600),
+                duration: Duration(milliseconds: 450),
+                slideOffset: Offset(0, 0.15),
                 child: SlotLegendWidget(),
               ),
               SizedBox(height: 20.h),
               StaggeredEntranceWidget(
-                index: 5,
+                key: const ValueKey('entrance_summary'),
+                initialDelay: const Duration(milliseconds: 680),
+                duration: const Duration(milliseconds: 450),
+                slideOffset: const Offset(0, 0.15),
                 child: BookingSummaryWidget(
                   schedule: schedule,
                   isConfirmed: isConfirmed,
@@ -131,7 +145,10 @@ class BookingViewBody extends StatelessWidget {
               if (schedule.validationResult != null &&
                   !schedule.validationResult!.isValid)
                 StaggeredEntranceWidget(
-                  index: 6,
+                  key: const ValueKey('entrance_validation'),
+                  initialDelay: const Duration(milliseconds: 740),
+                  duration: const Duration(milliseconds: 450),
+                  slideOffset: const Offset(0, 0.15),
                   child: ValidationErrorWidget(
                     reason: schedule.validationResult!.reason!,
                     l10n: l10n,
@@ -139,7 +156,10 @@ class BookingViewBody extends StatelessWidget {
                 ),
               SizedBox(height: 24.h),
               StaggeredEntranceWidget(
-                index: 7,
+                key: const ValueKey('entrance_action_bar'),
+                initialDelay: const Duration(milliseconds: 780),
+                duration: const Duration(milliseconds: 450),
+                slideOffset: const Offset(0, 0.15),
                 child: BookingActionBarWidget(
                   canConfirm: schedule.selectedStartIndex != null &&
                       (schedule.validationResult?.isValid ?? false),
