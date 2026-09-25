@@ -13,10 +13,12 @@ class TimeSlotGridWidget extends StatelessWidget {
     super.key,
     required this.slots,
     required this.validStartIndexes,
+    this.selectedStartIndex,
   });
 
   final List<SlotModel> slots;
   final List<int> validStartIndexes;
+  final int? selectedStartIndex;
 
   @override
   Widget build(BuildContext context) {
@@ -55,9 +57,15 @@ class TimeSlotGridWidget extends StatelessWidget {
             final slot = slots[index];
             final isValidStart = validStartIndexes.contains(slot.index) &&
                 slot.status == SlotStatus.available;
+            final rangeOffset =
+                (slot.status == SlotStatus.selected && selectedStartIndex != null)
+                    ? (slot.index - selectedStartIndex!)
+                    : 0;
+
             return SlotCellWidget(
               slot: slot,
               isValidStart: isValidStart,
+              rangeOffset: rangeOffset,
               onTap: () =>
                   context.read<BookingCubit>().handleSlotTap(slot.index),
             );

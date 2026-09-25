@@ -70,34 +70,42 @@ class ValidationErrorWidget extends StatelessWidget {
       BookingInvalidReason.createsInvalidGap       => l10n.errorCreatesInvalidGap,
     };
 
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.error.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(10.r),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.error.withValues(alpha: 0.3),
-        ),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(
-            Icons.error_outline_rounded,
-            color: Theme.of(context).colorScheme.error,
-            size: 18.r,
-          ),
-          SizedBox(width: 8.w),
-          Expanded(
-            child: Text(
-              message,
-              style: AppTextStyles.regular14.copyWith(
-                color: Theme.of(context).colorScheme.error,
-              ),
+    return AnimatedSize(
+      duration: const Duration(milliseconds: 220),
+      curve: Curves.easeInOut,
+      child: AnimatedOpacity(
+        duration: const Duration(milliseconds: 200),
+        opacity: 1.0,
+        child: Container(
+          width: double.infinity,
+          padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.error.withValues(alpha: 0.08),
+            borderRadius: BorderRadius.circular(10.r),
+            border: Border.all(
+              color: Theme.of(context).colorScheme.error.withValues(alpha: 0.3),
             ),
           ),
-        ],
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(
+                Icons.error_outline_rounded,
+                color: Theme.of(context).colorScheme.error,
+                size: 18.r,
+              ),
+              SizedBox(width: 8.w),
+              Expanded(
+                child: Text(
+                  message,
+                  style: AppTextStyles.regular14.copyWith(
+                    color: Theme.of(context).colorScheme.error,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

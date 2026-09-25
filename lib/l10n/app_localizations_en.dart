@@ -84,6 +84,11 @@ class SEn extends S {
   String get errorExceedsWorkingHours => 'Booking cannot extend past 6:00 PM.';
 
   @override
+  String noAvailableSlotsForDuration(String duration) {
+    return 'No available start times for $duration. Try selecting a shorter duration.';
+  }
+
+  @override
   String get errorContainsBookedSlot =>
       'One or more required time slots are already booked.';
 

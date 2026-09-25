@@ -25,6 +25,7 @@
   "confirmBooking": "تأكيد الحجز",
   "bookingSuccessful": "تم حجز موعدك بنجاح!",
   "errorExceedsWorkingHours": "لا يمكن للحجز أن يتجاوز الساعة 6:00 مساءً.",
+  "noAvailableSlotsForDuration": "لا تتوفر أوقات بدء لـ {duration}. جرب اختيار مدة أقصر.",
   "errorContainsBookedSlot": "بعض الفترات الزمنية المطلوبة محجوزة بالفعل.",
   "errorContainsUnavailableSlot": "بعض الفترات الزمنية المطلوبة غير متاحة.",
   "errorCreatesInvalidGap": "هذا الحجز سيترك فترة 30 دقيقة معزولة في الجدول.",

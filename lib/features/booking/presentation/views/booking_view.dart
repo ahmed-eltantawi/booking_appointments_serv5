@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:booking_appointments/l10n/app_localizations.dart';
 import 'package:booking_appointments/core/services/services_locator.dart';
 import 'package:booking_appointments/features/booking/presentation/manager/booking_cubit.dart';
+import 'package:booking_appointments/features/booking/presentation/widgets/animated_drawer_button.dart';
 import 'package:booking_appointments/features/booking/presentation/widgets/app_drawer_widget.dart';
 import 'package:booking_appointments/features/booking/presentation/widgets/booking_view_body.dart';
 
@@ -18,6 +19,7 @@ class BookingView extends StatelessWidget {
       create: (_) => getIt<BookingCubit>()..initialize(),
       child: Scaffold(
         appBar: AppBar(
+          leading: const AnimatedDrawerButton(),
           title: Text(l10n.bookAppointment),
           centerTitle: true,
         ),

@@ -9,12 +9,15 @@ import 'package:booking_appointments/features/booking/presentation/widgets/booki
 import 'package:booking_appointments/features/booking/presentation/widgets/booking_header_widget.dart';
 import 'package:booking_appointments/features/booking/presentation/widgets/booking_summary_widget.dart';
 import 'package:booking_appointments/features/booking/presentation/widgets/duration_selector_widget.dart';
+import 'package:booking_appointments/features/booking/presentation/widgets/no_available_slots_widget.dart';
 import 'package:booking_appointments/features/booking/presentation/widgets/slot_legend_widget.dart';
+import 'package:booking_appointments/features/booking/presentation/widgets/staggered_entrance_widget.dart';
 import 'package:booking_appointments/features/booking/presentation/widgets/time_slot_grid_widget.dart';
 import 'package:booking_appointments/features/booking/presentation/widgets/validation_error_widget.dart';
 
 /// Main content area for the booking screen.
-/// Uses [BlocConsumer] to rebuild on state changes and show feedback snackbars.
+/// Uses [BlocConsumer] to rebuild on state changes, show feedback snackbars,
+/// and render progressive entrance animations and micro-interactions.
 class BookingViewBody extends StatelessWidget {
   const BookingViewBody({super.key});
 
@@ -54,44 +57,94 @@ class BookingViewBody extends StatelessWidget {
         }
 
         final BookingSchedule schedule;
+        final bool isConfirmed = state is BookingConfirmed;
+
         if (state is BookingSuccess) {
           schedule = state.schedule;
-        } else if (state is BookingConfirmed) {
+        } else if (isConfirmed) {
           schedule = state.schedule;
         } else {
           return const SizedBox.shrink();
         }
+
+        final showNoAvailableSlots = schedule.validStartIndexes.isEmpty &&
+            schedule.selectedStartIndex == null;
 
         return SingleChildScrollView(
           padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              BookingHeaderWidget(l10n: l10n),
+              StaggeredEntranceWidget(
+                index: 0,
+                child: BookingHeaderWidget(l10n: l10n),
+              ),
               SizedBox(height: 24.h),
-              DurationSelectorWidget(
-                selectedDuration: schedule.selectedDuration,
+              StaggeredEntranceWidget(
+                index: 1,
+                child: DurationSelectorWidget(
+                  selectedDuration: schedule.selectedDuration,
+                ),
               ),
               SizedBox(height: 20.h),
-              TimeSlotGridWidget(
-                slots: schedule.slots,
-                validStartIndexes: schedule.validStartIndexes,
+              StaggeredEntranceWidget(
+                index: 2,
+                child: TimeSlotGridWidget(
+                  slots: schedule.slots,
+                  validStartIndexes: schedule.validStartIndexes,
+                  selectedStartIndex: schedule.selectedStartIndex,
+                ),
+              ),
+              AnimatedSize(
+                duration: const Duration(milliseconds: 220),
+                curve: Curves.easeInOut,
+                child: AnimatedOpacity(
+                  duration: const Duration(milliseconds: 200),
+                  opacity: showNoAvailableSlots ? 1.0 : 0.0,
+                  child: showNoAvailableSlots
+                      ? Padding(
+                          padding: EdgeInsets.only(top: 12.h),
+                          child: StaggeredEntranceWidget(
+                            index: 3,
+                            child: NoAvailableSlotsWidget(
+                              duration: schedule.selectedDuration,
+                            ),
+                          ),
+                        )
+                      : const SizedBox.shrink(),
+                ),
               ),
               SizedBox(height: 16.h),
-              const SlotLegendWidget(),
+              const StaggeredEntranceWidget(
+                index: 4,
+                child: SlotLegendWidget(),
+              ),
               SizedBox(height: 20.h),
-              BookingSummaryWidget(schedule: schedule),
+              StaggeredEntranceWidget(
+                index: 5,
+                child: BookingSummaryWidget(
+                  schedule: schedule,
+                  isConfirmed: isConfirmed,
+                ),
+              ),
               SizedBox(height: 12.h),
               if (schedule.validationResult != null &&
                   !schedule.validationResult!.isValid)
-                ValidationErrorWidget(
-                  reason: schedule.validationResult!.reason!,
-                  l10n: l10n,
+                StaggeredEntranceWidget(
+                  index: 6,
+                  child: ValidationErrorWidget(
+                    reason: schedule.validationResult!.reason!,
+                    l10n: l10n,
+                  ),
                 ),
               SizedBox(height: 24.h),
-              BookingActionBarWidget(
-                canConfirm: schedule.selectedStartIndex != null &&
-                    (schedule.validationResult?.isValid ?? false),
+              StaggeredEntranceWidget(
+                index: 7,
+                child: BookingActionBarWidget(
+                  canConfirm: schedule.selectedStartIndex != null &&
+                      (schedule.validationResult?.isValid ?? false),
+                  isConfirmed: isConfirmed,
+                ),
               ),
               SizedBox(height: 20.h),
             ],

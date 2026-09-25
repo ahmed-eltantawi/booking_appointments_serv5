@@ -241,6 +241,12 @@ abstract class S {
   /// **'Booking cannot extend past 6:00 PM.'**
   String get errorExceedsWorkingHours;
 
+  /// Message shown when no valid start times exist for the selected duration.
+  ///
+  /// In en, this message translates to:
+  /// **'No available start times for {duration}. Try selecting a shorter duration.'**
+  String noAvailableSlotsForDuration(String duration);
+
   /// Validation error when required slots overlap an existing booking.
   ///
   /// In en, this message translates to:

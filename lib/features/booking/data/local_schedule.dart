@@ -20,22 +20,34 @@ import 'package:booking_appointments/features/booking/domain/slot_model.dart';
 ///   • Slot 16 available → 16+1hr=valid (ends 18:00); 16+2hr=invalid (ends 19:00).
 ///   • Slot 17 available → 17+30min=valid (ends 18:00); 17+1hr=invalid (ends 18:30).
 const List<SlotModel> initialSchedule = [
-  SlotModel(index: 0,  status: SlotStatus.available),   // 09:00 AM
-  SlotModel(index: 1,  status: SlotStatus.available),   // 09:30 AM
-  SlotModel(index: 2,  status: SlotStatus.booked),      // 10:00 AM — pre-booked
-  SlotModel(index: 3,  status: SlotStatus.booked),      // 10:30 AM — pre-booked
-  SlotModel(index: 4,  status: SlotStatus.available),   // 11:00 AM
-  SlotModel(index: 5,  status: SlotStatus.available),   // 11:30 AM
-  SlotModel(index: 6,  status: SlotStatus.available),   // 12:00 PM
-  SlotModel(index: 7,  status: SlotStatus.available),   // 12:30 PM
-  SlotModel(index: 8,  status: SlotStatus.available),   // 01:00 PM
-  SlotModel(index: 9,  status: SlotStatus.unavailable), // 01:30 PM — blocked
-  SlotModel(index: 10, status: SlotStatus.available),   // 02:00 PM — gap trigger (see above)
-  SlotModel(index: 11, status: SlotStatus.available),   // 02:30 PM — would be gap
-  SlotModel(index: 12, status: SlotStatus.booked),      // 03:00 PM — pre-booked (gap anchor)
-  SlotModel(index: 13, status: SlotStatus.available),   // 03:30 PM
-  SlotModel(index: 14, status: SlotStatus.available),   // 04:00 PM
-  SlotModel(index: 15, status: SlotStatus.available),   // 04:30 PM
-  SlotModel(index: 16, status: SlotStatus.available),   // 05:00 PM — end-of-day boundary
-  SlotModel(index: 17, status: SlotStatus.available),   // 05:30 PM — end-of-day boundary
+  SlotModel(index: 0, status: SlotStatus.available), // 09:00 AM
+  SlotModel(index: 1, status: SlotStatus.available), // 09:30 AM
+  SlotModel(index: 2, status: SlotStatus.booked), // 10:00 AM — pre-booked
+  SlotModel(index: 3, status: SlotStatus.booked), // 10:30 AM — pre-booked
+  SlotModel(index: 4, status: SlotStatus.available), // 11:00 AM
+  SlotModel(index: 5, status: SlotStatus.available), // 11:30 AM
+  SlotModel(index: 6, status: SlotStatus.available), // 12:00 PM
+  SlotModel(index: 7, status: SlotStatus.available), // 12:30 PM
+  SlotModel(index: 8, status: SlotStatus.available), // 01:00 PM
+  SlotModel(index: 9, status: SlotStatus.unavailable), // 01:30 PM — blocked
+  SlotModel(
+    index: 10,
+    status: SlotStatus.available,
+  ), // 02:00 PM — gap trigger (see above)
+  SlotModel(index: 11, status: SlotStatus.available), // 02:30 PM — would be gap
+  SlotModel(
+    index: 12,
+    status: SlotStatus.booked,
+  ), // 03:00 PM — pre-booked (gap anchor)
+  SlotModel(index: 13, status: SlotStatus.available), // 03:30 PM
+  SlotModel(index: 14, status: SlotStatus.available), // 04:00 PM
+  SlotModel(index: 15, status: SlotStatus.available), // 04:30 PM
+  SlotModel(
+    index: 16,
+    status: SlotStatus.available,
+  ), // 05:00 PM — end-of-day boundary
+  SlotModel(
+    index: 17,
+    status: SlotStatus.available,
+  ), // 05:30 PM — end-of-day boundary
 ];

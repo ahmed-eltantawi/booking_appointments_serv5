@@ -73,6 +73,14 @@
   "errorExceedsWorkingHours": "Booking cannot extend past 6:00 PM.",
   "@errorExceedsWorkingHours": { "description": "Validation error when booking exceeds working hours." },
 
+  "noAvailableSlotsForDuration": "No available start times for {duration}. Try selecting a shorter duration.",
+  "@noAvailableSlotsForDuration": {
+    "description": "Message shown when no valid start times exist for the selected duration.",
+    "placeholders": {
+      "duration": { "type": "String" }
+    }
+  },
+
   "errorContainsBookedSlot": "One or more required time slots are already booked.",
   "@errorContainsBookedSlot": { "description": "Validation error when required slots overlap an existing booking." },
 

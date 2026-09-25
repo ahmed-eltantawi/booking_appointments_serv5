@@ -83,6 +83,11 @@ class SAr extends S {
       'لا يمكن للحجز أن يتجاوز الساعة 6:00 مساءً.';
 
   @override
+  String noAvailableSlotsForDuration(String duration) {
+    return 'لا تتوفر أوقات بدء لـ $duration. جرب اختيار مدة أقصر.';
+  }
+
+  @override
   String get errorContainsBookedSlot =>
       'بعض الفترات الزمنية المطلوبة محجوزة بالفعل.';
 
