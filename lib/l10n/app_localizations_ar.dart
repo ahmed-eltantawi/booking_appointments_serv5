@@ -110,9 +110,6 @@ class SAr extends S {
   String get settings => 'الإعدادات';
 
   @override
-  String get about => 'حول التطبيق';
-
-  @override
   String get appSubtitle => 'نظام Serv5 للحجز';
 
   @override

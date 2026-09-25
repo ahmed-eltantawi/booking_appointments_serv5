@@ -111,9 +111,6 @@ class SEn extends S {
   String get settings => 'Settings';
 
   @override
-  String get about => 'About';
-
-  @override
   String get appSubtitle => 'Serv5 Booking System';
 
   @override

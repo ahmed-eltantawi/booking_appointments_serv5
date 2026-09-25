@@ -16,15 +16,11 @@ class DrawerHeaderWidget extends StatelessWidget {
       margin: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 12.h),
       padding: EdgeInsets.all(20.r),
       decoration: BoxDecoration(
-        color: colorScheme.primaryContainer,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(16.r),
-        boxShadow: [
-          BoxShadow(
-            color: colorScheme.shadow.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        border: Border.all(
+          color: colorScheme.outlineVariant.withValues(alpha: 0.4),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -36,20 +32,20 @@ class DrawerHeaderWidget extends StatelessWidget {
                 width: 44.r,
                 height: 44.r,
                 decoration: BoxDecoration(
-                  color: colorScheme.primary,
+                  color: colorScheme.primaryContainer.withValues(alpha: 0.6),
                   borderRadius: BorderRadius.circular(12.r),
                 ),
                 child: Icon(
                   Icons.calendar_month_rounded,
                   size: 24.r,
-                  color: colorScheme.onPrimary,
+                  color: colorScheme.primary,
                 ),
               ),
               const Spacer(),
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
                 decoration: BoxDecoration(
-                  color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                  color: colorScheme.outlineVariant.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(20.r),
                 ),
                 child: Text(
@@ -65,14 +61,14 @@ class DrawerHeaderWidget extends StatelessWidget {
           Text(
             l10n.appTitle,
             style: AppTextStyles.bold18.copyWith(
-              color: colorScheme.onPrimaryContainer,
+              color: colorScheme.onSurface,
             ),
           ),
           SizedBox(height: 2.h),
           Text(
             l10n.appSubtitle,
             style: AppTextStyles.regular12.copyWith(
-              color: colorScheme.onPrimaryContainer.withValues(alpha: 0.7),
+              color: colorScheme.onSurfaceVariant,
             ),
           ),
         ],

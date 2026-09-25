@@ -97,9 +97,6 @@
   "settings": "Settings",
   "@settings": { "description": "Drawer settings section header." },
 
-  "about": "About",
-  "@about": { "description": "Drawer about option label." },
-
   "appSubtitle": "Serv5 Booking System",
   "@appSubtitle": { "description": "Subtitle shown in the drawer header." },
 

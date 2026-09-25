@@ -20,21 +20,17 @@ class ThemeSelectorTileWidget extends StatelessWidget {
       margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),
       padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
       decoration: BoxDecoration(
-        color: colorScheme.surfaceContainer,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(12.r),
         border: Border.all(
-          color: colorScheme.outlineVariant.withValues(alpha: 0.5),
+          color: colorScheme.outlineVariant.withValues(alpha: 0.4),
         ),
       ),
       child: Row(
         children: [
-          Container(
+          SizedBox(
             width: 36.r,
             height: 36.r,
-            decoration: BoxDecoration(
-              color: colorScheme.primaryContainer.withValues(alpha: 0.6),
-              borderRadius: BorderRadius.circular(10.r),
-            ),
             child: Icon(
               Icons.palette_outlined,
               size: 20.r,

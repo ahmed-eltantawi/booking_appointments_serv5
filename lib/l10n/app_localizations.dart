@@ -289,12 +289,6 @@ abstract class S {
   /// **'Settings'**
   String get settings;
 
-  /// Drawer about option label.
-  ///
-  /// In en, this message translates to:
-  /// **'About'**
-  String get about;
-
   /// Subtitle shown in the drawer header.
   ///
   /// In en, this message translates to:
