@@ -29,7 +29,7 @@ final ThemeData lightTheme = ThemeData(
   appBarTheme: const AppBarTheme(
     elevation: 0,
     centerTitle: true,
-    backgroundColor: AppColors.surface,
+    backgroundColor: Colors.transparent,
     foregroundColor: AppColors.textPrimary,
     surfaceTintColor: Colors.transparent,
   ),

@@ -43,7 +43,7 @@ final ThemeData darkTheme = ThemeData(
   appBarTheme: const AppBarTheme(
     elevation: 0,
     centerTitle: true,
-    backgroundColor: Color(0xFF161B2E),
+    backgroundColor: Colors.transparent,
     foregroundColor: Color(0xFFF1F5F9),
     surfaceTintColor: Colors.transparent,
   ),
