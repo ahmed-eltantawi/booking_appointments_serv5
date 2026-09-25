@@ -37,6 +37,7 @@ class _BookingActionBarWidgetState extends State<BookingActionBarWidget> {
   void _onResetTapUp(TapUpDetails details) {
     _isResetPressedNotifier.value = false;
     HapticFeedback.selectionClick();
+    ScaffoldMessenger.of(context).clearSnackBars();
     context.read<BookingCubit>().reset();
   }
 
@@ -93,6 +94,7 @@ class _BookingActionBarWidgetState extends State<BookingActionBarWidget> {
               child: OutlinedButton(
                 onPressed: () {
                   HapticFeedback.selectionClick();
+                  ScaffoldMessenger.of(context).clearSnackBars();
                   context.read<BookingCubit>().reset();
                 },
                 child: Text(l10n.reset),

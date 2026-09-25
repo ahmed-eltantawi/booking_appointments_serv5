@@ -15,4 +15,8 @@ extension BookingDurationX on BookingDuration {
     BookingDuration.oneHalfHour   => 3,
     BookingDuration.twoHours      => 4,
   };
+
+  /// Total duration in minutes.
+  int get minutes => slotCount * 30;
 }
+

@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:dartz/dartz.dart';
 import 'package:booking_appointments/core/errors/failures.dart';
 import 'package:booking_appointments/features/booking/data/local_schedule.dart';
@@ -5,31 +6,40 @@ import 'package:booking_appointments/features/booking/domain/booking_duration.da
 import 'package:booking_appointments/features/booking/domain/booking_repository.dart';
 import 'package:booking_appointments/features/booking/domain/booking_schedule.dart';
 import 'package:booking_appointments/features/booking/domain/booking_validator.dart';
-import 'package:booking_appointments/features/booking/domain/slot_model.dart';
+import 'package:booking_appointments/features/booking/domain/time_slot.dart';
 
-/// Concrete implementation of [BookingRepository] handling business logic
-/// and schedule data state.
+/// Concrete implementation of [BookingRepository] handling schedule data state
+/// and delegating validation to [BookingValidator].
 class BookingRepositoryImpl implements BookingRepository {
-  BookingRepositoryImpl({List<SlotModel>? seedSchedule})
-      : _originalSlots = seedSchedule ?? initialSchedule,
-        _baseSlots = List.from(seedSchedule ?? initialSchedule);
+  BookingRepositoryImpl({
+    List<TimeSlot>? seedSchedule,
+    BookingValidator? validator,
+  })  : _originalSlots = seedSchedule ?? initialSchedule,
+        _baseSlots = List.from(seedSchedule ?? initialSchedule),
+        _validator = validator ?? const BookingValidator();
 
   static const _defaultDuration = BookingDuration.thirtyMinutes;
 
   /// Seed schedule data.
-  final List<SlotModel> _originalSlots;
+  final List<TimeSlot> _originalSlots;
 
   /// Authoritative current schedule (without display overlays).
-  List<SlotModel> _baseSlots;
+  List<TimeSlot> _baseSlots;
+
+  /// Domain validator service.
+  final BookingValidator _validator;
 
   @override
   Future<Either<Failure, BookingSchedule>> getSchedule() async {
     try {
-      final validStarts = getValidStartIndexes(_baseSlots, _defaultDuration);
+      final validStarts = _validator.getValidStartTimes(
+        schedule: _baseSlots,
+        duration: _defaultDuration,
+      );
       return Right(BookingSchedule(
         slots: List.unmodifiable(_baseSlots),
         selectedDuration: _defaultDuration,
-        validStartIndexes: validStarts,
+        validStartTimes: validStarts,
       ));
     } catch (e) {
       return Left(BookingFailure('Failed to load schedule: $e'));
@@ -39,37 +49,36 @@ class BookingRepositoryImpl implements BookingRepository {
   @override
   Future<Either<Failure, BookingSchedule>> selectDuration(
     BookingDuration duration,
-    int? currentStartIndex,
+    TimeOfDay? currentStart,
   ) async {
     try {
-      final validStarts = getValidStartIndexes(_baseSlots, duration);
+      final validStarts = _validator.getValidStartTimes(
+        schedule: _baseSlots,
+        duration: duration,
+      );
 
-      // Preserve selection if previously selected start is still valid
-      if (currentStartIndex != null && validStarts.contains(currentStartIndex)) {
-        final endIndex = calculateEndIndex(currentStartIndex, duration);
-        final validation = validateBooking(
-          slots: _baseSlots,
-          startIndex: currentStartIndex,
+      // ISSUE-002: Preserve selectedStart even when duration changes!
+      // Revalidate selectedStart with the new duration.
+      if (currentStart != null) {
+        final validation = _validator.validateBooking(
+          schedule: _baseSlots,
+          startTime: currentStart,
           duration: duration,
         );
-        final displaySlots =
-            _buildDisplaySlots(_baseSlots, currentStartIndex, endIndex);
 
         return Right(BookingSchedule(
-          slots: displaySlots,
+          slots: List.unmodifiable(_baseSlots),
           selectedDuration: duration,
-          validStartIndexes: validStarts,
-          selectedStartIndex: currentStartIndex,
-          selectedEndIndex: endIndex,
+          validStartTimes: validStarts,
+          selectedStart: currentStart,
           validationResult: validation,
         ));
       }
 
-      // Clear selection if current start is no longer valid
       return Right(BookingSchedule(
         slots: List.unmodifiable(_baseSlots),
         selectedDuration: duration,
-        validStartIndexes: validStarts,
+        validStartTimes: validStarts,
       ));
     } catch (e) {
       return Left(BookingFailure('Failed to change duration: $e'));
@@ -78,26 +87,25 @@ class BookingRepositoryImpl implements BookingRepository {
 
   @override
   Future<Either<Failure, BookingSchedule>> selectStartTime(
-    int slotIndex,
+    TimeOfDay startTime,
     BookingDuration duration,
   ) async {
     try {
-      final validStarts = getValidStartIndexes(_baseSlots, duration);
-      final endIndex = calculateEndIndex(slotIndex, duration);
-      final validation = validateBooking(
-        slots: _baseSlots,
-        startIndex: slotIndex,
+      final validStarts = _validator.getValidStartTimes(
+        schedule: _baseSlots,
         duration: duration,
       );
-      final displaySlots =
-          _buildDisplaySlots(_baseSlots, slotIndex, endIndex);
+      final validation = _validator.validateBooking(
+        schedule: _baseSlots,
+        startTime: startTime,
+        duration: duration,
+      );
 
       return Right(BookingSchedule(
-        slots: displaySlots,
+        slots: List.unmodifiable(_baseSlots),
         selectedDuration: duration,
-        validStartIndexes: validStarts,
-        selectedStartIndex: slotIndex,
-        selectedEndIndex: endIndex,
+        validStartTimes: validStarts,
+        selectedStart: startTime,
         validationResult: validation,
       ));
     } catch (e) {
@@ -107,48 +115,49 @@ class BookingRepositoryImpl implements BookingRepository {
 
   @override
   Future<Either<Failure, BookingSchedule>> confirmBooking({
-    required int startIndex,
+    required TimeOfDay startTime,
     required BookingDuration duration,
   }) async {
     try {
-      // Re-validate against base schedule
-      final validation = validateBooking(
-        slots: _baseSlots,
-        startIndex: startIndex,
+      final validation = _validator.validateBooking(
+        schedule: _baseSlots,
+        startTime: startTime,
         duration: duration,
       );
 
       if (!validation.isValid) {
-        final validStarts = getValidStartIndexes(_baseSlots, duration);
-        final endIndex = calculateEndIndex(startIndex, duration);
-        final displaySlots =
-            _buildDisplaySlots(_baseSlots, startIndex, endIndex);
+        final validStarts = _validator.getValidStartTimes(
+          schedule: _baseSlots,
+          duration: duration,
+        );
 
         return Right(BookingSchedule(
-          slots: displaySlots,
+          slots: List.unmodifiable(_baseSlots),
           selectedDuration: duration,
-          validStartIndexes: validStarts,
-          selectedStartIndex: startIndex,
-          selectedEndIndex: endIndex,
+          validStartTimes: validStarts,
+          selectedStart: startTime,
           validationResult: validation,
         ));
       }
 
       // Apply booking to base schedule
       _baseSlots = List.from(
-        applyBooking(
-          slots: _baseSlots,
-          startIndex: startIndex,
+        _validator.applyBooking(
+          schedule: _baseSlots,
+          startTime: startTime,
           duration: duration,
         ),
       );
 
-      final validStarts = getValidStartIndexes(_baseSlots, _defaultDuration);
+      final validStarts = _validator.getValidStartTimes(
+        schedule: _baseSlots,
+        duration: _defaultDuration,
+      );
 
       return Right(BookingSchedule(
         slots: List.unmodifiable(_baseSlots),
         selectedDuration: _defaultDuration,
-        validStartIndexes: validStarts,
+        validStartTimes: validStarts,
       ));
     } catch (e) {
       return Left(BookingFailure('Failed to confirm booking: $e'));
@@ -159,30 +168,17 @@ class BookingRepositoryImpl implements BookingRepository {
   Future<Either<Failure, BookingSchedule>> resetSchedule() async {
     try {
       _baseSlots = List.from(_originalSlots);
-      final validStarts = getValidStartIndexes(_baseSlots, _defaultDuration);
+      final validStarts = _validator.getValidStartTimes(
+        schedule: _baseSlots,
+        duration: _defaultDuration,
+      );
       return Right(BookingSchedule(
         slots: List.unmodifiable(_baseSlots),
         selectedDuration: _defaultDuration,
-        validStartIndexes: validStarts,
+        validStartTimes: validStarts,
       ));
     } catch (e) {
       return Left(BookingFailure('Failed to reset schedule: $e'));
     }
-  }
-
-  List<SlotModel> _buildDisplaySlots(
-    List<SlotModel> baseSlots,
-    int startIndex,
-    int? endIndex,
-  ) {
-    final safeEndIndex = endIndex ?? startIndex;
-    return List.unmodifiable(
-      baseSlots.map((slot) {
-        if (slot.index >= startIndex && slot.index <= safeEndIndex) {
-          return slot.copyWith(status: SlotStatus.selected);
-        }
-        return slot;
-      }).toList(),
-    );
   }
 }

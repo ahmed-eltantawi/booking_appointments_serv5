@@ -1,7 +1,8 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:booking_appointments/features/booking/data/booking_repository_impl.dart';
 import 'package:booking_appointments/features/booking/domain/booking_duration.dart';
-import 'package:booking_appointments/features/booking/domain/slot_model.dart';
+import 'package:booking_appointments/features/booking/domain/time_slot.dart';
 
 void main() {
   late BookingRepositoryImpl repository;
@@ -20,29 +21,33 @@ void main() {
         (schedule) {
           expect(schedule.slots.length, 18);
           expect(schedule.selectedDuration, BookingDuration.thirtyMinutes);
-          expect(schedule.selectedStartIndex, isNull);
+          expect(schedule.selectedStart, isNull);
         },
       );
     });
 
-    test('selectStartTime updates schedule with selection overlay', () async {
-      final result = await repository.selectStartTime(0, BookingDuration.thirtyMinutes);
+    test('selectStartTime updates schedule with selectedStart', () async {
+      final result = await repository.selectStartTime(
+        const TimeOfDay(hour: 9, minute: 0),
+        BookingDuration.thirtyMinutes,
+      );
 
       expect(result.isRight(), isTrue);
       result.fold(
         (failure) => fail('Should not return failure'),
         (schedule) {
-          expect(schedule.selectedStartIndex, 0);
-          expect(schedule.selectedEndIndex, 0);
-          expect(schedule.slots[0].status, SlotStatus.selected);
+          expect(schedule.selectedStart, const TimeOfDay(hour: 9, minute: 0));
         },
       );
     });
 
     test('confirmBooking applies booking to base schedule when valid', () async {
-      await repository.selectStartTime(1, BookingDuration.thirtyMinutes);
+      await repository.selectStartTime(
+        const TimeOfDay(hour: 9, minute: 30),
+        BookingDuration.thirtyMinutes,
+      );
       final confirmResult = await repository.confirmBooking(
-        startIndex: 1,
+        startTime: const TimeOfDay(hour: 9, minute: 30),
         duration: BookingDuration.thirtyMinutes,
       );
 
@@ -50,16 +55,24 @@ void main() {
       confirmResult.fold(
         (failure) => fail('Should not return failure'),
         (schedule) {
-          expect(schedule.slots[1].status, SlotStatus.booked);
-          expect(schedule.selectedStartIndex, isNull);
+          expect(
+            schedule.slots
+                .firstWhere((s) => s.start == const TimeOfDay(hour: 9, minute: 30))
+                .status,
+            SlotStatus.booked,
+          );
+          expect(schedule.selectedStart, isNull);
         },
       );
     });
 
     test('resetSchedule restores initial seed slots', () async {
-      await repository.selectStartTime(1, BookingDuration.thirtyMinutes);
+      await repository.selectStartTime(
+        const TimeOfDay(hour: 9, minute: 30),
+        BookingDuration.thirtyMinutes,
+      );
       await repository.confirmBooking(
-        startIndex: 1,
+        startTime: const TimeOfDay(hour: 9, minute: 30),
         duration: BookingDuration.thirtyMinutes,
       );
 
@@ -69,7 +82,12 @@ void main() {
       resetResult.fold(
         (failure) => fail('Should not return failure'),
         (schedule) {
-          expect(schedule.slots[1].status, SlotStatus.available);
+          expect(
+            schedule.slots
+                .firstWhere((s) => s.start == const TimeOfDay(hour: 9, minute: 30))
+                .status,
+            SlotStatus.available,
+          );
         },
       );
     });

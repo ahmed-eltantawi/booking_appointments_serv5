@@ -32,18 +32,11 @@ void main() {
       await tester.pumpWidget(createWidgetToTest());
       await tester.pumpAndSettle();
 
-      // Verify title in app bar and header
       expect(find.text('Book an Appointment'), findsNWidgets(2));
-
-      // Verify working hours header
       expect(find.text('Working hours: 9:00 AM – 6:00 PM'), findsOneWidget);
-
-      // Verify duration selector section exists
       expect(find.text('Select Duration'), findsOneWidget);
       expect(find.text('30 min'), findsOneWidget);
       expect(find.text('1 hr'), findsOneWidget);
-
-      // Verify legend items exist
       expect(find.text('Available'), findsOneWidget);
       expect(find.text('Booked'), findsOneWidget);
       expect(find.text('Unavailable'), findsOneWidget);
@@ -58,11 +51,9 @@ void main() {
       await tester.pumpWidget(createWidgetToTest());
       await tester.pumpAndSettle();
 
-      // Tap '1 hr' duration chip
       await tester.tap(find.text('1 hr'));
       await tester.pumpAndSettle();
 
-      // Verify 1 hr chip is selected
       expect(find.text('1 hr'), findsOneWidget);
     });
 
@@ -74,14 +65,12 @@ void main() {
       await tester.pumpWidget(createWidgetToTest());
       await tester.pumpAndSettle();
 
-      // Slot 1 (09:30 AM) is valid in seed schedule
       final slotFinder = find.text('9:30 AM');
       expect(slotFinder, findsOneWidget);
 
       await tester.tap(slotFinder);
       await tester.pumpAndSettle();
 
-      // Verify booking summary card appears showing 'Booking Summary' and start time
       expect(find.text('Booking Summary'), findsOneWidget);
       expect(find.text('Start'), findsOneWidget);
     });
@@ -94,7 +83,6 @@ void main() {
       await tester.pumpWidget(createWidgetToTest());
       await tester.pumpAndSettle();
 
-      // Slot 2 (10:00 AM) is pre-booked in seed schedule
       final bookedSlotFinder = find.text('10:00 AM');
       expect(bookedSlotFinder, findsOneWidget);
 
@@ -102,8 +90,13 @@ void main() {
       await tester.tap(bookedSlotFinder);
       await tester.pumpAndSettle();
 
-      // Verify feedback snackbar is displayed
-      expect(find.text('10:00 AM is already booked.'), findsOneWidget);
+      expect(
+        find.descendant(
+          of: find.byType(SnackBar),
+          matching: find.text('One or more required time slots are already booked.'),
+        ),
+        findsOneWidget,
+      );
     });
 
     testWidgets('tapping unavailable slot displays contextual unavailable snackbar', (tester) async {
@@ -114,7 +107,6 @@ void main() {
       await tester.pumpWidget(createWidgetToTest());
       await tester.pumpAndSettle();
 
-      // Slot 9 (1:30 PM) is marked unavailable in seed schedule
       final unavailableSlotFinder = find.text('1:30 PM');
       expect(unavailableSlotFinder, findsOneWidget);
 
@@ -122,8 +114,13 @@ void main() {
       await tester.tap(unavailableSlotFinder);
       await tester.pumpAndSettle();
 
-      // Verify feedback snackbar is displayed
-      expect(find.text('1:30 PM is currently unavailable.'), findsOneWidget);
+      expect(
+        find.descendant(
+          of: find.byType(SnackBar),
+          matching: find.text('One or more required time slots are unavailable.'),
+        ),
+        findsOneWidget,
+      );
     });
 
     testWidgets('confirming booking updates schedule and shows confirmation snackbar', (tester) async {
@@ -134,16 +131,14 @@ void main() {
       await tester.pumpWidget(createWidgetToTest());
       await tester.pumpAndSettle();
 
-      // Tap slot 1 (9:30 AM)
       await tester.tap(find.text('9:30 AM'));
       await tester.pumpAndSettle();
 
-      // Tap 'Confirm Booking' button
-      final confirmBtn = find.widgetWithText(ElevatedButton, 'Confirm Booking');
+      final confirmBtn = find.text('Confirm Booking');
+      await tester.ensureVisible(confirmBtn);
       await tester.tap(confirmBtn);
       await tester.pumpAndSettle();
 
-      // Confirmation snack bar should display success text
       expect(find.text('Your appointment has been booked successfully!'), findsOneWidget);
     });
 
@@ -167,18 +162,15 @@ void main() {
       await tester.pumpWidget(createWidgetToTest());
       await tester.pumpAndSettle();
 
-      // Initial English title check (in AppBar and DrawerHeader)
       expect(find.text('Book an Appointment'), findsNWidgets(2));
 
-      // Switch language to Arabic via SettingsCubit
       GetIt.I<SettingsCubit>().setLocale(const Locale('ar'));
       await tester.pumpAndSettle();
 
-      // Verify Arabic title is now rendered in UI
       expect(find.text('حجز موعد'), findsNWidgets(2));
     });
 
-    testWidgets('selecting 2hr duration starting at 9:00 AM reports 10:00 AM and 10:30 AM as booked conflicts', (tester) async {
+    testWidgets('selecting 2hr duration starting at 9:00 AM reports booked conflict', (tester) async {
       tester.view.physicalSize = const Size(800, 1600);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.resetPhysicalSize);
@@ -186,24 +178,25 @@ void main() {
       await tester.pumpWidget(createWidgetToTest());
       await tester.pumpAndSettle();
 
-      // Tap '2 hr' duration chip
       final duration2HrFinder = find.text('2 hr');
       expect(duration2HrFinder, findsOneWidget);
       await tester.ensureVisible(duration2HrFinder);
       await tester.tap(duration2HrFinder);
       await tester.pumpAndSettle();
 
-      // Tap 9:00 AM (which is available, but 10:00 AM & 10:30 AM are booked)
       final slot0Finder = find.text('9:00 AM');
       expect(slot0Finder, findsOneWidget);
       await tester.ensureVisible(slot0Finder);
       await tester.tap(slot0Finder);
       await tester.pumpAndSettle();
 
-      // Verify snackbar displays exact conflicting booked slots ('10:00 AM and 10:30 AM are booked.')
-      // and does NOT claim '9:00 AM is already booked.'
-      expect(find.text('10:00 AM and 10:30 AM are booked.'), findsOneWidget);
-      expect(find.text('9:00 AM is already booked.'), findsNothing);
+      expect(
+        find.descendant(
+          of: find.byType(SnackBar),
+          matching: find.text('One or more required time slots are already booked.'),
+        ),
+        findsOneWidget,
+      );
     });
 
     testWidgets('tapping an already selected valid slot does not trigger invalid error feedback', (tester) async {
@@ -211,24 +204,44 @@ void main() {
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.resetPhysicalSize);
 
+      final slotFinder = find.widgetWithText(SlotCellWidget, '9:30 AM');
       await tester.pumpWidget(createWidgetToTest());
       await tester.pumpAndSettle();
 
-      // Tap slot 1 (9:30 AM) in grid to select it
-      final slotFinder = find.widgetWithText(SlotCellWidget, '9:30 AM');
       await tester.tap(slotFinder);
       await tester.pumpAndSettle();
 
       expect(find.text('Booking Summary'), findsOneWidget);
 
-      // Tap the SAME selected slot cell again
       await tester.tap(slotFinder);
       await tester.pumpAndSettle();
 
-      // Verify that no error snackbar or invalid message is shown
-      expect(find.text('9:30 AM is already booked.'), findsNothing);
-      expect(find.text('9:30 AM is currently unavailable.'), findsNothing);
+      expect(find.text('One or more required time slots are already booked.'), findsNothing);
+      expect(find.text('One or more required time slots are unavailable.'), findsNothing);
       expect(find.text('Booking Summary'), findsOneWidget);
+    });
+
+    testWidgets('ISSUE-018: pressing Reset clears active snackbar and resets state', (tester) async {
+      tester.view.physicalSize = const Size(800, 2400);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+
+      await tester.pumpWidget(createWidgetToTest());
+      await tester.pumpAndSettle();
+
+      final bookedSlot = find.text('10:00 AM');
+      await tester.ensureVisible(bookedSlot);
+      await tester.tap(bookedSlot);
+      await tester.pumpAndSettle();
+
+      expect(find.byType(SnackBar), findsOneWidget);
+
+      final resetBtn = find.text('Reset');
+      await tester.ensureVisible(resetBtn);
+      await tester.tap(resetBtn);
+      await tester.pumpAndSettle();
+
+      expect(find.byType(SnackBar), findsNothing);
     });
   });
 }

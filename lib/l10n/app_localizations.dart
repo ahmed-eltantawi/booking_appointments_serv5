@@ -211,6 +211,18 @@ abstract class S {
   /// **'Duration'**
   String get durationLabel;
 
+  /// Label for selected duration row in summary.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected Duration'**
+  String get selectedDurationLabel;
+
+  /// Label for total duration row in summary.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Duration'**
+  String get totalDurationLabel;
+
   /// Shown in summary when no start time is selected.
   ///
   /// In en, this message translates to:

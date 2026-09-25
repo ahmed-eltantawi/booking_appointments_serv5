@@ -68,6 +68,12 @@ class SEn extends S {
   String get durationLabel => 'Duration';
 
   @override
+  String get selectedDurationLabel => 'Selected Duration';
+
+  @override
+  String get totalDurationLabel => 'Total Duration';
+
+  @override
   String get noSelectionYet => 'No time slot selected yet.';
 
   @override

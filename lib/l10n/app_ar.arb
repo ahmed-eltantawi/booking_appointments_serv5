@@ -20,6 +20,8 @@
   "startLabel": "البداية",
   "endLabel": "النهاية",
   "durationLabel": "المدة",
+  "selectedDurationLabel": "المدة المحددة",
+  "totalDurationLabel": "إجمالي المدة",
   "noSelectionYet": "لم يتم اختيار فترة بعد.",
   "reset": "إعادة تعيين",
   "confirmBooking": "تأكيد الحجز",

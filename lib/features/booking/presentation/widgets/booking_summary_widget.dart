@@ -5,7 +5,6 @@ import 'package:booking_appointments/core/utils/app_colors.dart';
 import 'package:booking_appointments/core/utils/app_text_styles.dart';
 import 'package:booking_appointments/features/booking/domain/booking_duration.dart';
 import 'package:booking_appointments/features/booking/domain/booking_schedule.dart';
-import 'package:booking_appointments/features/booking/domain/slot_model.dart';
 import 'package:booking_appointments/features/booking/presentation/widgets/summary_row_widget.dart';
 
 /// Card showing the user's current booking selection with smooth animated transitions.
@@ -23,7 +22,13 @@ class BookingSummaryWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = S.of(context);
     final colorScheme = Theme.of(context).colorScheme;
-    final hasSelection = schedule.selectedStartIndex != null;
+    final hasSelection = schedule.selectedStart != null;
+
+    final selectedStart = schedule.selectedStart;
+    final selectedEnd = schedule.selectedEnd;
+
+    final startTimeFormatted = selectedStart != null ? selectedStart.format(context) : '';
+    final endTimeFormatted = selectedEnd != null ? selectedEnd.format(context) : '';
 
     return AnimatedSize(
       duration: const Duration(milliseconds: 250),
@@ -116,22 +121,24 @@ class BookingSummaryWidget extends StatelessWidget {
                         children: [
                           SummaryRowWidget(
                             label: l10n.startLabel,
-                            value: slotIndexToTimeLabel(
-                              schedule.selectedStartIndex!,
-                            ),
+                            value: startTimeFormatted,
                           ),
                           SizedBox(height: 6.h),
                           SummaryRowWidget(
                             label: l10n.endLabel,
-                            value: schedule.selectedEndIndex != null
-                                ? slotIndexToTimeLabel(
-                                    schedule.selectedEndIndex! + 1,
-                                  )
-                                : '—',
+                            value: endTimeFormatted,
                           ),
                           SizedBox(height: 6.h),
                           SummaryRowWidget(
-                            label: l10n.durationLabel,
+                            label: l10n.selectedDurationLabel,
+                            value: _durationLabel(
+                              l10n,
+                              schedule.selectedDuration,
+                            ),
+                          ),
+                          SizedBox(height: 6.h),
+                          SummaryRowWidget(
+                            label: l10n.totalDurationLabel,
                             value: _durationLabel(
                               l10n,
                               schedule.selectedDuration,

@@ -14,29 +14,23 @@ final class BookingInitial extends BookingState {
   const BookingInitial();
 }
 
-/// Transitory state emitted when loading schedule data.
+/// Transitory state emitted when loading or resetting schedule data.
 final class BookingLoading extends BookingState {
   const BookingLoading();
 }
 
-/// Operational state emitted on successful schedule queries or selections.
-final class BookingSuccess extends BookingState {
-  const BookingSuccess(this.schedule);
+/// Main operational state for the booking feature.
+final class BookingLoaded extends BookingState {
+  const BookingLoaded({
+    required this.schedule,
+    this.isConfirmed = false,
+  });
 
   final BookingSchedule schedule;
+  final bool isConfirmed;
 
   @override
-  List<Object?> get props => [schedule];
-}
-
-/// State emitted when a booking is confirmed successfully.
-final class BookingConfirmed extends BookingState {
-  const BookingConfirmed(this.schedule);
-
-  final BookingSchedule schedule;
-
-  @override
-  List<Object?> get props => [schedule];
+  List<Object?> get props => [schedule, isConfirmed];
 }
 
 /// State emitted when an unrecoverable failure occurs.

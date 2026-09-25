@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:booking_appointments/features/booking/domain/booking_duration.dart';
@@ -11,19 +11,19 @@ part 'booking_state.dart';
 ///
 /// Responsible strictly for handling UI actions, invoking repository methods,
 /// and emitting clear lifecycle states. All business math and data updates
-/// are encapsulated in [BookingRepository].
+/// are encapsulated in [BookingRepository] and domain services.
 class BookingCubit extends Cubit<BookingState> {
   BookingCubit(this._repository) : super(const BookingInitial());
 
   final BookingRepository _repository;
 
-  /// Loads initial schedule data and emits [BookingSuccess].
+  /// Loads initial schedule data and emits [BookingLoaded].
   Future<void> initialize() async {
     emit(const BookingLoading());
     final result = await _repository.getSchedule();
     result.fold(
       (failure) => emit(BookingFailure(failure.message)),
-      (schedule) => emit(BookingSuccess(schedule)),
+      (schedule) => emit(BookingLoaded(schedule: schedule)),
     );
   }
 
@@ -32,38 +32,33 @@ class BookingCubit extends Cubit<BookingState> {
     final schedule = _getCurrentSchedule();
     final result = await _repository.selectDuration(
       duration,
-      schedule?.selectedStartIndex,
+      schedule?.selectedStart,
     );
     result.fold(
       (failure) => emit(BookingFailure(failure.message)),
-      (newSchedule) => emit(BookingSuccess(newSchedule)),
+      (newSchedule) => emit(BookingLoaded(schedule: newSchedule)),
     );
   }
 
   /// Selects a start time slot and validates selection.
-  Future<void> selectStartTime(int slotIndex) async {
+  Future<void> selectStartTime(TimeOfDay startTime) async {
     final schedule = _getCurrentSchedule();
     final duration =
         schedule?.selectedDuration ?? BookingDuration.thirtyMinutes;
-    final result = await _repository.selectStartTime(slotIndex, duration);
+    final result = await _repository.selectStartTime(startTime, duration);
     result.fold(
       (failure) => emit(BookingFailure(failure.message)),
-      (newSchedule) => emit(BookingSuccess(newSchedule)),
+      (newSchedule) => emit(BookingLoaded(schedule: newSchedule)),
     );
-  }
-
-  /// Alias method for user slot taps.
-  Future<void> handleSlotTap(int slotIndex) async {
-    await selectStartTime(slotIndex);
   }
 
   /// Re-validates and commits the currently selected booking.
   Future<void> confirmBooking() async {
     final schedule = _getCurrentSchedule();
-    if (schedule == null || schedule.selectedStartIndex == null) return;
+    if (schedule == null || schedule.selectedStart == null) return;
 
     final result = await _repository.confirmBooking(
-      startIndex: schedule.selectedStartIndex!,
+      startTime: schedule.selectedStart!,
       duration: schedule.selectedDuration,
     );
 
@@ -72,9 +67,9 @@ class BookingCubit extends Cubit<BookingState> {
       (newSchedule) {
         if (newSchedule.validationResult != null &&
             !newSchedule.validationResult!.isValid) {
-          emit(BookingSuccess(newSchedule));
+          emit(BookingLoaded(schedule: newSchedule));
         } else {
-          emit(BookingConfirmed(newSchedule));
+          emit(BookingLoaded(schedule: newSchedule, isConfirmed: true));
         }
       },
     );
@@ -86,15 +81,14 @@ class BookingCubit extends Cubit<BookingState> {
     final result = await _repository.resetSchedule();
     result.fold(
       (failure) => emit(BookingFailure(failure.message)),
-      (schedule) => emit(BookingSuccess(schedule)),
+      (newSchedule) => emit(BookingLoaded(schedule: newSchedule)),
     );
   }
 
   /// Helper to extract current [BookingSchedule] if present.
   BookingSchedule? _getCurrentSchedule() {
     final current = state;
-    if (current is BookingSuccess) return current.schedule;
-    if (current is BookingConfirmed) return current.schedule;
+    if (current is BookingLoaded) return current.schedule;
     return null;
   }
 }

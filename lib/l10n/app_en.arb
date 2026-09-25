@@ -58,6 +58,12 @@
   "durationLabel": "Duration",
   "@durationLabel": { "description": "Label for the booking duration row." },
 
+  "selectedDurationLabel": "Selected Duration",
+  "@selectedDurationLabel": { "description": "Label for selected duration row in summary." },
+
+  "totalDurationLabel": "Total Duration",
+  "@totalDurationLabel": { "description": "Label for total duration row in summary." },
+
   "noSelectionYet": "No time slot selected yet.",
   "@noSelectionYet": { "description": "Shown in summary when no start time is selected." },
 

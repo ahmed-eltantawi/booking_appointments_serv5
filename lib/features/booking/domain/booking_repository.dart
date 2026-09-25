@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:dartz/dartz.dart';
 import 'package:booking_appointments/core/errors/failures.dart';
 import 'package:booking_appointments/features/booking/domain/booking_duration.dart';
@@ -9,20 +10,21 @@ abstract class BookingRepository {
   Future<Either<Failure, BookingSchedule>> getSchedule();
 
   /// Changes the active booking duration and recalculates valid start times.
+  /// Preserves currentStart and revalidates it if non-null (ISSUE-002).
   Future<Either<Failure, BookingSchedule>> selectDuration(
     BookingDuration duration,
-    int? currentStartIndex,
+    TimeOfDay? currentStart,
   );
 
   /// Selects a start time slot and validates the selection.
   Future<Either<Failure, BookingSchedule>> selectStartTime(
-    int slotIndex,
+    TimeOfDay startTime,
     BookingDuration duration,
   );
 
   /// Confirms the current booking, updating the schedule data if valid.
   Future<Either<Failure, BookingSchedule>> confirmBooking({
-    required int startIndex,
+    required TimeOfDay startTime,
     required BookingDuration duration,
   });
 

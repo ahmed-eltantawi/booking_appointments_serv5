@@ -3,30 +3,42 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:booking_appointments/l10n/app_localizations.dart';
 import 'package:booking_appointments/core/utils/app_text_styles.dart';
-import 'package:booking_appointments/features/booking/domain/slot_model.dart';
+import 'package:booking_appointments/features/booking/domain/booking_duration.dart';
+import 'package:booking_appointments/features/booking/domain/booking_validation_result.dart';
+import 'package:booking_appointments/features/booking/domain/time_slot.dart';
 import 'package:booking_appointments/features/booking/presentation/manager/booking_cubit.dart';
 import 'package:booking_appointments/features/booking/presentation/widgets/slot_cell_widget.dart';
 import 'package:booking_appointments/features/booking/presentation/widgets/staggered_entrance_widget.dart';
 
-/// Displays the 18-slot working day as a 3-column grid using [GridView.builder].
-///
-/// Wraps the section header and individual time slot cells with [StaggeredEntranceWidget]
-/// to provide a smooth cascading entrance animation when the page opens.
+/// Displays the working day time slots as a 3-column grid using [GridView.builder].
 class TimeSlotGridWidget extends StatelessWidget {
   const TimeSlotGridWidget({
     super.key,
     required this.slots,
-    required this.validStartIndexes,
-    this.selectedStartIndex,
+    required this.validStartTimes,
+    required this.selectedDuration,
+    this.selectedStart,
+    this.validationResult,
   });
 
-  final List<SlotModel> slots;
-  final List<int> validStartIndexes;
-  final int? selectedStartIndex;
+  final List<TimeSlot> slots;
+  final List<TimeOfDay> validStartTimes;
+  final BookingDuration selectedDuration;
+  final TimeOfDay? selectedStart;
+  final BookingValidationResult? validationResult;
 
   @override
   Widget build(BuildContext context) {
     final l10n = S.of(context);
+    final selectedStartMins = selectedStart != null
+        ? (selectedStart!.hour * 60 + selectedStart!.minute)
+        : null;
+    final selectedEndMins = selectedStartMins != null
+        ? selectedStartMins + selectedDuration.minutes
+        : null;
+
+    final isSelectionInvalid = validationResult != null && !validationResult!.isValid;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -70,15 +82,20 @@ class TimeSlotGridWidget extends StatelessWidget {
           itemCount: slots.length,
           itemBuilder: (context, index) {
             final slot = slots[index];
-            final isValidStart = validStartIndexes.contains(slot.index) &&
+            final isValidStart = validStartTimes.contains(slot.start) &&
                 slot.status == SlotStatus.available;
-            final rangeOffset =
-                (slot.status == SlotStatus.selected && selectedStartIndex != null)
-                    ? (slot.index - selectedStartIndex!)
-                    : 0;
+
+            final isSelected = selectedStartMins != null &&
+                selectedEndMins != null &&
+                slot.startMinutes >= selectedStartMins &&
+                slot.startMinutes < selectedEndMins;
+
+            final rangeOffset = isSelected
+                ? ((slot.startMinutes - selectedStartMins) ~/ 30)
+                : 0;
 
             return StaggeredEntranceWidget(
-              key: ValueKey('entrance_slot_${slot.index}'),
+              key: ValueKey('entrance_slot_${slot.start.hour}_${slot.start.minute}'),
               index: index,
               initialDelay: const Duration(milliseconds: 260),
               delayStep: const Duration(milliseconds: 55),
@@ -87,9 +104,11 @@ class TimeSlotGridWidget extends StatelessWidget {
               child: SlotCellWidget(
                 slot: slot,
                 isValidStart: isValidStart,
+                isSelected: isSelected,
+                isInvalidSelection: isSelected && isSelectionInvalid,
                 rangeOffset: rangeOffset,
                 onTap: () =>
-                    context.read<BookingCubit>().handleSlotTap(slot.index),
+                    context.read<BookingCubit>().selectStartTime(slot.start),
               ),
             );
           },
@@ -98,4 +117,3 @@ class TimeSlotGridWidget extends StatelessWidget {
     );
   }
 }
-

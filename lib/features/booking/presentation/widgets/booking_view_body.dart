@@ -26,28 +26,26 @@ class BookingViewBody extends StatelessWidget {
     final l10n = S.of(context);
     return BlocConsumer<BookingCubit, BookingState>(
       listenWhen: (previous, current) {
-        if (current is BookingConfirmed) return true;
         if (current is BookingFailure) return true;
-        if (current is BookingSuccess) {
+        if (current is BookingLoaded) {
+          if (current.isConfirmed) return true;
           final vr = current.schedule.validationResult;
           return vr != null && !vr.isValid;
         }
         return false;
       },
       listener: (context, state) {
-        if (state is BookingConfirmed) {
-          context.showSuccessSnackBar(l10n.bookingSuccessful);
-        } else if (state is BookingFailure) {
+        if (state is BookingFailure) {
           context.showErrorSnackBar(state.message);
-        } else if (state is BookingSuccess) {
-          final schedule = state.schedule;
-          final vr = schedule.validationResult;
-          if (vr != null && !vr.isValid) {
-            final String msg = formatValidationErrorMessage(
-              validationResult: vr,
-              l10n: l10n,
-            );
-            context.showErrorSnackBar(msg);
+        } else if (state is BookingLoaded) {
+          if (state.isConfirmed) {
+            context.showSuccessSnackBar(l10n.bookingSuccessful);
+          } else {
+            final vr = state.schedule.validationResult;
+            if (vr != null && !vr.isValid) {
+              final msg = vr.getLocalizedMessage(l10n);
+              context.showErrorSnackBar(msg);
+            }
           }
         }
       },
@@ -57,18 +55,17 @@ class BookingViewBody extends StatelessWidget {
         }
 
         final BookingSchedule schedule;
-        final bool isConfirmed = state is BookingConfirmed;
+        final bool isConfirmed;
 
-        if (state is BookingSuccess) {
+        if (state is BookingLoaded) {
           schedule = state.schedule;
-        } else if (isConfirmed) {
-          schedule = state.schedule;
+          isConfirmed = state.isConfirmed;
         } else {
           return const SizedBox.shrink();
         }
 
-        final showNoAvailableSlots = schedule.validStartIndexes.isEmpty &&
-            schedule.selectedStartIndex == null;
+        final showNoAvailableSlots = schedule.validStartTimes.isEmpty &&
+            schedule.selectedStart == null;
 
         return SingleChildScrollView(
           padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
@@ -95,8 +92,10 @@ class BookingViewBody extends StatelessWidget {
               TimeSlotGridWidget(
                 key: const ValueKey('entrance_slots_grid'),
                 slots: schedule.slots,
-                validStartIndexes: schedule.validStartIndexes,
-                selectedStartIndex: schedule.selectedStartIndex,
+                validStartTimes: schedule.validStartTimes,
+                selectedDuration: schedule.selectedDuration,
+                selectedStart: schedule.selectedStart,
+                validationResult: schedule.validationResult,
               ),
 
               AnimatedSize(
@@ -161,7 +160,7 @@ class BookingViewBody extends StatelessWidget {
                 duration: const Duration(milliseconds: 450),
                 slideOffset: const Offset(0, 0.15),
                 child: BookingActionBarWidget(
-                  canConfirm: schedule.selectedStartIndex != null &&
+                  canConfirm: schedule.selectedStart != null &&
                       (schedule.validationResult?.isValid ?? false),
                   isConfirmed: isConfirmed,
                 ),

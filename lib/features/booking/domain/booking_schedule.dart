@@ -1,54 +1,54 @@
+import 'package:flutter/material.dart';
 import 'package:equatable/equatable.dart';
 import 'package:booking_appointments/features/booking/domain/booking_duration.dart';
 import 'package:booking_appointments/features/booking/domain/booking_validation_result.dart';
-import 'package:booking_appointments/features/booking/domain/slot_model.dart';
+import 'package:booking_appointments/features/booking/domain/booking_validator.dart';
+import 'package:booking_appointments/features/booking/domain/time_slot.dart';
 
-/// Value object representing the current state of the booking schedule.
+/// Value object representing the immutable state of the booking schedule.
 class BookingSchedule extends Equatable {
   const BookingSchedule({
     required this.slots,
     required this.selectedDuration,
-    required this.validStartIndexes,
-    this.selectedStartIndex,
-    this.selectedEndIndex,
+    required this.validStartTimes,
+    this.selectedStart,
     this.validationResult,
   });
 
-  /// The current schedule slots (including any selection overlays).
-  final List<SlotModel> slots;
+  /// The current schedule time slots (domain status: available, booked, unavailable).
+  final List<TimeSlot> slots;
 
   /// The selected booking duration.
   final BookingDuration selectedDuration;
 
-  /// Valid start slot indexes for the selected duration.
-  final List<int> validStartIndexes;
+  /// Valid start slot times for the selected duration.
+  final List<TimeOfDay> validStartTimes;
 
-  /// Currently selected start slot index, if any.
-  final int? selectedStartIndex;
+  /// Currently selected start slot time, if any.
+  final TimeOfDay? selectedStart;
 
-  /// Currently selected end slot index, if any.
-  final int? selectedEndIndex;
-
-  /// Result of booking validation, if evaluated.
+  /// Result of booking validation for the current selection, if evaluated.
   final BookingValidationResult? validationResult;
 
+  /// Derived calculated end time (selectedStart + selectedDuration).
+  TimeOfDay? get selectedEnd => selectedStart == null
+      ? null
+      : BookingValidator.calculateEndTime(selectedStart!, selectedDuration);
+
   BookingSchedule copyWith({
-    List<SlotModel>? slots,
+    List<TimeSlot>? slots,
     BookingDuration? selectedDuration,
-    List<int>? validStartIndexes,
-    int? selectedStartIndex,
-    int? selectedEndIndex,
+    List<TimeOfDay>? validStartTimes,
+    TimeOfDay? selectedStart,
     BookingValidationResult? validationResult,
     bool clearSelection = false,
   }) {
     return BookingSchedule(
       slots: slots ?? this.slots,
       selectedDuration: selectedDuration ?? this.selectedDuration,
-      validStartIndexes: validStartIndexes ?? this.validStartIndexes,
-      selectedStartIndex:
-          clearSelection ? null : (selectedStartIndex ?? this.selectedStartIndex),
-      selectedEndIndex:
-          clearSelection ? null : (selectedEndIndex ?? this.selectedEndIndex),
+      validStartTimes: validStartTimes ?? this.validStartTimes,
+      selectedStart:
+          clearSelection ? null : (selectedStart ?? this.selectedStart),
       validationResult:
           clearSelection ? null : (validationResult ?? this.validationResult),
     );
@@ -58,9 +58,8 @@ class BookingSchedule extends Equatable {
   List<Object?> get props => [
         slots,
         selectedDuration,
-        validStartIndexes,
-        selectedStartIndex,
-        selectedEndIndex,
+        validStartTimes,
+        selectedStart,
         validationResult,
       ];
 }

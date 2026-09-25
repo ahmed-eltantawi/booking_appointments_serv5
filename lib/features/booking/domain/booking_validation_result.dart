@@ -1,15 +1,13 @@
 import 'package:equatable/equatable.dart';
+import 'package:booking_appointments/l10n/app_localizations.dart';
 
 /// Semantic reason why a booking attempt is invalid.
 /// Used by the presentation layer to display a localized error message.
-/// Business logic returns this enum; UI converts it to a localized string.
 enum BookingInvalidReason {
   /// The booking's end time would exceed 6:00 PM (working day boundary).
   exceedsWorkingHours,
 
   /// One or more required consecutive slots are already booked.
-  /// This also covers all overlap scenarios — any required slot being booked
-  /// implicitly means the new booking overlaps an existing one.
   containsBookedSlot,
 
   /// One or more required consecutive slots are marked unavailable.
@@ -20,10 +18,19 @@ enum BookingInvalidReason {
   createsInvalidGap,
 }
 
+extension BookingInvalidReasonLocalization on BookingInvalidReason {
+  /// Centralized single source of truth mapping for localized validation strings.
+  String getLocalizedMessage(S l10n) {
+    return switch (this) {
+      BookingInvalidReason.exceedsWorkingHours => l10n.errorExceedsWorkingHours,
+      BookingInvalidReason.containsBookedSlot => l10n.errorContainsBookedSlot,
+      BookingInvalidReason.containsUnavailableSlot => l10n.errorContainsUnavailableSlot,
+      BookingInvalidReason.createsInvalidGap => l10n.errorCreatesInvalidGap,
+    };
+  }
+}
+
 /// The outcome of a booking validation attempt.
-///
-/// [isValid] = true → booking may proceed.
-/// [isValid] = false → [reason] is non-null and describes the violation.
 class BookingValidationResult extends Equatable {
   const BookingValidationResult._({
     required this.isValid,
@@ -34,7 +41,7 @@ class BookingValidationResult extends Equatable {
   /// Creates a valid result (booking may proceed).
   const BookingValidationResult.valid() : this._(isValid: true);
 
-  /// Creates an invalid result with a specific [reason] and optional [conflictingTimeLabels].
+  /// Creates an invalid result with a specific [reason].
   const BookingValidationResult.invalid(
     BookingInvalidReason reason, {
     List<String> conflictingTimeLabels = const [],
@@ -47,6 +54,12 @@ class BookingValidationResult extends Equatable {
   final bool isValid;
   final BookingInvalidReason? reason;
   final List<String> conflictingTimeLabels;
+
+  /// Returns the localized error message for this validation result.
+  String getLocalizedMessage(S l10n) {
+    if (isValid || reason == null) return '';
+    return reason!.getLocalizedMessage(l10n);
+  }
 
   @override
   List<Object?> get props => [isValid, reason, conflictingTimeLabels];

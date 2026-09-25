@@ -1,33 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:booking_appointments/l10n/app_localizations.dart';
 import 'package:booking_appointments/core/utils/app_colors.dart';
 import 'package:booking_appointments/core/utils/app_text_styles.dart';
-import 'package:booking_appointments/features/booking/domain/slot_model.dart';
+import 'package:booking_appointments/features/booking/domain/time_slot.dart';
 
 /// An individual time-slot cell in the booking grid.
 ///
-/// Features:
-///   • Press scale micro-interaction.
-///   • Staggered range selection animation.
-///   • Shake & error flash visual feedback on invalid slot taps.
-///   • Contextual haptic feedback.
+/// Implements domain-presentation separation (ISSUE-005) and full accessibility (ISSUE-012):
+///   • Preserves original domain status (available, booked, unavailable).
+///   • Renders selection overlays without hiding booked/unavailable identity.
+///   • Displays non-color indicators (status icons: lock, block, checkmark, warning).
+///   • Provides Semantics, 48dp+ touch target, InkWell ripple, and haptic feedback.
 class SlotCellWidget extends StatefulWidget {
   const SlotCellWidget({
     super.key,
     required this.slot,
     required this.isValidStart,
+    this.isSelected = false,
+    this.isInvalidSelection = false,
     this.rangeOffset = 0,
     this.onTap,
   });
 
-  final SlotModel slot;
+  final TimeSlot slot;
   final bool isValidStart;
-
-  /// Stagger index offset when part of a multi-slot selected range.
+  final bool isSelected;
+  final bool isInvalidSelection;
   final int rangeOffset;
-
-  /// Callback invoked when the slot is tapped.
   final VoidCallback? onTap;
 
   @override
@@ -49,8 +50,7 @@ class _SlotCellWidgetState extends State<SlotCellWidget>
     super.initState();
     _isPressedNotifier = ValueNotifier<bool>(false);
     _isErrorFlashingNotifier = ValueNotifier<bool>(false);
-    _isVisuallySelectedNotifier =
-        ValueNotifier<bool>(widget.slot.status == SlotStatus.selected);
+    _isVisuallySelectedNotifier = ValueNotifier<bool>(widget.isSelected);
 
     _shakeController = AnimationController(
       vsync: this,
@@ -72,10 +72,9 @@ class _SlotCellWidgetState extends State<SlotCellWidget>
   @override
   void didUpdateWidget(SlotCellWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.slot.status == SlotStatus.selected &&
-        oldWidget.slot.status != SlotStatus.selected) {
+    if (widget.isSelected && !oldWidget.isSelected) {
       _applyStaggeredSelection();
-    } else if (widget.slot.status != SlotStatus.selected) {
+    } else if (!widget.isSelected) {
       _isVisuallySelectedNotifier.value = false;
     } else {
       _isVisuallySelectedNotifier.value = true;
@@ -87,22 +86,9 @@ class _SlotCellWidgetState extends State<SlotCellWidget>
     if (delay > Duration.zero) {
       await Future.delayed(delay);
     }
-    if (!_isDisposed && mounted && widget.slot.status == SlotStatus.selected) {
+    if (!_isDisposed && mounted && widget.isSelected) {
       _isVisuallySelectedNotifier.value = true;
     }
-  }
-
-  void _handleTapDown(TapDownDetails details) {
-    _isPressedNotifier.value = true;
-  }
-
-  void _handleTapUp(TapUpDetails details) {
-    _isPressedNotifier.value = false;
-    _executeTapBehavior();
-  }
-
-  void _handleTapCancel() {
-    _isPressedNotifier.value = false;
   }
 
   void _executeTapBehavior() {
@@ -148,9 +134,25 @@ class _SlotCellWidgetState extends State<SlotCellWidget>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = S.of(context);
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colorScheme = Theme.of(context).colorScheme;
+
     final isAvailableButNotValid =
         widget.slot.status == SlotStatus.available && !widget.isValidStart;
+
+    final formattedTime = widget.slot.start.format(context);
+
+    // Domain status label
+    final statusLabel = switch (widget.slot.status) {
+      SlotStatus.available => l10n.available,
+      SlotStatus.booked => l10n.booked,
+      SlotStatus.unavailable => l10n.unavailable,
+    };
+
+    final selectionLabel = widget.isSelected
+        ? (widget.isInvalidSelection ? ', invalid selection' : ', ${l10n.selected}')
+        : '';
 
     return ListenableBuilder(
       listenable: Listenable.merge([
@@ -164,65 +166,107 @@ class _SlotCellWidgetState extends State<SlotCellWidget>
         final isErrorFlashing = _isErrorFlashingNotifier.value;
         final isVisuallySelected = _isVisuallySelectedNotifier.value;
 
-        final effectiveStatus =
-            isVisuallySelected ? SlotStatus.selected : widget.slot.status;
-        final (bgColor, fgColor) = _colorsForStatus(effectiveStatus, isDark);
+        final (bgColor, fgColor) = _colorsForStatus(
+          status: widget.slot.status,
+          isSelected: isVisuallySelected,
+          isInvalidSelection: widget.isInvalidSelection,
+          isDark: isDark,
+          colorScheme: colorScheme,
+        );
+
+        final IconData? statusIcon = _iconForStatus(
+          status: widget.slot.status,
+          isSelected: isVisuallySelected,
+          isInvalidSelection: widget.isInvalidSelection,
+        );
 
         final scale = isPressed
             ? 0.94
             : (isVisuallySelected ? 1.02 : 1.0);
 
-        return Transform.translate(
-          offset: Offset(_shakeAnimation.value.w, 0),
-          child: GestureDetector(
-            onTapDown: _handleTapDown,
-            onTapUp: _handleTapUp,
-            onTapCancel: _handleTapCancel,
-            behavior: HitTestBehavior.opaque,
+        final borderColor = (widget.isInvalidSelection || isErrorFlashing)
+            ? colorScheme.error
+            : (isVisuallySelected
+                ? AppColors.primary
+                : AppColors.outline.withValues(alpha: isDark ? 0.3 : 1.0));
+
+        final borderWidth = (isVisuallySelected || widget.isInvalidSelection || isErrorFlashing)
+            ? 2.0
+            : 1.0;
+
+        return Semantics(
+          button: true,
+          enabled: widget.slot.status == SlotStatus.available,
+          selected: isVisuallySelected,
+          label: '$formattedTime, $statusLabel$selectionLabel',
+          child: Transform.translate(
+            offset: Offset(_shakeAnimation.value.w, 0),
             child: AnimatedScale(
               scale: scale,
               duration: const Duration(milliseconds: 160),
               curve: Curves.easeOutCubic,
               child: AnimatedOpacity(
                 duration: const Duration(milliseconds: 200),
-                opacity: isAvailableButNotValid ? 0.45 : 1.0,
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  curve: Curves.easeInOut,
-                  decoration: BoxDecoration(
-                    color: isErrorFlashing
-                        ? Theme.of(context).colorScheme.error.withValues(alpha: 0.15)
-                        : bgColor,
+                opacity: (isAvailableButNotValid && !isVisuallySelected) ? 0.45 : 1.0,
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: _executeTapBehavior,
+                    onHighlightChanged: (highlighted) {
+                      _isPressedNotifier.value = highlighted;
+                    },
                     borderRadius: BorderRadius.circular(8.r),
-                    border: Border.all(
-                      color: isErrorFlashing
-                          ? Theme.of(context).colorScheme.error
-                          : (effectiveStatus == SlotStatus.selected
-                              ? AppColors.primary
-                              : AppColors.outline.withValues(alpha: isDark ? 0.3 : 1.0)),
-                      width: (effectiveStatus == SlotStatus.selected || isErrorFlashing) ? 2 : 1,
-                    ),
-                    boxShadow: effectiveStatus == SlotStatus.selected
-                        ? [
-                            BoxShadow(
-                              color: AppColors.primary.withValues(alpha: 0.28),
-                              blurRadius: 8,
-                              offset: const Offset(0, 3),
-                            ),
-                          ]
-                        : null,
-                  ),
-                  child: Center(
-                    child: AnimatedDefaultTextStyle(
-                      duration: const Duration(milliseconds: 200),
-                      style: AppTextStyles.medium12.copyWith(
-                        color: isErrorFlashing
-                            ? Theme.of(context).colorScheme.error
-                            : fgColor,
+                    child: Container(
+                      constraints: BoxConstraints(
+                        minHeight: 48.h,
+                        minWidth: 48.w,
                       ),
-                      child: Text(
-                        widget.slot.timeLabel,
-                        textAlign: TextAlign.center,
+                      padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 8.h),
+                      decoration: BoxDecoration(
+                        color: isErrorFlashing
+                            ? colorScheme.error.withValues(alpha: 0.15)
+                            : bgColor,
+                        borderRadius: BorderRadius.circular(8.r),
+                        border: Border.all(
+                          color: borderColor,
+                          width: borderWidth,
+                        ),
+                        boxShadow: (isVisuallySelected && !widget.isInvalidSelection)
+                            ? [
+                                BoxShadow(
+                                  color: AppColors.primary.withValues(alpha: 0.28),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 3),
+                                ),
+                              ]
+                            : null,
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (statusIcon != null) ...[
+                            Icon(
+                              statusIcon,
+                              size: 14.r,
+                              color: isErrorFlashing ? colorScheme.error : fgColor,
+                            ),
+                            SizedBox(width: 4.w),
+                          ],
+                          Flexible(
+                            child: AnimatedDefaultTextStyle(
+                              duration: const Duration(milliseconds: 200),
+                              style: AppTextStyles.medium12.copyWith(
+                                color: isErrorFlashing ? colorScheme.error : fgColor,
+                              ),
+                              child: Text(
+                                formattedTime,
+                                textAlign: TextAlign.center,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
@@ -235,21 +279,69 @@ class _SlotCellWidgetState extends State<SlotCellWidget>
     );
   }
 
-  (Color, Color) _colorsForStatus(SlotStatus status, bool isDark) {
+  (Color, Color) _colorsForStatus({
+    required SlotStatus status,
+    required bool isSelected,
+    required bool isInvalidSelection,
+    required bool isDark,
+    required ColorScheme colorScheme,
+  }) {
+    if (isSelected && !isInvalidSelection) {
+      return isDark
+          ? (AppColors.slotSelectedBgDark, AppColors.slotSelectedFgDark)
+          : (AppColors.slotSelectedBg, AppColors.slotSelectedFg);
+    }
+
+    if (isSelected && isInvalidSelection) {
+      switch (status) {
+        case SlotStatus.booked:
+          final baseBg = isDark ? AppColors.slotBookedBgDark : AppColors.slotBookedBg;
+          final baseFg = isDark ? AppColors.slotBookedFgDark : AppColors.slotBookedFg;
+          return (Color.alphaBlend(colorScheme.error.withValues(alpha: 0.2), baseBg), baseFg);
+        case SlotStatus.unavailable:
+          final baseBg = isDark ? AppColors.slotUnavailableBgDark : AppColors.slotUnavailableBg;
+          final baseFg = isDark ? AppColors.slotUnavailableFgDark : AppColors.slotUnavailableFg;
+          return (Color.alphaBlend(colorScheme.error.withValues(alpha: 0.2), baseBg), baseFg);
+        case SlotStatus.available:
+          return (colorScheme.error.withValues(alpha: 0.12), colorScheme.error);
+      }
+    }
+
     return switch (status) {
-      SlotStatus.available   => isDark
+      SlotStatus.available => isDark
           ? (AppColors.slotAvailableBgDark, AppColors.slotAvailableFgDark)
           : (AppColors.slotAvailableBg, AppColors.slotAvailableFg),
-      SlotStatus.booked      => isDark
+      SlotStatus.booked => isDark
           ? (AppColors.slotBookedBgDark, AppColors.slotBookedFgDark)
           : (AppColors.slotBookedBg, AppColors.slotBookedFg),
       SlotStatus.unavailable => isDark
           ? (AppColors.slotUnavailableBgDark, AppColors.slotUnavailableFgDark)
           : (AppColors.slotUnavailableBg, AppColors.slotUnavailableFg),
-      SlotStatus.selected    => isDark
-          ? (AppColors.slotSelectedBgDark, AppColors.slotSelectedFgDark)
-          : (AppColors.slotSelectedBg, AppColors.slotSelectedFg),
+    };
+  }
+
+  IconData? _iconForStatus({
+    required SlotStatus status,
+    required bool isSelected,
+    required bool isInvalidSelection,
+  }) {
+    if (isSelected && !isInvalidSelection) {
+      return Icons.check_circle_rounded;
+    }
+    if (isSelected && isInvalidSelection) {
+      switch (status) {
+        case SlotStatus.booked:
+          return Icons.lock_clock_rounded;
+        case SlotStatus.unavailable:
+          return Icons.block_rounded;
+        case SlotStatus.available:
+          return Icons.warning_amber_rounded;
+      }
+    }
+    return switch (status) {
+      SlotStatus.available => null,
+      SlotStatus.booked => Icons.lock_clock_rounded,
+      SlotStatus.unavailable => Icons.block_rounded,
     };
   }
 }
-

@@ -67,6 +67,12 @@ class SAr extends S {
   String get durationLabel => 'المدة';
 
   @override
+  String get selectedDurationLabel => 'المدة المحددة';
+
+  @override
+  String get totalDurationLabel => 'إجمالي المدة';
+
+  @override
   String get noSelectionYet => 'لم يتم اختيار فترة بعد.';
 
   @override
