@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:booking_appointments/core/services/services_locator.dart';
 import 'package:booking_appointments/core/services/settings_cubit.dart';
 import 'package:booking_appointments/features/booking/presentation/widgets/app_drawer_widget.dart';
+import 'package:booking_appointments/features/booking/presentation/widgets/slot_cell_widget.dart';
 import 'package:booking_appointments/main.dart';
 
 void main() {
@@ -203,6 +204,31 @@ void main() {
       // and does NOT claim '9:00 AM is already booked.'
       expect(find.text('10:00 AM and 10:30 AM are booked.'), findsOneWidget);
       expect(find.text('9:00 AM is already booked.'), findsNothing);
+    });
+
+    testWidgets('tapping an already selected valid slot does not trigger invalid error feedback', (tester) async {
+      tester.view.physicalSize = const Size(800, 1600);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+
+      await tester.pumpWidget(createWidgetToTest());
+      await tester.pumpAndSettle();
+
+      // Tap slot 1 (9:30 AM) in grid to select it
+      final slotFinder = find.widgetWithText(SlotCellWidget, '9:30 AM');
+      await tester.tap(slotFinder);
+      await tester.pumpAndSettle();
+
+      expect(find.text('Booking Summary'), findsOneWidget);
+
+      // Tap the SAME selected slot cell again
+      await tester.tap(slotFinder);
+      await tester.pumpAndSettle();
+
+      // Verify that no error snackbar or invalid message is shown
+      expect(find.text('9:30 AM is already booked.'), findsNothing);
+      expect(find.text('9:30 AM is currently unavailable.'), findsNothing);
+      expect(find.text('Booking Summary'), findsOneWidget);
     });
   });
 }

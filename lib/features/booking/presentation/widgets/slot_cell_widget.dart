@@ -106,14 +106,20 @@ class _SlotCellWidgetState extends State<SlotCellWidget>
   }
 
   void _executeTapBehavior() {
-    final isInteractiveAndValid =
-        widget.slot.status == SlotStatus.available && widget.isValidStart;
+    final isBookedOrUnavailable =
+        widget.slot.status == SlotStatus.booked ||
+        widget.slot.status == SlotStatus.unavailable;
 
-    if (isInteractiveAndValid) {
-      HapticFeedback.selectionClick();
-    } else {
+    final isInvalidAvailableStart =
+        widget.slot.status == SlotStatus.available && !widget.isValidStart;
+
+    final isInvalid = isBookedOrUnavailable || isInvalidAvailableStart;
+
+    if (isInvalid) {
       HapticFeedback.mediumImpact();
       _triggerInvalidFeedback();
+    } else {
+      HapticFeedback.selectionClick();
     }
 
     widget.onTap?.call();
