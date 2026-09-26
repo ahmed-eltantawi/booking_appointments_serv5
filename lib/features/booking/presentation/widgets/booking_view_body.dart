@@ -25,6 +25,7 @@ class BookingViewBody extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = S.of(context);
     return BlocConsumer<BookingCubit, BookingState>(
+      // Listen when is used to avoid unnecessary rebuilds
       listenWhen: (previous, current) {
         if (current is BookingFailure) return true;
         if (current is BookingLoaded) {
@@ -35,12 +36,15 @@ class BookingViewBody extends StatelessWidget {
         return false;
       },
       listener: (context, state) {
+        // in the BookingFailure and BookingLoaded cases, show a snackbar
         if (state is BookingFailure) {
           context.showErrorSnackBar(state.message);
         } else if (state is BookingLoaded) {
           if (state.isConfirmed) {
             context.showSuccessSnackBar(l10n.bookingSuccessful);
-          } else {
+          }
+          // else show validation error message in a snackbar
+          else {
             final vr = state.schedule.validationResult;
             if (vr != null && !vr.isValid) {
               final msg = vr.getLocalizedMessage(l10n);
@@ -50,6 +54,7 @@ class BookingViewBody extends StatelessWidget {
         }
       },
       builder: (context, state) {
+        // show loading indicator in the initial and loading states
         if (state is BookingInitial || state is BookingLoading) {
           return const Center(child: CircularProgressIndicator());
         }
@@ -57,22 +62,27 @@ class BookingViewBody extends StatelessWidget {
         final BookingSchedule schedule;
         final bool isConfirmed;
 
+        // in the case of BookingLoaded, extract schedule and isConfirmed
         if (state is BookingLoaded) {
           schedule = state.schedule;
           isConfirmed = state.isConfirmed;
-        } else {
+        }
+        // else return an empty widget
+        else {
           return const SizedBox.shrink();
         }
 
+        // showNoAvailableSlots is true when there are no valid start times
         final showNoAvailableSlots =
             schedule.validStartTimes.isEmpty && schedule.selectedStart == null;
 
+        // single child scroll view if isn't enough space to show all content
         return SingleChildScrollView(
           padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // --- 1. Header / Title (FadeInDown) ---
+              //! --- 1. Header / Title (FadeInDown) ---
               StaggeredEntranceWidget(
                 key: const ValueKey('entrance_header'),
                 initialDelay: Duration.zero,
@@ -82,13 +92,13 @@ class BookingViewBody extends StatelessWidget {
               ),
               SizedBox(height: 24.h),
 
-              // --- 2. Duration Selection ---
+              //! --- 2. Duration Selection ---
               DurationSelectorWidget(
                 selectedDuration: schedule.selectedDuration,
               ),
               SizedBox(height: 20.h),
 
-              // --- 3. Time Slots (Staggered Grid Entrance) ---
+              //! --- 3. Time Slots (Staggered Grid Entrance) ---
               TimeSlotGridWidget(
                 key: const ValueKey('entrance_slots_grid'),
                 slots: schedule.slots,
@@ -98,6 +108,7 @@ class BookingViewBody extends StatelessWidget {
                 validationResult: schedule.validationResult,
               ),
 
+              //! --- this part is responsible for No Available Slots message ---
               AnimatedSize(
                 duration: const Duration(milliseconds: 220),
                 curve: Curves.easeInOut,
@@ -121,7 +132,9 @@ class BookingViewBody extends StatelessWidget {
               ),
               SizedBox(height: 16.h),
 
-              // --- 4. Other Sections (Legend, Summary, Validation, Action Bar) ---
+              //! --- 4. Other Sections (Legend, Summary, Validation, Action Bar) ---
+
+              //legend
               const StaggeredEntranceWidget(
                 key: ValueKey('entrance_legend'),
                 initialDelay: Duration(milliseconds: 600),
@@ -130,6 +143,8 @@ class BookingViewBody extends StatelessWidget {
                 child: SlotLegendWidget(),
               ),
               SizedBox(height: 20.h),
+
+              // summary
               StaggeredEntranceWidget(
                 key: const ValueKey('entrance_summary'),
                 initialDelay: const Duration(milliseconds: 680),
@@ -141,6 +156,8 @@ class BookingViewBody extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 12.h),
+
+              // validation error
               if (schedule.validationResult != null &&
                   !schedule.validationResult!.isValid)
                 StaggeredEntranceWidget(
@@ -154,6 +171,8 @@ class BookingViewBody extends StatelessWidget {
                   ),
                 ),
               SizedBox(height: 24.h),
+
+              // action bar
               StaggeredEntranceWidget(
                 key: const ValueKey('entrance_action_bar'),
                 initialDelay: const Duration(milliseconds: 780),

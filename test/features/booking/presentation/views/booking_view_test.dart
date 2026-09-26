@@ -6,7 +6,7 @@ import 'package:booking_appointments/core/services/services_locator.dart';
 import 'package:booking_appointments/core/services/settings_cubit.dart';
 import 'package:booking_appointments/features/booking/presentation/widgets/app_drawer_widget.dart';
 import 'package:booking_appointments/features/booking/presentation/widgets/booking_summary_widget.dart';
-import 'package:booking_appointments/features/booking/presentation/widgets/slot_cell_widget.dart';
+import 'package:booking_appointments/features/booking/presentation/widgets/slot_cell/slot_cell_widget.dart';
 import 'package:booking_appointments/main.dart';
 
 void main() {

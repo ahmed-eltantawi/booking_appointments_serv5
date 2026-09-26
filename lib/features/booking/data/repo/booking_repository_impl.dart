@@ -72,7 +72,6 @@ class BookingRepositoryImpl implements BookingRepository {
         selectedStart: currentStart,
       );
 
-      // ISSUE-002: Preserve selectedStart even when duration changes!
       // Revalidate selectedStart with the new duration.
       if (currentStart != null) {
         final validation = _validator.validateBooking(

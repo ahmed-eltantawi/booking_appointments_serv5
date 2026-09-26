@@ -10,7 +10,7 @@ abstract class BookingRepository {
   Future<Either<Failure, BookingSchedule>> getSchedule();
 
   /// Changes the active booking duration and recalculates valid start times.
-  /// Preserves currentStart and revalidates it if non-null (ISSUE-002).
+  /// Preserves currentStart and revalidates it if non-null
   Future<Either<Failure, BookingSchedule>> selectDuration(
     BookingDuration duration,
     TimeOfDay? currentStart,

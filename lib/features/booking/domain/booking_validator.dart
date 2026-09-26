@@ -47,6 +47,8 @@ class BookingValidator {
       );
     }
 
+    // if the currentStart not null
+
     final startMins = currentStart.hour * 60 + currentStart.minute;
     final currentSlots = currentDuration.slotCount;
     final endMins = startMins + currentSlots * 30;
@@ -226,14 +228,6 @@ class BookingValidator {
     return validStarts;
   }
 
-  /// Validates a booking attempt against [schedule].
-  ///
-  /// Evaluated rules in priority order:
-  ///   1. Invalid input / nonexistent start time (ISSUE-014)
-  ///   2. Working-hours boundary check (exceeds 6:00 PM)
-  ///   3. Booked slot collision (including current user's and other users' bookings)
-  ///   4. Unavailable slot collision
-  ///   5. Isolated gap creation check (comparing gaps before vs after booking) (ISSUE-001)
   BookingValidationResult validateBooking({
     required List<TimeSlot> schedule,
     required TimeOfDay? startTime,
@@ -294,7 +288,7 @@ class BookingValidator {
       );
     }
 
-    // --- Rule 5: Gap rule — reject ONLY newly created isolated gaps (ISSUE-001) ---
+    // --- Rule 5: Gap rule — reject ONLY newly created isolated gaps ---
     final isolatedBefore = getIsolatedGapStartTimes(schedule);
     final simulatedSchedule = applyBooking(
       schedule: schedule,

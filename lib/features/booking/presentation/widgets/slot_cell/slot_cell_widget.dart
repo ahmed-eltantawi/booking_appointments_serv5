@@ -5,14 +5,9 @@ import 'package:booking_appointments/l10n/app_localizations.dart';
 import 'package:booking_appointments/core/utils/app_colors.dart';
 import 'package:booking_appointments/core/utils/app_text_styles.dart';
 import 'package:booking_appointments/features/booking/domain/Entities/time_slot.dart';
+import 'package:booking_appointments/features/booking/presentation/widgets/slot_cell/slot_cell_animations.dart';
+import 'package:booking_appointments/features/booking/presentation/widgets/slot_cell/slot_cell_style.dart';
 
-/// An individual time-slot cell in the booking grid.
-///
-/// Implements domain-presentation separation (ISSUE-005) and full accessibility (ISSUE-012):
-///   • Preserves original domain status (available, booked, unavailable).
-///   • Renders selection overlays without hiding booked/unavailable identity.
-///   • Displays non-color indicators (status icons: lock, block, checkmark, warning).
-///   • Provides Semantics, 48dp+ touch target, InkWell ripple, and haptic feedback.
 class SlotCellWidget extends StatefulWidget {
   const SlotCellWidget({
     super.key,
@@ -28,6 +23,8 @@ class SlotCellWidget extends StatefulWidget {
   final bool isValidStart;
   final bool isSelected;
   final bool isInvalidSelection;
+
+  // this variable is used to apply staggered selection animation
   final int rangeOffset;
   final VoidCallback? onTap;
 
@@ -52,21 +49,8 @@ class _SlotCellWidgetState extends State<SlotCellWidget>
     _isErrorFlashingNotifier = ValueNotifier<bool>(false);
     _isVisuallySelectedNotifier = ValueNotifier<bool>(widget.isSelected);
 
-    _shakeController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 300),
-    );
-
-    _shakeAnimation =
-        TweenSequence<double>([
-          TweenSequenceItem(tween: Tween(begin: 0.0, end: -6.0), weight: 1),
-          TweenSequenceItem(tween: Tween(begin: -6.0, end: 6.0), weight: 2),
-          TweenSequenceItem(tween: Tween(begin: 6.0, end: -4.0), weight: 2),
-          TweenSequenceItem(tween: Tween(begin: -4.0, end: 4.0), weight: 2),
-          TweenSequenceItem(tween: Tween(begin: 4.0, end: 0.0), weight: 1),
-        ]).animate(
-          CurvedAnimation(parent: _shakeController, curve: Curves.easeInOut),
-        );
+    _shakeController = SlotCellAnimations.createShakeController(this);
+    _shakeAnimation = SlotCellAnimations.createShakeAnimation(_shakeController);
   }
 
   @override
@@ -91,31 +75,38 @@ class _SlotCellWidgetState extends State<SlotCellWidget>
     }
   }
 
+  /// Handle tap behavior
   void _executeTapBehavior() {
+    // check if slot is booked or unavailable
     final isBookedOrUnavailable =
         widget.slot.status == SlotStatus.booked ||
         widget.slot.status == SlotStatus.myBooking ||
         widget.slot.status == SlotStatus.unavailable;
 
+    // check if slot is available but not valid because the duration
     final isInvalidAvailableStart =
         widget.slot.status == SlotStatus.available && !widget.isValidStart;
 
+    //* check if slot is invalid
     final isInvalid = isBookedOrUnavailable || isInvalidAvailableStart;
 
     if (isInvalid) {
-      HapticFeedback.mediumImpact();
-      _triggerInvalidFeedback();
+      HapticFeedback.mediumImpact(); //vibration
+      _triggerInvalidFeedback(); //shake
     } else {
       HapticFeedback.selectionClick();
     }
 
+    // call the onTap callback if provided
     widget.onTap?.call();
   }
 
+  ///* Trigger invalid feedback (shake effect)
   void _triggerInvalidFeedback() {
     _shakeController.forward(from: 0.0);
     _isErrorFlashingNotifier.value = true;
 
+    // reset the animation after 400ms
     Future.delayed(const Duration(milliseconds: 400), () {
       if (!_isDisposed && mounted) {
         _isErrorFlashingNotifier.value = false;
@@ -152,12 +143,14 @@ class _SlotCellWidgetState extends State<SlotCellWidget>
       SlotStatus.unavailable => l10n.unavailable,
     };
 
+    // Selection label for accessibility
     final selectionLabel = widget.isSelected
         ? (widget.isInvalidSelection
               ? ', invalid selection'
               : ', ${l10n.selected}')
         : '';
 
+    // ListenableBuilder is used to listen to changes in the widget's properties
     return ListenableBuilder(
       listenable: Listenable.merge([
         _shakeAnimation,
@@ -166,11 +159,13 @@ class _SlotCellWidgetState extends State<SlotCellWidget>
         _isVisuallySelectedNotifier,
       ]),
       builder: (context, child) {
+        // Get the current value of the listenable
         final isPressed = _isPressedNotifier.value;
         final isErrorFlashing = _isErrorFlashingNotifier.value;
         final isVisuallySelected = _isVisuallySelectedNotifier.value;
 
-        final (bgColor, fgColor) = _colorsForStatus(
+        // get colors for status
+        final (bgColor, fgColor) = SlotCellStyle.colorsForStatus(
           status: widget.slot.status,
           isSelected: isVisuallySelected,
           isInvalidSelection: widget.isInvalidSelection,
@@ -178,14 +173,16 @@ class _SlotCellWidgetState extends State<SlotCellWidget>
           colorScheme: colorScheme,
         );
 
-        final IconData? statusIcon = _iconForStatus(
+        final IconData? statusIcon = SlotCellStyle.iconForStatus(
           status: widget.slot.status,
           isSelected: isVisuallySelected,
           isInvalidSelection: widget.isInvalidSelection,
         );
 
+        // change the scale of the time slot based on state
         final scale = isPressed ? 0.94 : (isVisuallySelected ? 1.02 : 1.0);
 
+        // border color and width
         final borderColor = (widget.isInvalidSelection || isErrorFlashing)
             ? colorScheme.error
             : (isVisuallySelected
@@ -292,106 +289,5 @@ class _SlotCellWidgetState extends State<SlotCellWidget>
         );
       },
     );
-  }
-
-  (Color, Color) _colorsForStatus({
-    required SlotStatus status,
-    required bool isSelected,
-    required bool isInvalidSelection,
-    required bool isDark,
-    required ColorScheme colorScheme,
-  }) {
-    if (isSelected && !isInvalidSelection) {
-      return isDark
-          ? (AppColors.slotSelectedBgDark, AppColors.slotSelectedFgDark)
-          : (AppColors.slotSelectedBg, AppColors.slotSelectedFg);
-    }
-
-    if (isSelected && isInvalidSelection) {
-      switch (status) {
-        case SlotStatus.myBooking:
-          final baseBg = isDark
-              ? AppColors.slotMyBookingBgDark
-              : AppColors.slotMyBookingBg;
-          final baseFg = isDark
-              ? AppColors.slotMyBookingFgDark
-              : AppColors.slotMyBookingFg;
-          return (
-            Color.alphaBlend(colorScheme.error.withValues(alpha: 0.2), baseBg),
-            baseFg,
-          );
-        case SlotStatus.booked:
-          final baseBg = isDark
-              ? AppColors.slotBookedBgDark
-              : AppColors.slotBookedBg;
-          final baseFg = isDark
-              ? AppColors.slotBookedFgDark
-              : AppColors.slotBookedFg;
-          return (
-            Color.alphaBlend(colorScheme.error.withValues(alpha: 0.2), baseBg),
-            baseFg,
-          );
-        case SlotStatus.unavailable:
-          final baseBg = isDark
-              ? AppColors.slotUnavailableBgDark
-              : AppColors.slotUnavailableBg;
-          final baseFg = isDark
-              ? AppColors.slotUnavailableFgDark
-              : AppColors.slotUnavailableFg;
-          return (
-            Color.alphaBlend(colorScheme.error.withValues(alpha: 0.2), baseBg),
-            baseFg,
-          );
-        case SlotStatus.available:
-          return (colorScheme.error.withValues(alpha: 0.12), colorScheme.error);
-      }
-    }
-
-    return switch (status) {
-      SlotStatus.available =>
-        isDark
-            ? (AppColors.slotAvailableBgDark, AppColors.slotAvailableFgDark)
-            : (AppColors.slotAvailableBg, AppColors.slotAvailableFg),
-      SlotStatus.myBooking =>
-        isDark
-            ? (AppColors.slotMyBookingBgDark, AppColors.slotMyBookingFgDark)
-            : (AppColors.slotMyBookingBg, AppColors.slotMyBookingFg),
-      SlotStatus.booked =>
-        isDark
-            ? (AppColors.slotBookedBgDark, AppColors.slotBookedFgDark)
-            : (AppColors.slotBookedBg, AppColors.slotBookedFg),
-      SlotStatus.unavailable =>
-        isDark
-            ? (AppColors.slotUnavailableBgDark, AppColors.slotUnavailableFgDark)
-            : (AppColors.slotUnavailableBg, AppColors.slotUnavailableFg),
-    };
-  }
-
-  IconData? _iconForStatus({
-    required SlotStatus status,
-    required bool isSelected,
-    required bool isInvalidSelection,
-  }) {
-    if (isSelected && !isInvalidSelection) {
-      return Icons.check_circle_rounded;
-    }
-    if (isSelected && isInvalidSelection) {
-      switch (status) {
-        case SlotStatus.myBooking:
-          return Icons.person_rounded;
-        case SlotStatus.booked:
-          return Icons.lock_clock_rounded;
-        case SlotStatus.unavailable:
-          return Icons.block_rounded;
-        case SlotStatus.available:
-          return Icons.warning_amber_rounded;
-      }
-    }
-    return switch (status) {
-      SlotStatus.available => null,
-      SlotStatus.myBooking => Icons.person_rounded,
-      SlotStatus.booked => Icons.lock_clock_rounded,
-      SlotStatus.unavailable => Icons.block_rounded,
-    };
   }
 }

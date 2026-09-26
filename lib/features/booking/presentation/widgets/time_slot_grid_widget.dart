@@ -7,7 +7,7 @@ import 'package:booking_appointments/features/booking/domain/Entities/booking_du
 import 'package:booking_appointments/features/booking/domain/Entities/booking_validation_result.dart';
 import 'package:booking_appointments/features/booking/domain/Entities/time_slot.dart';
 import 'package:booking_appointments/features/booking/presentation/manager/booking_cubit.dart';
-import 'package:booking_appointments/features/booking/presentation/widgets/slot_cell_widget.dart';
+import 'package:booking_appointments/features/booking/presentation/widgets/slot_cell/slot_cell_widget.dart';
 import 'package:booking_appointments/features/booking/presentation/widgets/staggered_entrance_widget.dart';
 
 /// Displays the working day time slots as a 3-column grid using [GridView.builder].

@@ -131,7 +131,10 @@ lib/
 │               ├── language_selector_tile_widget.dart # Language selection tile (EN / AR)
 │               ├── legend_item_widget.dart        # Slot legend indicator item
 │               ├── no_available_slots_widget.dart # Fallback state when schedule is fully booked
-│               ├── slot_cell_widget.dart          # Individual time slot grid cell button
+│               ├── slot_cell/                     # Modular slot cell component
+│               │   ├── slot_cell_widget.dart      # Main slot cell widget & state
+│               │   ├── slot_cell_style.dart       # Slot status colors & icons helper
+│               │   └── slot_cell_animations.dart  # Shake animation configuration helper
 │               ├── slot_legend_widget.dart        # Grid color legend bar
 │               ├── staggered_entrance_widget.dart # Staggered list/grid entrance animation
 │               ├── summary_row_widget.dart        # Key-value row for summary card
