@@ -82,7 +82,6 @@ class BookingCubit extends Cubit<BookingState> {
 
   /// Resets schedule state back to initial seed data.
   Future<void> reset() async {
-    emit(const BookingLoading());
     final result = await _repository.resetSchedule();
     result.fold(
       (failure) => emit(BookingFailure(failure.message)),
