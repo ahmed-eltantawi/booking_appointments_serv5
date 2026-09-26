@@ -30,10 +30,24 @@ class SlotLegendWidget extends StatelessWidget {
           runSpacing: 8.h,
           children: [
             LegendItemWidget(
-              bg: isDark ? AppColors.slotAvailableBgDark : AppColors.slotAvailableBg,
-              fg: isDark ? AppColors.slotAvailableFgDark : AppColors.slotAvailableFg,
+              bg: isDark
+                  ? AppColors.slotAvailableBgDark
+                  : AppColors.slotAvailableBg,
+              fg: isDark
+                  ? AppColors.slotAvailableFgDark
+                  : AppColors.slotAvailableFg,
               label: l10n.available,
               icon: Icons.event_available_rounded,
+            ),
+            LegendItemWidget(
+              bg: isDark
+                  ? AppColors.slotMyBookingBgDark
+                  : AppColors.slotMyBookingBg,
+              fg: isDark
+                  ? AppColors.slotMyBookingFgDark
+                  : AppColors.slotMyBookingFg,
+              label: l10n.myBooking,
+              icon: Icons.person_rounded,
             ),
             LegendItemWidget(
               bg: isDark ? AppColors.slotBookedBgDark : AppColors.slotBookedBg,
@@ -42,14 +56,22 @@ class SlotLegendWidget extends StatelessWidget {
               icon: Icons.lock_clock_rounded,
             ),
             LegendItemWidget(
-              bg: isDark ? AppColors.slotUnavailableBgDark : AppColors.slotUnavailableBg,
-              fg: isDark ? AppColors.slotUnavailableFgDark : AppColors.slotUnavailableFg,
+              bg: isDark
+                  ? AppColors.slotUnavailableBgDark
+                  : AppColors.slotUnavailableBg,
+              fg: isDark
+                  ? AppColors.slotUnavailableFgDark
+                  : AppColors.slotUnavailableFg,
               label: l10n.unavailable,
               icon: Icons.block_rounded,
             ),
             LegendItemWidget(
-              bg: isDark ? AppColors.slotSelectedBgDark : AppColors.slotSelectedBg,
-              fg: isDark ? AppColors.slotSelectedFgDark : AppColors.slotSelectedFg,
+              bg: isDark
+                  ? AppColors.slotSelectedBgDark
+                  : AppColors.slotSelectedBg,
+              fg: isDark
+                  ? AppColors.slotSelectedFgDark
+                  : AppColors.slotSelectedFg,
               label: l10n.selected,
               icon: Icons.check_circle_rounded,
               borderColor: AppColors.primary,

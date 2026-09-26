@@ -7,24 +7,27 @@ import 'package:booking_appointments/core/utils/app_constants.dart';
 
 final ThemeData lightTheme = ThemeData(
   useMaterial3: true,
-  fontFamily: AppConstants.appFamilyFont.isEmpty ? null : AppConstants.appFamilyFont,
-  colorScheme: ColorScheme.fromSeed(
-    seedColor: AppColors.primary,
-    brightness: Brightness.light,
-  ).copyWith(
-    primary: AppColors.primary,
-    onPrimary: AppColors.onPrimary,
-    secondary: AppColors.secondary,
-    onSecondary: AppColors.onSecondary,
-    tertiary: AppColors.info,
-    onTertiary: AppColors.onPrimary,
-    error: AppColors.error,
-    surface: AppColors.surface,
-    onSurface: AppColors.textPrimary,
-    onSurfaceVariant: AppColors.textSecondary,
-    outline: AppColors.outline,
-    surfaceContainerHighest: AppColors.surfaceVariant,
-  ),
+  fontFamily: AppConstants.appFamilyFont.isEmpty
+      ? null
+      : AppConstants.appFamilyFont,
+  colorScheme:
+      ColorScheme.fromSeed(
+        seedColor: AppColors.primary,
+        brightness: Brightness.light,
+      ).copyWith(
+        primary: AppColors.primary,
+        onPrimary: AppColors.onPrimary,
+        secondary: AppColors.secondary,
+        onSecondary: AppColors.onSecondary,
+        tertiary: AppColors.info,
+        onTertiary: AppColors.onPrimary,
+        error: AppColors.error,
+        surface: AppColors.surface,
+        onSurface: AppColors.textPrimary,
+        onSurfaceVariant: AppColors.textSecondary,
+        outline: AppColors.outline,
+        surfaceContainerHighest: AppColors.surfaceVariant,
+      ),
   scaffoldBackgroundColor: AppColors.background,
   appBarTheme: const AppBarTheme(
     elevation: 0,
@@ -39,9 +42,7 @@ final ThemeData lightTheme = ThemeData(
       backgroundColor: AppColors.primary,
       foregroundColor: AppColors.onPrimary,
       minimumSize: const Size(double.infinity, 52),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     ),
   ),
   outlinedButtonTheme: OutlinedButtonThemeData(
@@ -50,9 +51,7 @@ final ThemeData lightTheme = ThemeData(
       foregroundColor: AppColors.primary,
       minimumSize: const Size(double.infinity, 52),
       side: const BorderSide(color: AppColors.primary),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     ),
   ),
   cardTheme: const CardThemeData(
@@ -63,10 +62,7 @@ final ThemeData lightTheme = ThemeData(
       borderRadius: BorderRadius.all(Radius.circular(16)),
     ),
   ),
-  dividerTheme: const DividerThemeData(
-    color: AppColors.divider,
-    thickness: 1,
-  ),
+  dividerTheme: const DividerThemeData(color: AppColors.divider, thickness: 1),
   snackBarTheme: SnackBarThemeData(
     behavior: SnackBarBehavior.floating,
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),

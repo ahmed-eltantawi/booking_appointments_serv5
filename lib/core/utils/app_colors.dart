@@ -39,6 +39,8 @@ abstract class AppColors {
   static const Color slotAvailableFg = Color(0xFF166534);
   static const Color slotBookedBg = Color(0xFFFFE4E6);
   static const Color slotBookedFg = Color(0xFF9F1239);
+  static const Color slotMyBookingBg = Color(0xFFE0F2FE);
+  static const Color slotMyBookingFg = Color(0xFF0369A1);
   static const Color slotUnavailableBg = Color(0xFFF1F5F9);
   static const Color slotUnavailableFg = Color(0xFF94A3B8);
   static const Color slotSelectedBg = Color(0xFF4763E4);
@@ -49,6 +51,8 @@ abstract class AppColors {
   static const Color slotAvailableFgDark = Color(0xFF4ADE80);
   static const Color slotBookedBgDark = Color(0xFF4C0519);
   static const Color slotBookedFgDark = Color(0xFFFCA5A5);
+  static const Color slotMyBookingBgDark = Color(0xFF0C4A6E);
+  static const Color slotMyBookingFgDark = Color(0xFF7DD3FC);
   static const Color slotUnavailableBgDark = Color(0xFF1E2130);
   static const Color slotUnavailableFgDark = Color(0xFF64748B);
   static const Color slotSelectedBgDark = Color(0xFF4763E4);

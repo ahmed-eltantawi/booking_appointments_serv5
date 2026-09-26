@@ -3,6 +3,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:booking_appointments/core/cache/shared_preferences_helper.dart';
 import 'package:booking_appointments/core/cache/shared_preferences_service.dart';
 import 'package:booking_appointments/core/services/settings_cubit.dart';
+import 'package:booking_appointments/features/booking/data/datasources/booking_local_datasource.dart';
+import 'package:booking_appointments/features/booking/data/datasources/booking_local_datasource_impl.dart';
 import 'package:booking_appointments/features/booking/data/repo/booking_repository_impl.dart';
 import 'package:booking_appointments/features/booking/domain/repo/booking_repository.dart';
 import 'package:booking_appointments/features/booking/presentation/manager/booking_cubit.dart';
@@ -24,18 +26,19 @@ Future<void> setupServiceLocator() async {
     () => SharedPreferencesService(getIt()),
   );
 
-  //! ========= Services =========
-  getIt.registerLazySingleton<SettingsCubit>(
-    () => SettingsCubit(getIt()),
+  //! ========= Data Sources =========
+  getIt.registerLazySingleton<BookingLocalDataSource>(
+    () => BookingLocalDataSourceImpl(getIt()),
   );
+
+  //! ========= Services =========
+  getIt.registerLazySingleton<SettingsCubit>(() => SettingsCubit(getIt()));
 
   //! ========= Repositories =========
   getIt.registerLazySingleton<BookingRepository>(
-    () => BookingRepositoryImpl(),
+    () => BookingRepositoryImpl(getIt()),
   );
 
   //! ========= Features =========
-  getIt.registerFactory<BookingCubit>(
-    () => BookingCubit(getIt()),
-  );
+  getIt.registerFactory<BookingCubit>(() => BookingCubit(getIt()));
 }

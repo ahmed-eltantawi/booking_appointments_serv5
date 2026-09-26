@@ -18,9 +18,8 @@ class SharedPreferencesService {
 
   /// Retrieves saved [ThemeMode] preference. Defaults to [ThemeMode.system].
   ThemeMode getThemeMode() {
-    final String? modeName = _sharedPreferencesHelper.getData(
-      key: CacheKey.themeMode,
-    ) as String?;
+    final String? modeName =
+        _sharedPreferencesHelper.getData(key: CacheKey.themeMode) as String?;
 
     if (modeName == null) return ThemeMode.system;
 
@@ -40,10 +39,48 @@ class SharedPreferencesService {
 
   /// Retrieves saved language code. Defaults to 'en'.
   String getLanguageCode() {
-    final String? code = _sharedPreferencesHelper.getData(
-      key: CacheKey.languageCode,
-    ) as String?;
+    final String? code =
+        _sharedPreferencesHelper.getData(key: CacheKey.languageCode) as String?;
 
     return code ?? 'en';
+  }
+
+  /// Retrieves or generates a persistent, stable [currentUserId].
+  String getOrCreateCurrentUserId() {
+    final String? existingId = _sharedPreferencesHelper.getData(
+      key: CacheKey.currentUserId,
+    ) as String?;
+
+    if (existingId != null && existingId.isNotEmpty) {
+      return existingId;
+    }
+
+    final newId = 'user_${DateTime.now().millisecondsSinceEpoch}';
+    _sharedPreferencesHelper.saveData(
+      key: CacheKey.currentUserId,
+      value: newId,
+    );
+    return newId;
+  }
+
+  /// Saves the user's booking data serialized as a JSON string.
+  Future<bool> saveUserBookingsJson(String jsonString) async {
+    return await _sharedPreferencesHelper.saveData(
+      key: CacheKey.userBookings,
+      value: jsonString,
+    );
+  }
+
+  /// Retrieves stored user's booking data as a JSON string.
+  String? getUserBookingsJson() {
+    return _sharedPreferencesHelper.getData(key: CacheKey.userBookings)
+        as String?;
+  }
+
+  /// Clears stored user's booking data.
+  Future<bool> clearUserBookingsJson() async {
+    return await _sharedPreferencesHelper.removeData(
+      key: CacheKey.userBookings,
+    );
   }
 }

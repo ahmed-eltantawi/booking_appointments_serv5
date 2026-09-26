@@ -68,17 +68,16 @@ class BookingCubit extends Cubit<BookingState> {
       duration: schedule.selectedDuration,
     );
 
-    result.fold(
-      (failure) => emit(BookingFailure(failure.message)),
-      (newSchedule) {
-        if (newSchedule.validationResult != null &&
-            !newSchedule.validationResult!.isValid) {
-          emit(BookingLoaded(schedule: newSchedule));
-        } else {
-          emit(BookingLoaded(schedule: newSchedule, isConfirmed: true));
-        }
-      },
-    );
+    result.fold((failure) => emit(BookingFailure(failure.message)), (
+      newSchedule,
+    ) {
+      if (newSchedule.validationResult != null &&
+          !newSchedule.validationResult!.isValid) {
+        emit(BookingLoaded(schedule: newSchedule));
+      } else {
+        emit(BookingLoaded(schedule: newSchedule, isConfirmed: true));
+      }
+    });
   }
 
   /// Resets schedule state back to initial seed data.

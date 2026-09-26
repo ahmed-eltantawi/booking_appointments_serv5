@@ -37,8 +37,12 @@
   "available": "Available",
   "@available": { "description": "Legend item and slot status label." },
 
+  "myBooking": "My Booking",
+  "@myBooking": { "description": "Legend item and slot status label for current user's booking." },
+
   "booked": "Booked",
   "@booked": { "description": "Legend item and slot status label." },
+
 
   "unavailable": "Unavailable",
   "@unavailable": { "description": "Legend item and slot status label." },

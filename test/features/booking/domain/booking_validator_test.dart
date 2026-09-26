@@ -67,37 +67,40 @@ void main() {
     });
   });
 
-  group('BookingValidator — ISSUE-014: Protect against invalid start values', () {
-    test('rejects null start time without crashing', () {
-      final result = validator.validateBooking(
-        schedule: _buildSchedule(),
-        startTime: null,
-        duration: BookingDuration.thirtyMinutes,
-      );
-      expect(result.isValid, isFalse);
-      expect(result.reason, BookingInvalidReason.exceedsWorkingHours);
-    });
+  group(
+    'BookingValidator — ISSUE-014: Protect against invalid start values',
+    () {
+      test('rejects null start time without crashing', () {
+        final result = validator.validateBooking(
+          schedule: _buildSchedule(),
+          startTime: null,
+          duration: BookingDuration.thirtyMinutes,
+        );
+        expect(result.isValid, isFalse);
+        expect(result.reason, BookingInvalidReason.exceedsWorkingHours);
+      });
 
-    test('rejects invalid start time before 9:00 AM', () {
-      final result = validator.validateBooking(
-        schedule: _buildSchedule(),
-        startTime: const TimeOfDay(hour: 8, minute: 30),
-        duration: BookingDuration.thirtyMinutes,
-      );
-      expect(result.isValid, isFalse);
-      expect(result.reason, BookingInvalidReason.exceedsWorkingHours);
-    });
+      test('rejects invalid start time before 9:00 AM', () {
+        final result = validator.validateBooking(
+          schedule: _buildSchedule(),
+          startTime: const TimeOfDay(hour: 8, minute: 30),
+          duration: BookingDuration.thirtyMinutes,
+        );
+        expect(result.isValid, isFalse);
+        expect(result.reason, BookingInvalidReason.exceedsWorkingHours);
+      });
 
-    test('rejects invalid start time after 6:00 PM', () {
-      final result = validator.validateBooking(
-        schedule: _buildSchedule(),
-        startTime: const TimeOfDay(hour: 18, minute: 30),
-        duration: BookingDuration.thirtyMinutes,
-      );
-      expect(result.isValid, isFalse);
-      expect(result.reason, BookingInvalidReason.exceedsWorkingHours);
-    });
-  });
+      test('rejects invalid start time after 6:00 PM', () {
+        final result = validator.validateBooking(
+          schedule: _buildSchedule(),
+          startTime: const TimeOfDay(hour: 18, minute: 30),
+          duration: BookingDuration.thirtyMinutes,
+        );
+        expect(result.isValid, isFalse);
+        expect(result.reason, BookingInvalidReason.exceedsWorkingHours);
+      });
+    },
+  );
 
   group('BookingValidator — ISSUE-001: X-O-X gap detection', () {
     test('rejects booking that creates a new isolated X-O-X gap', () {
@@ -130,19 +133,22 @@ void main() {
       expect(result.isValid, isTrue);
     });
 
-    test('treats unavailable slots correctly as occupied for X-O-X gap detection', () {
-      final schedule = _buildSchedule(
-        booked: [const TimeOfDay(hour: 9, minute: 0)],
-        unavailable: [const TimeOfDay(hour: 10, minute: 0)],
-      );
+    test(
+      'treats unavailable slots correctly as occupied for X-O-X gap detection',
+      () {
+        final schedule = _buildSchedule(
+          booked: [const TimeOfDay(hour: 9, minute: 0)],
+          unavailable: [const TimeOfDay(hour: 10, minute: 0)],
+        );
 
-      final result = validator.validateBooking(
-        schedule: schedule,
-        startTime: const TimeOfDay(hour: 14, minute: 0),
-        duration: BookingDuration.thirtyMinutes,
-      );
-      expect(result.isValid, isTrue);
-    });
+        final result = validator.validateBooking(
+          schedule: schedule,
+          startTime: const TimeOfDay(hour: 14, minute: 0),
+          duration: BookingDuration.thirtyMinutes,
+        );
+        expect(result.isValid, isTrue);
+      },
+    );
 
     test('X-O-O-X (2 free slots) is not an isolated gap', () {
       final schedule = _buildSchedule(
@@ -244,7 +250,10 @@ void main() {
       },
       verify: (cubit) {
         final state = cubit.state as BookingLoaded;
-        expect(state.schedule.selectedStart, const TimeOfDay(hour: 17, minute: 0));
+        expect(
+          state.schedule.selectedStart,
+          const TimeOfDay(hour: 17, minute: 0),
+        );
         expect(state.schedule.selectedDuration, BookingDuration.twoHours);
         expect(state.schedule.validationResult!.isValid, isFalse);
         expect(
@@ -297,7 +306,10 @@ void main() {
       },
       verify: (cubit) {
         final state = cubit.state as BookingLoaded;
-        expect(state.schedule.selectedStart, const TimeOfDay(hour: 9, minute: 0));
+        expect(
+          state.schedule.selectedStart,
+          const TimeOfDay(hour: 9, minute: 0),
+        );
         expect(state.schedule.selectedDuration, BookingDuration.twoHours);
       },
     );
@@ -315,7 +327,10 @@ void main() {
       },
       verify: (cubit) {
         final state = cubit.state as BookingLoaded;
-        expect(state.schedule.selectedStart, const TimeOfDay(hour: 9, minute: 0));
+        expect(
+          state.schedule.selectedStart,
+          const TimeOfDay(hour: 9, minute: 0),
+        );
         expect(state.schedule.selectedDuration, BookingDuration.oneHour);
       },
     );
@@ -327,14 +342,20 @@ void main() {
         await cubit.initialize();
         // 1. Initial state: 11:30 AM is invalid (creating gap at 11:00)
         final s0 = (cubit.state as BookingLoaded).schedule;
-        expect(s0.validStartTimes.contains(const TimeOfDay(hour: 11, minute: 30)), isFalse);
+        expect(
+          s0.validStartTimes.contains(const TimeOfDay(hour: 11, minute: 30)),
+          isFalse,
+        );
 
         // 2. Select 11:00 AM -> 11:30 AM becomes valid start
         await cubit.selectStartTime(const TimeOfDay(hour: 11, minute: 0));
         final s1 = (cubit.state as BookingLoaded).schedule;
         expect(s1.selectedStart, const TimeOfDay(hour: 11, minute: 0));
         expect(s1.selectedDuration, BookingDuration.thirtyMinutes);
-        expect(s1.validStartTimes.contains(const TimeOfDay(hour: 11, minute: 30)), isTrue);
+        expect(
+          s1.validStartTimes.contains(const TimeOfDay(hour: 11, minute: 30)),
+          isTrue,
+        );
 
         // 3. Select 11:30 AM -> expands selection to 1 hour (11:00 - 12:00)
         await cubit.selectStartTime(const TimeOfDay(hour: 11, minute: 30));
@@ -343,26 +364,36 @@ void main() {
         expect(s2.selectedDuration, BookingDuration.oneHour);
 
         // 4. Deselect 11:00 AM while 11:30 AM is selected -> selection cleared, 11:30 becomes unavailable again
-        await cubit.selectStartTime(const TimeOfDay(hour: 11, minute: 0)); // trims to 11:30
-        await cubit.selectStartTime(const TimeOfDay(hour: 11, minute: 30)); // clears selection
+        await cubit.selectStartTime(
+          const TimeOfDay(hour: 11, minute: 0),
+        ); // trims to 11:30
+        await cubit.selectStartTime(
+          const TimeOfDay(hour: 11, minute: 30),
+        ); // clears selection
         final s3 = (cubit.state as BookingLoaded).schedule;
         expect(s3.selectedStart, isNull);
-        expect(s3.validStartTimes.contains(const TimeOfDay(hour: 11, minute: 30)), isFalse);
+        expect(
+          s3.validStartTimes.contains(const TimeOfDay(hour: 11, minute: 30)),
+          isFalse,
+        );
       },
     );
   });
 
   group('BookingValidator — calculateSelectionOnTap Unit Tests', () {
-    test('selects tapped slot with 30 min duration when no prior selection', () {
-      final res = validator.calculateSelectionOnTap(
-        tappedTime: const TimeOfDay(hour: 9, minute: 0),
-        currentStart: null,
-        currentDuration: BookingDuration.thirtyMinutes,
-      );
-      expect(res.selectedStart, const TimeOfDay(hour: 9, minute: 0));
-      expect(res.duration, BookingDuration.thirtyMinutes);
-      expect(res.isDeselected, isFalse);
-    });
+    test(
+      'selects tapped slot with 30 min duration when no prior selection',
+      () {
+        final res = validator.calculateSelectionOnTap(
+          tappedTime: const TimeOfDay(hour: 9, minute: 0),
+          currentStart: null,
+          currentDuration: BookingDuration.thirtyMinutes,
+        );
+        expect(res.selectedStart, const TimeOfDay(hour: 9, minute: 0));
+        expect(res.duration, BookingDuration.thirtyMinutes);
+        expect(res.isDeselected, isFalse);
+      },
+    );
 
     test('toggling same slot deselects when current duration is 30 min', () {
       final res = validator.calculateSelectionOnTap(
@@ -374,16 +405,19 @@ void main() {
       expect(res.isDeselected, isTrue);
     });
 
-    test('tapping adjacent slot expands range forward (9:00 + 9:30 -> 1 hr)', () {
-      final res = validator.calculateSelectionOnTap(
-        tappedTime: const TimeOfDay(hour: 9, minute: 30),
-        currentStart: const TimeOfDay(hour: 9, minute: 0),
-        currentDuration: BookingDuration.thirtyMinutes,
-      );
-      expect(res.selectedStart, const TimeOfDay(hour: 9, minute: 0));
-      expect(res.duration, BookingDuration.oneHour);
-      expect(res.isDeselected, isFalse);
-    });
+    test(
+      'tapping adjacent slot expands range forward (9:00 + 9:30 -> 1 hr)',
+      () {
+        final res = validator.calculateSelectionOnTap(
+          tappedTime: const TimeOfDay(hour: 9, minute: 30),
+          currentStart: const TimeOfDay(hour: 9, minute: 0),
+          currentDuration: BookingDuration.thirtyMinutes,
+        );
+        expect(res.selectedStart, const TimeOfDay(hour: 9, minute: 0));
+        expect(res.duration, BookingDuration.oneHour);
+        expect(res.isDeselected, isFalse);
+      },
+    );
 
     test('tapping adjacent slot expands range backward (10:00 + 9:30 -> 1 hr starting at 9:30)', () {
       final res = validator.calculateSelectionOnTap(

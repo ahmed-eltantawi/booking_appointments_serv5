@@ -24,7 +24,8 @@ extension BookingInvalidReasonLocalization on BookingInvalidReason {
     return switch (this) {
       BookingInvalidReason.exceedsWorkingHours => l10n.errorExceedsWorkingHours,
       BookingInvalidReason.containsBookedSlot => l10n.errorContainsBookedSlot,
-      BookingInvalidReason.containsUnavailableSlot => l10n.errorContainsUnavailableSlot,
+      BookingInvalidReason.containsUnavailableSlot =>
+        l10n.errorContainsUnavailableSlot,
       BookingInvalidReason.createsInvalidGap => l10n.errorCreatesInvalidGap,
     };
   }
@@ -45,11 +46,11 @@ class BookingValidationResult extends Equatable {
   const BookingValidationResult.invalid(
     BookingInvalidReason reason, {
     List<String> conflictingTimeLabels = const [],
-  })  : this._(
-          isValid: false,
-          reason: reason,
-          conflictingTimeLabels: conflictingTimeLabels,
-        );
+  }) : this._(
+         isValid: false,
+         reason: reason,
+         conflictingTimeLabels: conflictingTimeLabels,
+       );
 
   final bool isValid;
   final BookingInvalidReason? reason;

@@ -57,16 +57,16 @@ class _SlotCellWidgetState extends State<SlotCellWidget>
       duration: const Duration(milliseconds: 300),
     );
 
-    _shakeAnimation = TweenSequence<double>([
-      TweenSequenceItem(tween: Tween(begin: 0.0, end: -6.0), weight: 1),
-      TweenSequenceItem(tween: Tween(begin: -6.0, end: 6.0), weight: 2),
-      TweenSequenceItem(tween: Tween(begin: 6.0, end: -4.0), weight: 2),
-      TweenSequenceItem(tween: Tween(begin: -4.0, end: 4.0), weight: 2),
-      TweenSequenceItem(tween: Tween(begin: 4.0, end: 0.0), weight: 1),
-    ]).animate(CurvedAnimation(
-      parent: _shakeController,
-      curve: Curves.easeInOut,
-    ));
+    _shakeAnimation =
+        TweenSequence<double>([
+          TweenSequenceItem(tween: Tween(begin: 0.0, end: -6.0), weight: 1),
+          TweenSequenceItem(tween: Tween(begin: -6.0, end: 6.0), weight: 2),
+          TweenSequenceItem(tween: Tween(begin: 6.0, end: -4.0), weight: 2),
+          TweenSequenceItem(tween: Tween(begin: -4.0, end: 4.0), weight: 2),
+          TweenSequenceItem(tween: Tween(begin: 4.0, end: 0.0), weight: 1),
+        ]).animate(
+          CurvedAnimation(parent: _shakeController, curve: Curves.easeInOut),
+        );
   }
 
   @override
@@ -94,6 +94,7 @@ class _SlotCellWidgetState extends State<SlotCellWidget>
   void _executeTapBehavior() {
     final isBookedOrUnavailable =
         widget.slot.status == SlotStatus.booked ||
+        widget.slot.status == SlotStatus.myBooking ||
         widget.slot.status == SlotStatus.unavailable;
 
     final isInvalidAvailableStart =
@@ -146,12 +147,15 @@ class _SlotCellWidgetState extends State<SlotCellWidget>
     // Domain status label
     final statusLabel = switch (widget.slot.status) {
       SlotStatus.available => l10n.available,
+      SlotStatus.myBooking => l10n.myBooking,
       SlotStatus.booked => l10n.booked,
       SlotStatus.unavailable => l10n.unavailable,
     };
 
     final selectionLabel = widget.isSelected
-        ? (widget.isInvalidSelection ? ', invalid selection' : ', ${l10n.selected}')
+        ? (widget.isInvalidSelection
+              ? ', invalid selection'
+              : ', ${l10n.selected}')
         : '';
 
     return ListenableBuilder(
@@ -180,17 +184,16 @@ class _SlotCellWidgetState extends State<SlotCellWidget>
           isInvalidSelection: widget.isInvalidSelection,
         );
 
-        final scale = isPressed
-            ? 0.94
-            : (isVisuallySelected ? 1.02 : 1.0);
+        final scale = isPressed ? 0.94 : (isVisuallySelected ? 1.02 : 1.0);
 
         final borderColor = (widget.isInvalidSelection || isErrorFlashing)
             ? colorScheme.error
             : (isVisuallySelected
-                ? AppColors.primary
-                : AppColors.outline.withValues(alpha: isDark ? 0.3 : 1.0));
+                  ? AppColors.primary
+                  : AppColors.outline.withValues(alpha: isDark ? 0.3 : 1.0));
 
-        final borderWidth = (isVisuallySelected || widget.isInvalidSelection || isErrorFlashing)
+        final borderWidth =
+            (isVisuallySelected || widget.isInvalidSelection || isErrorFlashing)
             ? 2.0
             : 1.0;
 
@@ -207,7 +210,9 @@ class _SlotCellWidgetState extends State<SlotCellWidget>
               curve: Curves.easeOutCubic,
               child: AnimatedOpacity(
                 duration: const Duration(milliseconds: 200),
-                opacity: (isAvailableButNotValid && !isVisuallySelected) ? 0.45 : 1.0,
+                opacity: (isAvailableButNotValid && !isVisuallySelected)
+                    ? 0.45
+                    : 1.0,
                 child: Material(
                   color: Colors.transparent,
                   child: InkWell(
@@ -221,7 +226,10 @@ class _SlotCellWidgetState extends State<SlotCellWidget>
                         minHeight: 48.h,
                         minWidth: 48.w,
                       ),
-                      padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 8.h),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 6.w,
+                        vertical: 8.h,
+                      ),
                       decoration: BoxDecoration(
                         color: isErrorFlashing
                             ? colorScheme.error.withValues(alpha: 0.15)
@@ -231,10 +239,13 @@ class _SlotCellWidgetState extends State<SlotCellWidget>
                           color: borderColor,
                           width: borderWidth,
                         ),
-                        boxShadow: (isVisuallySelected && !widget.isInvalidSelection)
+                        boxShadow:
+                            (isVisuallySelected && !widget.isInvalidSelection)
                             ? [
                                 BoxShadow(
-                                  color: AppColors.primary.withValues(alpha: 0.28),
+                                  color: AppColors.primary.withValues(
+                                    alpha: 0.28,
+                                  ),
                                   blurRadius: 8,
                                   offset: const Offset(0, 3),
                                 ),
@@ -249,7 +260,9 @@ class _SlotCellWidgetState extends State<SlotCellWidget>
                             Icon(
                               statusIcon,
                               size: 14.r,
-                              color: isErrorFlashing ? colorScheme.error : fgColor,
+                              color: isErrorFlashing
+                                  ? colorScheme.error
+                                  : fgColor,
                             ),
                             SizedBox(width: 4.w),
                           ],
@@ -257,7 +270,9 @@ class _SlotCellWidgetState extends State<SlotCellWidget>
                             child: AnimatedDefaultTextStyle(
                               duration: const Duration(milliseconds: 200),
                               style: AppTextStyles.medium12.copyWith(
-                                color: isErrorFlashing ? colorScheme.error : fgColor,
+                                color: isErrorFlashing
+                                    ? colorScheme.error
+                                    : fgColor,
                               ),
                               child: Text(
                                 formattedTime,
@@ -294,29 +309,61 @@ class _SlotCellWidgetState extends State<SlotCellWidget>
 
     if (isSelected && isInvalidSelection) {
       switch (status) {
+        case SlotStatus.myBooking:
+          final baseBg = isDark
+              ? AppColors.slotMyBookingBgDark
+              : AppColors.slotMyBookingBg;
+          final baseFg = isDark
+              ? AppColors.slotMyBookingFgDark
+              : AppColors.slotMyBookingFg;
+          return (
+            Color.alphaBlend(colorScheme.error.withValues(alpha: 0.2), baseBg),
+            baseFg,
+          );
         case SlotStatus.booked:
-          final baseBg = isDark ? AppColors.slotBookedBgDark : AppColors.slotBookedBg;
-          final baseFg = isDark ? AppColors.slotBookedFgDark : AppColors.slotBookedFg;
-          return (Color.alphaBlend(colorScheme.error.withValues(alpha: 0.2), baseBg), baseFg);
+          final baseBg = isDark
+              ? AppColors.slotBookedBgDark
+              : AppColors.slotBookedBg;
+          final baseFg = isDark
+              ? AppColors.slotBookedFgDark
+              : AppColors.slotBookedFg;
+          return (
+            Color.alphaBlend(colorScheme.error.withValues(alpha: 0.2), baseBg),
+            baseFg,
+          );
         case SlotStatus.unavailable:
-          final baseBg = isDark ? AppColors.slotUnavailableBgDark : AppColors.slotUnavailableBg;
-          final baseFg = isDark ? AppColors.slotUnavailableFgDark : AppColors.slotUnavailableFg;
-          return (Color.alphaBlend(colorScheme.error.withValues(alpha: 0.2), baseBg), baseFg);
+          final baseBg = isDark
+              ? AppColors.slotUnavailableBgDark
+              : AppColors.slotUnavailableBg;
+          final baseFg = isDark
+              ? AppColors.slotUnavailableFgDark
+              : AppColors.slotUnavailableFg;
+          return (
+            Color.alphaBlend(colorScheme.error.withValues(alpha: 0.2), baseBg),
+            baseFg,
+          );
         case SlotStatus.available:
           return (colorScheme.error.withValues(alpha: 0.12), colorScheme.error);
       }
     }
 
     return switch (status) {
-      SlotStatus.available => isDark
-          ? (AppColors.slotAvailableBgDark, AppColors.slotAvailableFgDark)
-          : (AppColors.slotAvailableBg, AppColors.slotAvailableFg),
-      SlotStatus.booked => isDark
-          ? (AppColors.slotBookedBgDark, AppColors.slotBookedFgDark)
-          : (AppColors.slotBookedBg, AppColors.slotBookedFg),
-      SlotStatus.unavailable => isDark
-          ? (AppColors.slotUnavailableBgDark, AppColors.slotUnavailableFgDark)
-          : (AppColors.slotUnavailableBg, AppColors.slotUnavailableFg),
+      SlotStatus.available =>
+        isDark
+            ? (AppColors.slotAvailableBgDark, AppColors.slotAvailableFgDark)
+            : (AppColors.slotAvailableBg, AppColors.slotAvailableFg),
+      SlotStatus.myBooking =>
+        isDark
+            ? (AppColors.slotMyBookingBgDark, AppColors.slotMyBookingFgDark)
+            : (AppColors.slotMyBookingBg, AppColors.slotMyBookingFg),
+      SlotStatus.booked =>
+        isDark
+            ? (AppColors.slotBookedBgDark, AppColors.slotBookedFgDark)
+            : (AppColors.slotBookedBg, AppColors.slotBookedFg),
+      SlotStatus.unavailable =>
+        isDark
+            ? (AppColors.slotUnavailableBgDark, AppColors.slotUnavailableFgDark)
+            : (AppColors.slotUnavailableBg, AppColors.slotUnavailableFg),
     };
   }
 
@@ -330,6 +377,8 @@ class _SlotCellWidgetState extends State<SlotCellWidget>
     }
     if (isSelected && isInvalidSelection) {
       switch (status) {
+        case SlotStatus.myBooking:
+          return Icons.person_rounded;
         case SlotStatus.booked:
           return Icons.lock_clock_rounded;
         case SlotStatus.unavailable:
@@ -340,6 +389,7 @@ class _SlotCellWidgetState extends State<SlotCellWidget>
     }
     return switch (status) {
       SlotStatus.available => null,
+      SlotStatus.myBooking => Icons.person_rounded,
       SlotStatus.booked => Icons.lock_clock_rounded,
       SlotStatus.unavailable => Icons.block_rounded,
     };

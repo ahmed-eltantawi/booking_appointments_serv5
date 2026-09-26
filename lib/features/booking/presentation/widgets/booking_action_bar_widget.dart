@@ -27,8 +27,12 @@ class BookingActionBarWidget extends StatefulWidget {
 }
 
 class _BookingActionBarWidgetState extends State<BookingActionBarWidget> {
-  final ValueNotifier<bool> _isResetPressedNotifier = ValueNotifier<bool>(false);
-  final ValueNotifier<bool> _isConfirmPressedNotifier = ValueNotifier<bool>(false);
+  final ValueNotifier<bool> _isResetPressedNotifier = ValueNotifier<bool>(
+    false,
+  );
+  final ValueNotifier<bool> _isConfirmPressedNotifier = ValueNotifier<bool>(
+    false,
+  );
 
   void _onResetTapDown(TapDownDetails details) {
     _isResetPressedNotifier.value = true;
@@ -126,10 +130,7 @@ class _BookingActionBarWidgetState extends State<BookingActionBarWidget> {
                 transitionBuilder: (child, animation) {
                   return ScaleTransition(
                     scale: animation,
-                    child: FadeTransition(
-                      opacity: animation,
-                      child: child,
-                    ),
+                    child: FadeTransition(opacity: animation, child: child),
                   );
                 },
                 child: widget.isConfirmed

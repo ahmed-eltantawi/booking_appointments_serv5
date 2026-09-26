@@ -12,10 +12,8 @@ abstract final class AppRouter {
     routes: [
       GoRoute(
         path: AppRoutes.kBookingView,
-        pageBuilder: (context, state) => _buildTransitionPage(
-          child: const BookingView(),
-          state: state,
-        ),
+        pageBuilder: (context, state) =>
+            _buildTransitionPage(child: const BookingView(), state: state),
       ),
     ],
   );

@@ -5,7 +5,9 @@ import 'package:booking_appointments/core/functions/show_snack_bar.dart';
 
 void main() {
   group('showSnackBar Unit & Widget Tests', () {
-    testWidgets('showSnackBar clears previous SnackBar before showing new one', (tester) async {
+    testWidgets('showSnackBar clears previous SnackBar before showing new one', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -50,28 +52,31 @@ void main() {
       expect(find.text('Second Message'), findsOneWidget);
     });
 
-    testWidgets('SnackBarContextExtension functions trigger showSnackBar correctly', (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: Builder(
-              builder: (context) {
-                return ElevatedButton(
-                  onPressed: () {
-                    context.showSuccessSnackBar('Success Message');
-                  },
-                  child: const Text('Show Success'),
-                );
-              },
+    testWidgets(
+      'SnackBarContextExtension functions trigger showSnackBar correctly',
+      (tester) async {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: Builder(
+                builder: (context) {
+                  return ElevatedButton(
+                    onPressed: () {
+                      context.showSuccessSnackBar('Success Message');
+                    },
+                    child: const Text('Show Success'),
+                  );
+                },
+              ),
             ),
           ),
-        ),
-      );
+        );
 
-      await tester.tap(find.text('Show Success'));
-      await tester.pump();
+        await tester.tap(find.text('Show Success'));
+        await tester.pump();
 
-      expect(find.text('Success Message'), findsOneWidget);
-    });
+        expect(find.text('Success Message'), findsOneWidget);
+      },
+    );
   });
 }

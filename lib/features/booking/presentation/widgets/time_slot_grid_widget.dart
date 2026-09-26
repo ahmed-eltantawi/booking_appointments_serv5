@@ -37,7 +37,8 @@ class TimeSlotGridWidget extends StatelessWidget {
         ? selectedStartMins + selectedDuration.minutes
         : null;
 
-    final isSelectionInvalid = validationResult != null && !validationResult!.isValid;
+    final isSelectionInvalid =
+        validationResult != null && !validationResult!.isValid;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -82,10 +83,12 @@ class TimeSlotGridWidget extends StatelessWidget {
           itemCount: slots.length,
           itemBuilder: (context, index) {
             final slot = slots[index];
-            final isValidStart = validStartTimes.contains(slot.start) &&
+            final isValidStart =
+                validStartTimes.contains(slot.start) &&
                 slot.status == SlotStatus.available;
 
-            final isSelected = selectedStartMins != null &&
+            final isSelected =
+                selectedStartMins != null &&
                 selectedEndMins != null &&
                 slot.startMinutes >= selectedStartMins &&
                 slot.startMinutes < selectedEndMins;
@@ -95,7 +98,9 @@ class TimeSlotGridWidget extends StatelessWidget {
                 : 0;
 
             return StaggeredEntranceWidget(
-              key: ValueKey('entrance_slot_${slot.start.hour}_${slot.start.minute}'),
+              key: ValueKey(
+                'entrance_slot_${slot.start.hour}_${slot.start.minute}',
+              ),
               index: index,
               initialDelay: const Duration(milliseconds: 260),
               delayStep: const Duration(milliseconds: 55),

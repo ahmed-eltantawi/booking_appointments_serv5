@@ -3,11 +3,7 @@ import 'package:booking_appointments/core/utils/app_text_styles.dart';
 
 /// Single key-value summary row in [BookingSummaryWidget] with value transitions.
 class SummaryRowWidget extends StatelessWidget {
-  const SummaryRowWidget({
-    super.key,
-    required this.label,
-    required this.value,
-  });
+  const SummaryRowWidget({super.key, required this.label, required this.value});
 
   final String label;
   final String value;

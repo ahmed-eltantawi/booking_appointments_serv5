@@ -60,9 +60,7 @@ class DrawerHeaderWidget extends StatelessWidget {
           SizedBox(height: 16.h),
           Text(
             l10n.appTitle,
-            style: AppTextStyles.bold18.copyWith(
-              color: colorScheme.onSurface,
-            ),
+            style: AppTextStyles.bold18.copyWith(color: colorScheme.onSurface),
           ),
           SizedBox(height: 2.h),
           Text(
@@ -76,4 +74,3 @@ class DrawerHeaderWidget extends StatelessWidget {
     );
   }
 }
-

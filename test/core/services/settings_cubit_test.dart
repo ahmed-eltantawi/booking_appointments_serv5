@@ -27,26 +27,32 @@ void main() {
       expect(cubit.state.themeMode, equals(ThemeMode.system));
     });
 
-    test('setting locale updates state and persists in SharedPreferences', () async {
-      await cubit.setLocale(const Locale('ar'));
+    test(
+      'setting locale updates state and persists in SharedPreferences',
+      () async {
+        await cubit.setLocale(const Locale('ar'));
 
-      expect(cubit.state.locale, equals(const Locale('ar')));
-      expect(service.getLanguageCode(), equals('ar'));
+        expect(cubit.state.locale, equals(const Locale('ar')));
+        expect(service.getLanguageCode(), equals('ar'));
 
-      // Recreate cubit from same service to simulate app restart
-      final newCubit = SettingsCubit(service);
-      expect(newCubit.state.locale, equals(const Locale('ar')));
-    });
+        // Recreate cubit from same service to simulate app restart
+        final newCubit = SettingsCubit(service);
+        expect(newCubit.state.locale, equals(const Locale('ar')));
+      },
+    );
 
-    test('setting themeMode updates state and persists in SharedPreferences', () async {
-      await cubit.setThemeMode(ThemeMode.dark);
+    test(
+      'setting themeMode updates state and persists in SharedPreferences',
+      () async {
+        await cubit.setThemeMode(ThemeMode.dark);
 
-      expect(cubit.state.themeMode, equals(ThemeMode.dark));
-      expect(service.getThemeMode(), equals(ThemeMode.dark));
+        expect(cubit.state.themeMode, equals(ThemeMode.dark));
+        expect(service.getThemeMode(), equals(ThemeMode.dark));
 
-      // Recreate cubit from same service to simulate app restart
-      final newCubit = SettingsCubit(service);
-      expect(newCubit.state.themeMode, equals(ThemeMode.dark));
-    });
+        // Recreate cubit from same service to simulate app restart
+        final newCubit = SettingsCubit(service);
+        expect(newCubit.state.themeMode, equals(ThemeMode.dark));
+      },
+    );
   });
 }

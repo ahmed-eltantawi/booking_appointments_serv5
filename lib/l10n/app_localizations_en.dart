@@ -47,6 +47,9 @@ class SEn extends S {
   String get available => 'Available';
 
   @override
+  String get myBooking => 'My Booking';
+
+  @override
   String get booked => 'Booked';
 
   @override

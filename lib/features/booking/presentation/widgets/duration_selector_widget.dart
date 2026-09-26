@@ -63,9 +63,9 @@ class DurationSelectorWidget extends StatelessWidget {
   String _labelFor(S l10n, BookingDuration duration) {
     return switch (duration) {
       BookingDuration.thirtyMinutes => l10n.duration30Min,
-      BookingDuration.oneHour       => l10n.duration1Hour,
-      BookingDuration.oneHalfHour   => l10n.duration1Half,
-      BookingDuration.twoHours      => l10n.duration2Hours,
+      BookingDuration.oneHour => l10n.duration1Hour,
+      BookingDuration.oneHalfHour => l10n.duration1Half,
+      BookingDuration.twoHours => l10n.duration2Hours,
     };
   }
 }

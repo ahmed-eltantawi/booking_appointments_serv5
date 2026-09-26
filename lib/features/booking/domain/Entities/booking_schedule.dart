@@ -47,19 +47,21 @@ class BookingSchedule extends Equatable {
       slots: slots ?? this.slots,
       selectedDuration: selectedDuration ?? this.selectedDuration,
       validStartTimes: validStartTimes ?? this.validStartTimes,
-      selectedStart:
-          clearSelection ? null : (selectedStart ?? this.selectedStart),
-      validationResult:
-          clearSelection ? null : (validationResult ?? this.validationResult),
+      selectedStart: clearSelection
+          ? null
+          : (selectedStart ?? this.selectedStart),
+      validationResult: clearSelection
+          ? null
+          : (validationResult ?? this.validationResult),
     );
   }
 
   @override
   List<Object?> get props => [
-        slots,
-        selectedDuration,
-        validStartTimes,
-        selectedStart,
-        validationResult,
-      ];
+    slots,
+    selectedDuration,
+    validStartTimes,
+    selectedStart,
+    validationResult,
+  ];
 }

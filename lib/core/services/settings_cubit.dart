@@ -8,10 +8,12 @@ part 'settings_state.dart';
 /// App-level cubit for managing theme mode and locale settings with persistence.
 class SettingsCubit extends Cubit<SettingsState> {
   SettingsCubit(this._sharedPreferencesService)
-      : super(SettingsState(
+    : super(
+        SettingsState(
           locale: Locale(_sharedPreferencesService.getLanguageCode()),
           themeMode: _sharedPreferencesService.getThemeMode(),
-        ));
+        ),
+      );
 
   final SharedPreferencesService _sharedPreferencesService;
 

@@ -39,10 +39,7 @@ class LegendItemWidget extends StatelessWidget {
             Icon(icon, size: 14.r, color: fg),
             SizedBox(width: 4.w),
           ],
-          Text(
-            label,
-            style: AppTextStyles.regular12.copyWith(color: fg),
-          ),
+          Text(label, style: AppTextStyles.regular12.copyWith(color: fg)),
         ],
       ),
     );

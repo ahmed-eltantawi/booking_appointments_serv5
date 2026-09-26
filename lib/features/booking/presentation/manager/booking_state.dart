@@ -21,10 +21,7 @@ final class BookingLoading extends BookingState {
 
 /// Main operational state for the booking feature.
 final class BookingLoaded extends BookingState {
-  const BookingLoaded({
-    required this.schedule,
-    this.isConfirmed = false,
-  });
+  const BookingLoaded({required this.schedule, this.isConfirmed = false});
 
   final BookingSchedule schedule;
   final bool isConfirmed;

@@ -6,10 +6,7 @@ import 'package:booking_appointments/features/booking/domain/Entities/booking_du
 
 /// Banner widget displayed when no valid start times exist for the selected duration.
 class NoAvailableSlotsWidget extends StatelessWidget {
-  const NoAvailableSlotsWidget({
-    super.key,
-    required this.duration,
-  });
+  const NoAvailableSlotsWidget({super.key, required this.duration});
 
   final BookingDuration duration;
 
@@ -25,9 +22,7 @@ class NoAvailableSlotsWidget extends StatelessWidget {
       decoration: BoxDecoration(
         color: colorScheme.primary.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(10.r),
-        border: Border.all(
-          color: colorScheme.primary.withValues(alpha: 0.25),
-        ),
+        border: Border.all(color: colorScheme.primary.withValues(alpha: 0.25)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -54,9 +49,9 @@ class NoAvailableSlotsWidget extends StatelessWidget {
   String _durationLabel(S l10n, BookingDuration duration) {
     return switch (duration) {
       BookingDuration.thirtyMinutes => l10n.duration30Min,
-      BookingDuration.oneHour       => l10n.duration1Hour,
-      BookingDuration.oneHalfHour   => l10n.duration1Half,
-      BookingDuration.twoHours      => l10n.duration2Hours,
+      BookingDuration.oneHour => l10n.duration1Hour,
+      BookingDuration.oneHalfHour => l10n.duration1Half,
+      BookingDuration.twoHours => l10n.duration2Hours,
     };
   }
 }

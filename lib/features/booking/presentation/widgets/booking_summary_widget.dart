@@ -27,8 +27,12 @@ class BookingSummaryWidget extends StatelessWidget {
     final selectedStart = schedule.selectedStart;
     final selectedEnd = schedule.selectedEnd;
 
-    final startTimeFormatted = selectedStart != null ? selectedStart.format(context) : '';
-    final endTimeFormatted = selectedEnd != null ? selectedEnd.format(context) : '';
+    final startTimeFormatted = selectedStart != null
+        ? selectedStart.format(context)
+        : '';
+    final endTimeFormatted = selectedEnd != null
+        ? selectedEnd.format(context)
+        : '';
 
     return AnimatedSize(
       duration: const Duration(milliseconds: 250),
@@ -149,9 +153,9 @@ class BookingSummaryWidget extends StatelessWidget {
   String _durationLabel(S l10n, BookingDuration duration) {
     return switch (duration) {
       BookingDuration.thirtyMinutes => l10n.duration30Min,
-      BookingDuration.oneHour       => l10n.duration1Hour,
-      BookingDuration.oneHalfHour   => l10n.duration1Half,
-      BookingDuration.twoHours      => l10n.duration2Hours,
+      BookingDuration.oneHour => l10n.duration1Hour,
+      BookingDuration.oneHalfHour => l10n.duration1Half,
+      BookingDuration.twoHours => l10n.duration2Hours,
     };
   }
 }

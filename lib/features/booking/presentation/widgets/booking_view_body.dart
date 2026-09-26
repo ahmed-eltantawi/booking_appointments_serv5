@@ -64,8 +64,8 @@ class BookingViewBody extends StatelessWidget {
           return const SizedBox.shrink();
         }
 
-        final showNoAvailableSlots = schedule.validStartTimes.isEmpty &&
-            schedule.selectedStart == null;
+        final showNoAvailableSlots =
+            schedule.validStartTimes.isEmpty && schedule.selectedStart == null;
 
         return SingleChildScrollView(
           padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
@@ -160,7 +160,8 @@ class BookingViewBody extends StatelessWidget {
                 duration: const Duration(milliseconds: 450),
                 slideOffset: const Offset(0, 0.15),
                 child: BookingActionBarWidget(
-                  canConfirm: schedule.selectedStart != null &&
+                  canConfirm:
+                      schedule.selectedStart != null &&
                       (schedule.validationResult?.isValid ?? false),
                   isConfirmed: isConfirmed,
                 ),

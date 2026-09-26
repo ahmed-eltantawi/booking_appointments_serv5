@@ -169,6 +169,12 @@ abstract class S {
   /// **'Available'**
   String get available;
 
+  /// Legend item and slot status label for current user's booking.
+  ///
+  /// In en, this message translates to:
+  /// **'My Booking'**
+  String get myBooking;
+
   /// Legend item and slot status label.
   ///
   /// In en, this message translates to:

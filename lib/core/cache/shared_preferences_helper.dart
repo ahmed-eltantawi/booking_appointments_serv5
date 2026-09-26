@@ -7,10 +7,7 @@ class SharedPreferencesHelper {
   final SharedPreferences _sharedPreferences;
 
   /// Saves dynamic primitive values (String, int, double, bool).
-  Future<bool> saveData({
-    required String key,
-    required dynamic value,
-  }) async {
+  Future<bool> saveData({required String key, required dynamic value}) async {
     if (value is String) {
       return await _sharedPreferences.setString(key, value);
     } else if (value is int) {

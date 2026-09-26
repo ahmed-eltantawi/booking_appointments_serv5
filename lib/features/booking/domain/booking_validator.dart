@@ -123,8 +123,12 @@ class BookingValidator {
 
   /// Calculates the inclusive/exclusive end time for a booking starting at
   /// [startTime] with the specified [duration].
-  static TimeOfDay calculateEndTime(TimeOfDay startTime, BookingDuration duration) {
-    final totalMinutes = startTime.hour * 60 + startTime.minute + duration.minutes;
+  static TimeOfDay calculateEndTime(
+    TimeOfDay startTime,
+    BookingDuration duration,
+  ) {
+    final totalMinutes =
+        startTime.hour * 60 + startTime.minute + duration.minutes;
     final hour = (totalMinutes ~/ 60) % 24;
     final minute = totalMinutes % 60;
     return TimeOfDay(hour: hour, minute: minute);
@@ -174,10 +178,8 @@ class BookingValidator {
       final prev = slots[i - 1];
       final next = slots[i + 1];
 
-      final isPrevOccupied =
-          prev.status == SlotStatus.booked || prev.status == SlotStatus.unavailable;
-      final isNextOccupied =
-          next.status == SlotStatus.booked || next.status == SlotStatus.unavailable;
+      final isPrevOccupied = prev.isOccupied;
+      final isNextOccupied = next.isOccupied;
 
       if (isPrevOccupied && isNextOccupied) {
         gaps.add(current.start);
@@ -229,7 +231,7 @@ class BookingValidator {
   /// Evaluated rules in priority order:
   ///   1. Invalid input / nonexistent start time (ISSUE-014)
   ///   2. Working-hours boundary check (exceeds 6:00 PM)
-  ///   3. Booked slot collision
+  ///   3. Booked slot collision (including current user's and other users' bookings)
   ///   4. Unavailable slot collision
   ///   5. Isolated gap creation check (comparing gaps before vs after booking) (ISSUE-001)
   BookingValidationResult validateBooking({
@@ -276,16 +278,16 @@ class BookingValidator {
       );
     }
 
-    final bookedSlots =
-        requiredSlots.where((s) => s.status == SlotStatus.booked).toList();
+    final bookedSlots = requiredSlots.where((s) => s.isBooked).toList();
     if (bookedSlots.isNotEmpty) {
       return const BookingValidationResult.invalid(
         BookingInvalidReason.containsBookedSlot,
       );
     }
 
-    final unavailableSlots =
-        requiredSlots.where((s) => s.status == SlotStatus.unavailable).toList();
+    final unavailableSlots = requiredSlots
+        .where((s) => s.status == SlotStatus.unavailable)
+        .toList();
     if (unavailableSlots.isNotEmpty) {
       return const BookingValidationResult.invalid(
         BookingInvalidReason.containsUnavailableSlot,
@@ -301,8 +303,9 @@ class BookingValidator {
     );
     final isolatedAfter = getIsolatedGapStartTimes(simulatedSchedule);
 
-    final newlyCreatedGaps =
-        isolatedAfter.where((gapTime) => !isolatedBefore.contains(gapTime));
+    final newlyCreatedGaps = isolatedAfter.where(
+      (gapTime) => !isolatedBefore.contains(gapTime),
+    );
     if (newlyCreatedGaps.isNotEmpty) {
       return const BookingValidationResult.invalid(
         BookingInvalidReason.createsInvalidGap,
@@ -313,11 +316,12 @@ class BookingValidator {
   }
 
   /// Returns a new list of [TimeSlot]s with the booking applied.
-  /// Converts required available slots in [startTime..endTime) to [SlotStatus.booked].
+  /// Converts required available slots in [startTime..endTime) to [SlotStatus.myBooking].
   List<TimeSlot> applyBooking({
     required List<TimeSlot> schedule,
     required TimeOfDay startTime,
     required BookingDuration duration,
+    String? userId,
   }) {
     final startMins = startTime.hour * 60 + startTime.minute;
     final endMins = startMins + duration.minutes;
@@ -326,7 +330,10 @@ class BookingValidator {
       schedule.map((slot) {
         if (slot.startMinutes >= startMins && slot.startMinutes < endMins) {
           if (slot.status == SlotStatus.available) {
-            return slot.copyWith(status: SlotStatus.booked);
+            return slot.copyWith(
+              status: SlotStatus.myBooking,
+              bookedBy: userId,
+            );
           }
         }
         return slot;

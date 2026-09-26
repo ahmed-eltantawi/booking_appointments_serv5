@@ -58,9 +58,7 @@ class _DurationChipWidgetState extends State<DurationChipWidget> {
       child: ValueListenableBuilder<bool>(
         valueListenable: _isPressedNotifier,
         builder: (context, isPressed, child) {
-          final scale = isPressed
-              ? 0.96
-              : (widget.isSelected ? 1.02 : 1.0);
+          final scale = isPressed ? 0.96 : (widget.isSelected ? 1.02 : 1.0);
 
           return AnimatedScale(
             scale: scale,
@@ -74,10 +72,14 @@ class _DurationChipWidgetState extends State<DurationChipWidget> {
               decoration: BoxDecoration(
                 color: widget.isSelected
                     ? AppColors.primary
-                    : (isDark ? const Color(0xFF1E2340) : AppColors.surfaceVariant),
+                    : (isDark
+                          ? const Color(0xFF1E2340)
+                          : AppColors.surfaceVariant),
                 borderRadius: BorderRadius.circular(24.r),
                 border: Border.all(
-                  color: widget.isSelected ? AppColors.primary : AppColors.outline,
+                  color: widget.isSelected
+                      ? AppColors.primary
+                      : AppColors.outline,
                   width: widget.isSelected ? 2 : 1,
                 ),
                 boxShadow: widget.isSelected

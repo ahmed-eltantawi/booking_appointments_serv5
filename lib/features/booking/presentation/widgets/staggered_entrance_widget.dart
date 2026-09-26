@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 /// Wraps a widget to provide a smooth fade and slide entrance animation.
@@ -41,10 +42,7 @@ class _StaggeredEntranceWidgetState extends State<StaggeredEntranceWidget>
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: widget.duration,
-    );
+    _controller = AnimationController(vsync: this, duration: widget.duration);
 
     final curve = CurvedAnimation(
       parent: _controller,
@@ -62,17 +60,22 @@ class _StaggeredEntranceWidgetState extends State<StaggeredEntranceWidget>
 
   void _scheduleEntranceAnimation() {
     final effectiveDelay =
-        widget.delay ?? (widget.initialDelay + (widget.delayStep * widget.index));
+        widget.delay ??
+        (widget.initialDelay + (widget.delayStep * widget.index));
 
     if (effectiveDelay == Duration.zero) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!_isDisposed && mounted && _controller.status == AnimationStatus.dismissed) {
+        if (!_isDisposed &&
+            mounted &&
+            _controller.status == AnimationStatus.dismissed) {
           _controller.forward();
         }
       });
     } else {
       _timer = Timer(effectiveDelay, () {
-        if (!_isDisposed && mounted && _controller.status == AnimationStatus.dismissed) {
+        if (!_isDisposed &&
+            mounted &&
+            _controller.status == AnimationStatus.dismissed) {
           _controller.forward();
         }
       });
@@ -82,7 +85,8 @@ class _StaggeredEntranceWidgetState extends State<StaggeredEntranceWidget>
   @override
   void didUpdateWidget(StaggeredEntranceWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (_controller.status == AnimationStatus.completed || _controller.value >= 1.0) {
+    if (_controller.status == AnimationStatus.completed ||
+        _controller.value >= 1.0) {
       _controller.value = 1.0;
     }
   }
@@ -99,12 +103,7 @@ class _StaggeredEntranceWidgetState extends State<StaggeredEntranceWidget>
   Widget build(BuildContext context) {
     return FadeTransition(
       opacity: _fadeAnimation,
-      child: SlideTransition(
-        position: _slideAnimation,
-        child: widget.child,
-      ),
+      child: SlideTransition(position: _slideAnimation, child: widget.child),
     );
   }
 }
-
-

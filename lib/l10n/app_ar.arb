@@ -13,7 +13,9 @@
   "selectStartTimeHint": "اضغط على فترة متاحة لاختيار وقت البدء.",
   "legend": "الدليل",
   "available": "متاح",
+  "myBooking": "حجزي",
   "booked": "محجوز",
+
   "unavailable": "غير متاح",
   "selected": "محدد",
   "bookingSummary": "ملخص الحجز",

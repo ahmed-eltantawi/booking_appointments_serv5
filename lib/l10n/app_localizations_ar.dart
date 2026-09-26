@@ -46,6 +46,9 @@ class SAr extends S {
   String get available => 'متاح';
 
   @override
+  String get myBooking => 'حجزي';
+
+  @override
   String get booked => 'محجوز';
 
   @override

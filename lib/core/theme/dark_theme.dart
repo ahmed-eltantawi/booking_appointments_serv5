@@ -8,33 +8,36 @@ import 'package:booking_appointments/core/utils/app_constants.dart';
 final ThemeData darkTheme = ThemeData(
   useMaterial3: true,
   brightness: Brightness.dark,
-  fontFamily: AppConstants.appFamilyFont.isEmpty ? null : AppConstants.appFamilyFont,
-  colorScheme: ColorScheme.fromSeed(
-    seedColor: const Color(0xFF4763E4),
-    brightness: Brightness.dark,
-  ).copyWith(
-    primary: const Color(0xFF637CFF),
-    onPrimary: const Color(0xFFFFFFFF),
-    primaryContainer: const Color(0xFF1E2856),
-    onPrimaryContainer: const Color(0xFFDCE2FF),
-    secondary: const Color(0xFF2DD4BF),
-    onSecondary: const Color(0xFF003731),
-    tertiary: const Color(0xFF60A5FA),
-    onTertiary: const Color(0xFF00295B),
-    error: const Color(0xFFF87171),
-    onError: const Color(0xFF450A0A),
-    errorContainer: const Color(0xFF7F1D1D),
-    onErrorContainer: const Color(0xFFFECACA),
-    surface: const Color(0xFF161B2E),
-    onSurface: const Color(0xFFF1F5F9),
-    onSurfaceVariant: const Color(0xFF94A3B8),
-    outline: const Color(0xFF2A324E),
-    outlineVariant: const Color(0xFF1E243B),
-    surfaceContainerLow: const Color(0xFF121729),
-    surfaceContainer: const Color(0xFF1A2035),
-    surfaceContainerHigh: const Color(0xFF222942),
-    surfaceContainerHighest: const Color(0xFF2B3454),
-  ),
+  fontFamily: AppConstants.appFamilyFont.isEmpty
+      ? null
+      : AppConstants.appFamilyFont,
+  colorScheme:
+      ColorScheme.fromSeed(
+        seedColor: const Color(0xFF4763E4),
+        brightness: Brightness.dark,
+      ).copyWith(
+        primary: const Color(0xFF637CFF),
+        onPrimary: const Color(0xFFFFFFFF),
+        primaryContainer: const Color(0xFF1E2856),
+        onPrimaryContainer: const Color(0xFFDCE2FF),
+        secondary: const Color(0xFF2DD4BF),
+        onSecondary: const Color(0xFF003731),
+        tertiary: const Color(0xFF60A5FA),
+        onTertiary: const Color(0xFF00295B),
+        error: const Color(0xFFF87171),
+        onError: const Color(0xFF450A0A),
+        errorContainer: const Color(0xFF7F1D1D),
+        onErrorContainer: const Color(0xFFFECACA),
+        surface: const Color(0xFF161B2E),
+        onSurface: const Color(0xFFF1F5F9),
+        onSurfaceVariant: const Color(0xFF94A3B8),
+        outline: const Color(0xFF2A324E),
+        outlineVariant: const Color(0xFF1E243B),
+        surfaceContainerLow: const Color(0xFF121729),
+        surfaceContainer: const Color(0xFF1A2035),
+        surfaceContainerHigh: const Color(0xFF222942),
+        surfaceContainerHighest: const Color(0xFF2B3454),
+      ),
   scaffoldBackgroundColor: const Color(0xFF0F1424),
   drawerTheme: const DrawerThemeData(
     backgroundColor: Color(0xFF14192B),
@@ -53,9 +56,7 @@ final ThemeData darkTheme = ThemeData(
       backgroundColor: const Color(0xFF637CFF),
       foregroundColor: const Color(0xFFFFFFFF),
       minimumSize: const Size(double.infinity, 52),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     ),
   ),
   outlinedButtonTheme: OutlinedButtonThemeData(
@@ -64,9 +65,7 @@ final ThemeData darkTheme = ThemeData(
       foregroundColor: const Color(0xFF637CFF),
       minimumSize: const Size(double.infinity, 52),
       side: const BorderSide(color: Color(0xFF637CFF)),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     ),
   ),
   cardTheme: const CardThemeData(
@@ -85,10 +84,7 @@ final ThemeData darkTheme = ThemeData(
     backgroundColor: Color(0xFF14192B),
     surfaceTintColor: Colors.transparent,
   ),
-  dividerTheme: const DividerThemeData(
-    color: Color(0xFF2A324E),
-    thickness: 1,
-  ),
+  dividerTheme: const DividerThemeData(color: Color(0xFF2A324E), thickness: 1),
   snackBarTheme: SnackBarThemeData(
     behavior: SnackBarBehavior.floating,
     backgroundColor: const Color(0xFF2B3454),
