@@ -5,7 +5,7 @@ import 'package:booking_appointments/features/booking/domain/Entities/booking_du
 import 'package:booking_appointments/features/booking/domain/Entities/booking_schedule.dart';
 
 /// Repository contract for appointment booking business and data operations.
-abstract class BookingRepository {
+abstract interface class BookingRepository {
   /// Loads or retrieves the current schedule state.
   Future<Either<Failure, BookingSchedule>> getSchedule();
 

@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
 
 /// Abstract base class for all failure representations in the application.
-abstract class Failure extends Equatable {
+abstract interface class Failure extends Equatable {
   const Failure(this.message);
 
   final String message;

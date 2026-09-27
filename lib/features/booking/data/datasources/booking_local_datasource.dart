@@ -3,7 +3,7 @@ import 'package:booking_appointments/features/booking/domain/Entities/booking_du
 import 'package:booking_appointments/features/booking/domain/Entities/time_slot.dart';
 
 /// Contract for local schedule persistence and user identity access.
-abstract class BookingLocalDataSource {
+abstract interface class BookingLocalDataSource {
   /// Retrieves or initializes a stable local user ID.
   String getCurrentUserId();
 
