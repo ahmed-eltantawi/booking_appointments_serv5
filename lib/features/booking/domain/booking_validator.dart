@@ -25,10 +25,6 @@ class SlotSelectionResult {
   final bool isDeselected;
 }
 
-/// Core domain service for appointment scheduling and validation rules.
-///
-/// Encapsulates all business logic for slot availability, working hours,
-/// conflict detection, and gap detection without Flutter UI dependencies.
 class BookingValidator {
   const BookingValidator();
 

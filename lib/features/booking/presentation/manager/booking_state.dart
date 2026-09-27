@@ -1,5 +1,12 @@
 part of 'booking_cubit.dart';
 
+// --------------------------------------------------------------------
+// 1. initial state
+// 2. loading state
+// 3. loaded state
+// 4. failure state
+// --------------------------------------------------------------------
+
 /// Base state for the booking feature.
 @immutable
 sealed class BookingState extends Equatable {
