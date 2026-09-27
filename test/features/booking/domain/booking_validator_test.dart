@@ -6,6 +6,11 @@ import 'package:booking_appointments/features/booking/domain/Entities/booking_du
 import 'package:booking_appointments/features/booking/domain/Entities/booking_validation_result.dart';
 import 'package:booking_appointments/features/booking/domain/booking_validator.dart';
 import 'package:booking_appointments/features/booking/domain/Entities/time_slot.dart';
+import 'package:booking_appointments/features/booking/domain/usecases/confirm_booking_usecase.dart';
+import 'package:booking_appointments/features/booking/domain/usecases/get_schedule_usecase.dart';
+import 'package:booking_appointments/features/booking/domain/usecases/reset_schedule_usecase.dart';
+import 'package:booking_appointments/features/booking/domain/usecases/select_duration_usecase.dart';
+import 'package:booking_appointments/features/booking/domain/usecases/select_start_time_usecase.dart';
 import 'package:booking_appointments/features/booking/presentation/manager/booking_cubit.dart';
 
 // Helper to create an 18-slot schedule (09:00 to 18:00) with all available by default
@@ -203,14 +208,40 @@ void main() {
 
   group('BookingCubit Unit Tests', () {
     late BookingRepositoryImpl repository;
+    late GetScheduleUseCase getScheduleUseCase;
+    late SelectDurationUseCase selectDurationUseCase;
+    late SelectStartTimeUseCase selectStartTimeUseCase;
+    late ConfirmBookingUseCase confirmBookingUseCase;
+    late ResetScheduleUseCase resetScheduleUseCase;
 
     setUp(() {
       repository = BookingRepositoryImpl();
+      getScheduleUseCase = GetScheduleUseCase(bookingRepository: repository);
+      selectDurationUseCase = SelectDurationUseCase(
+        bookingRepository: repository,
+      );
+      selectStartTimeUseCase = SelectStartTimeUseCase(
+        bookingRepository: repository,
+      );
+      confirmBookingUseCase = ConfirmBookingUseCase(
+        bookingRepository: repository,
+      );
+      resetScheduleUseCase = ResetScheduleUseCase(
+        bookingRepository: repository,
+      );
     });
+
+    BookingCubit createCubit() => BookingCubit(
+      getScheduleUseCase: getScheduleUseCase,
+      selectDurationUseCase: selectDurationUseCase,
+      selectStartTimeUseCase: selectStartTimeUseCase,
+      confirmBookingUseCase: confirmBookingUseCase,
+      resetScheduleUseCase: resetScheduleUseCase,
+    );
 
     blocTest<BookingCubit, BookingState>(
       'initialize() emits BookingLoading then BookingLoaded state',
-      build: () => BookingCubit(repository),
+      build: () => createCubit(),
       act: (cubit) => cubit.initialize(),
       expect: () => [
         const BookingLoading(),
@@ -224,7 +255,7 @@ void main() {
 
     blocTest<BookingCubit, BookingState>(
       'selectStartTime updates selectedStart and validates',
-      build: () => BookingCubit(repository),
+      build: () => createCubit(),
       act: (cubit) async {
         await cubit.initialize();
         await cubit.selectStartTime(const TimeOfDay(hour: 9, minute: 30));
@@ -242,7 +273,7 @@ void main() {
 
     blocTest<BookingCubit, BookingState>(
       'ISSUE-002: changing duration keeps selectedStart visible and revalidates (valid -> invalid)',
-      build: () => BookingCubit(repository),
+      build: () => createCubit(),
       act: (cubit) async {
         await cubit.initialize();
         await cubit.selectStartTime(const TimeOfDay(hour: 17, minute: 0));
@@ -265,7 +296,7 @@ void main() {
 
     blocTest<BookingCubit, BookingState>(
       'reset restores schedule and clears selection & validation',
-      build: () => BookingCubit(repository),
+      build: () => createCubit(),
       act: (cubit) async {
         await cubit.initialize();
         await cubit.selectStartTime(const TimeOfDay(hour: 17, minute: 0));
@@ -281,7 +312,7 @@ void main() {
 
     blocTest<BookingCubit, BookingState>(
       'toggling selected 30-min slot deselects it',
-      build: () => BookingCubit(repository),
+      build: () => createCubit(),
       act: (cubit) async {
         await cubit.initialize();
         await cubit.selectStartTime(const TimeOfDay(hour: 9, minute: 0));
@@ -296,7 +327,7 @@ void main() {
 
     blocTest<BookingCubit, BookingState>(
       'tapping consecutive slots expands duration dynamically (9:00 -> 9:30 -> 10:00 -> 10:30)',
-      build: () => BookingCubit(repository),
+      build: () => createCubit(),
       act: (cubit) async {
         await cubit.initialize();
         await cubit.selectStartTime(const TimeOfDay(hour: 9, minute: 0));
@@ -316,7 +347,7 @@ void main() {
 
     blocTest<BookingCubit, BookingState>(
       'tapping end slot of multi-slot selection trims range and updates duration',
-      build: () => BookingCubit(repository),
+      build: () => createCubit(),
       act: (cubit) async {
         await cubit.initialize();
         await cubit.selectStartTime(const TimeOfDay(hour: 9, minute: 0));
@@ -337,7 +368,7 @@ void main() {
 
     blocTest<BookingCubit, BookingState>(
       'recalculates slot availability reactively when selecting 11:00 (10:30 booked, 11:30 initially unavailable becomes available)',
-      build: () => BookingCubit(repository),
+      build: () => createCubit(),
       act: (cubit) async {
         await cubit.initialize();
         // 1. Initial state: 11:30 AM is invalid (creating gap at 11:00)

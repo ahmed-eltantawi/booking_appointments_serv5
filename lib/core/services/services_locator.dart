@@ -7,6 +7,11 @@ import 'package:booking_appointments/features/booking/data/datasources/booking_l
 import 'package:booking_appointments/features/booking/data/datasources/booking_local_datasource_impl.dart';
 import 'package:booking_appointments/features/booking/data/repo/booking_repository_impl.dart';
 import 'package:booking_appointments/features/booking/domain/repo/booking_repository.dart';
+import 'package:booking_appointments/features/booking/domain/usecases/confirm_booking_usecase.dart';
+import 'package:booking_appointments/features/booking/domain/usecases/get_schedule_usecase.dart';
+import 'package:booking_appointments/features/booking/domain/usecases/reset_schedule_usecase.dart';
+import 'package:booking_appointments/features/booking/domain/usecases/select_duration_usecase.dart';
+import 'package:booking_appointments/features/booking/domain/usecases/select_start_time_usecase.dart';
 import 'package:booking_appointments/features/booking/presentation/manager/booking_cubit.dart';
 
 final getIt = GetIt.instance;
@@ -39,6 +44,31 @@ Future<void> setupServiceLocator() async {
     () => BookingRepositoryImpl(getIt()),
   );
 
+  //! ========= Use Cases =========
+  getIt.registerLazySingleton<GetScheduleUseCase>(
+    () => GetScheduleUseCase(bookingRepository: getIt()),
+  );
+  getIt.registerLazySingleton<SelectDurationUseCase>(
+    () => SelectDurationUseCase(bookingRepository: getIt()),
+  );
+  getIt.registerLazySingleton<SelectStartTimeUseCase>(
+    () => SelectStartTimeUseCase(bookingRepository: getIt()),
+  );
+  getIt.registerLazySingleton<ConfirmBookingUseCase>(
+    () => ConfirmBookingUseCase(bookingRepository: getIt()),
+  );
+  getIt.registerLazySingleton<ResetScheduleUseCase>(
+    () => ResetScheduleUseCase(bookingRepository: getIt()),
+  );
+
   //! ========= Features =========
-  getIt.registerFactory<BookingCubit>(() => BookingCubit(getIt()));
+  getIt.registerFactory<BookingCubit>(
+    () => BookingCubit(
+      getScheduleUseCase: getIt(),
+      selectDurationUseCase: getIt(),
+      selectStartTimeUseCase: getIt(),
+      confirmBookingUseCase: getIt(),
+      resetScheduleUseCase: getIt(),
+    ),
+  );
 }

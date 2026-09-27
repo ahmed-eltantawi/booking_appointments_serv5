@@ -2,25 +2,39 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:booking_appointments/features/booking/domain/Entities/booking_duration.dart';
-import 'package:booking_appointments/features/booking/domain/repo/booking_repository.dart';
 import 'package:booking_appointments/features/booking/domain/Entities/booking_schedule.dart';
+import 'package:booking_appointments/features/booking/domain/usecases/confirm_booking_usecase.dart';
+import 'package:booking_appointments/features/booking/domain/usecases/get_schedule_usecase.dart';
+import 'package:booking_appointments/features/booking/domain/usecases/reset_schedule_usecase.dart';
+import 'package:booking_appointments/features/booking/domain/usecases/select_duration_usecase.dart';
+import 'package:booking_appointments/features/booking/domain/usecases/select_start_time_usecase.dart';
 
 part 'booking_state.dart';
 
 /// Orchestrates state management for the booking feature.
 ///
-/// Responsible strictly for handling UI actions, invoking repository methods,
+/// Responsible strictly for handling UI actions, invoking use cases,
 /// and emitting clear lifecycle states. All business math and data updates
-/// are encapsulated in [BookingRepository] and domain services.
+/// are encapsulated in UseCases, repositories, and domain services.
 class BookingCubit extends Cubit<BookingState> {
-  BookingCubit(this._repository) : super(const BookingInitial());
+  BookingCubit({
+    required this.getScheduleUseCase,
+    required this.selectDurationUseCase,
+    required this.selectStartTimeUseCase,
+    required this.confirmBookingUseCase,
+    required this.resetScheduleUseCase,
+  }) : super(const BookingInitial());
 
-  final BookingRepository _repository;
+  final GetScheduleUseCase getScheduleUseCase;
+  final SelectDurationUseCase selectDurationUseCase;
+  final SelectStartTimeUseCase selectStartTimeUseCase;
+  final ConfirmBookingUseCase confirmBookingUseCase;
+  final ResetScheduleUseCase resetScheduleUseCase;
 
   /// Loads initial schedule data and emits [BookingLoaded].
   Future<void> initialize() async {
     emit(const BookingLoading());
-    final result = await _repository.getSchedule();
+    final result = await getScheduleUseCase();
     result.fold(
       (failure) => emit(BookingFailure(failure.message)),
       (schedule) => emit(BookingLoaded(schedule: schedule)),
@@ -30,7 +44,7 @@ class BookingCubit extends Cubit<BookingState> {
   /// Updates selected booking duration and recalculates valid slots.
   Future<void> selectDuration(BookingDuration duration) async {
     final schedule = _getCurrentSchedule();
-    final result = await _repository.selectDuration(
+    final result = await selectDurationUseCase(
       duration,
       schedule?.selectedStart,
     );
@@ -47,7 +61,7 @@ class BookingCubit extends Cubit<BookingState> {
         schedule?.selectedDuration ?? BookingDuration.thirtyMinutes;
     final currentStart = schedule?.selectedStart;
 
-    final result = await _repository.selectStartTime(
+    final result = await selectStartTimeUseCase(
       startTime,
       duration,
       currentStart: currentStart,
@@ -63,7 +77,7 @@ class BookingCubit extends Cubit<BookingState> {
     final schedule = _getCurrentSchedule();
     if (schedule == null || schedule.selectedStart == null) return;
 
-    final result = await _repository.confirmBooking(
+    final result = await confirmBookingUseCase(
       startTime: schedule.selectedStart!,
       duration: schedule.selectedDuration,
     );
@@ -82,7 +96,7 @@ class BookingCubit extends Cubit<BookingState> {
 
   /// Resets schedule state back to initial seed data.
   Future<void> reset() async {
-    final result = await _repository.resetSchedule();
+    final result = await resetScheduleUseCase();
     result.fold(
       (failure) => emit(BookingFailure(failure.message)),
       (newSchedule) => emit(BookingLoaded(schedule: newSchedule)),
