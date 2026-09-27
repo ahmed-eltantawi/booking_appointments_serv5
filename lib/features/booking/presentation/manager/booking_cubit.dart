@@ -11,11 +11,6 @@ import 'package:booking_appointments/features/booking/domain/usecases/select_sta
 
 part 'booking_state.dart';
 
-/// Orchestrates state management for the booking feature.
-///
-/// Responsible strictly for handling UI actions, invoking use cases,
-/// and emitting clear lifecycle states. All business math and data updates
-/// are encapsulated in UseCases, repositories, and domain services.
 class BookingCubit extends Cubit<BookingState> {
   BookingCubit({
     required this.getScheduleUseCase,
