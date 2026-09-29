@@ -297,13 +297,42 @@ class BookingValidator {
     required BookingDuration duration,
     TimeOfDay dayEndTime = kDayEndTime,
   }) {
-    // --- Rule 1: Null or out-of-range input protection ---
     if (startTime == null) {
       return const BookingValidationResult.invalid(
         BookingInvalidReason.exceedsWorkingHours,
       );
     }
 
+    //1. Check if the booking is within working hours
+    final workingHoursResult = _validateWorkingHours(
+      startTime,
+      duration,
+      dayEndTime,
+    );
+    if (workingHoursResult != null) return workingHoursResult;
+
+    final conflictResult = _validateSlotConflicts(
+      schedule,
+      startTime,
+      duration,
+    );
+    if (conflictResult != null) return conflictResult;
+
+    final gapResult = _validateGapRule(schedule, startTime, duration);
+    if (gapResult != null) return gapResult;
+
+    return const BookingValidationResult.valid();
+  }
+
+  //==============================================================================
+  // Helper methods for validateBooking
+  // To follow single responsibility principle
+
+  BookingValidationResult? _validateWorkingHours(
+    TimeOfDay startTime,
+    BookingDuration duration,
+    TimeOfDay dayEndTime,
+  ) {
     final startMins = startTime.hour * 60 + startTime.minute;
     final dayStartMins = kDayStartTime.hour * 60 + kDayStartTime.minute;
     final dayEndMins = dayEndTime.hour * 60 + dayEndTime.minute;
@@ -315,7 +344,6 @@ class BookingValidator {
       );
     }
 
-    // --- Rule 2: Working hours check ---
     final endMins = startMins + duration.minutes;
     if (endMins > dayEndMins) {
       return const BookingValidationResult.invalid(
@@ -323,7 +351,14 @@ class BookingValidator {
       );
     }
 
-    // --- Rule 3 & 4: Required slots conflict checks ---
+    return null;
+  }
+
+  BookingValidationResult? _validateSlotConflicts(
+    List<TimeSlot> schedule,
+    TimeOfDay startTime,
+    BookingDuration duration,
+  ) {
     final requiredSlots = getRequiredSlots(
       schedule: schedule,
       startTime: startTime,
@@ -355,11 +390,15 @@ class BookingValidator {
       );
     }
 
-    // --- Rule 5: Gap rule — reject ONLY newly created isolated gaps ---
-    ///* do the simulation of booking is awesome
-    /// it see the current isolated gaps and simulate a new booking
-    /// and see if the new booking creates new isolated gaps or not
+    return null;
+  }
 
+  BookingValidationResult? _validateGapRule(
+    List<TimeSlot> schedule,
+    TimeOfDay startTime,
+    BookingDuration duration,
+  ) {
+    // do the simulation of booking to check if new gaps are created
     final isolatedBefore = getIsolatedGapStartTimes(schedule);
     final simulatedSchedule = applyBooking(
       schedule: schedule,
@@ -371,13 +410,14 @@ class BookingValidator {
     final newlyCreatedGaps = isolatedAfter.where(
       (gapTime) => !isolatedBefore.contains(gapTime),
     );
+
     if (newlyCreatedGaps.isNotEmpty) {
       return const BookingValidationResult.invalid(
         BookingInvalidReason.createsInvalidGap,
       );
     }
-    // if the time slot across all these rules it's for sure valid
-    return const BookingValidationResult.valid();
+
+    return null;
   }
 
   /// this method is made for simulating a new booking
