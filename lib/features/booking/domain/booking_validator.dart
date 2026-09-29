@@ -30,13 +30,13 @@ class BookingValidator {
 
   //==============================================================================
   //! This Method is important one
-  /// It processes a tap on a slot and returns the resulting start time and duration.
-  /// 1. if there is no currentStart it will return the tappedTime
-  /// 2. if the tapped time is inside the current selection range,
-  ///      it will deselect the slot or reduce the selection range
-  /// 3. if the tapped time is outside the current selection range,
-  ///      it will extend the selection range (before or after)
-  /// 4. else it will return the tappedTime and remove the current selection
+  ///* It processes a tap on a slot and returns the resulting start time and duration.
+  ///* 1. if there is no currentStart it will return the tappedTime
+  ///* 2. if the tapped time is inside the current selection range,
+  ///*      it will deselect the slot or reduce the selection range
+  ///* 3. if the tapped time is outside the current selection range,
+  ///*      it will extend the selection range (before or after)
+  ///* 4. else it will return the tappedTime and remove the current selection
   //==============================================================================
   SlotSelectionResult calculateSelectionOnTap({
     required TimeOfDay tappedTime,

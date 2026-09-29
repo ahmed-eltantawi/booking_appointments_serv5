@@ -121,6 +121,8 @@ class BookingRepositoryImpl implements BookingRepository {
         currentDuration: duration,
       );
 
+      /// if the user clicked on an already selected slot
+      /// we need to recalculate valid start times
       if (selectionResult.isDeselected) {
         final validStarts = _validator.getValidStartTimes(
           schedule: _baseSlots,
@@ -139,15 +141,19 @@ class BookingRepositoryImpl implements BookingRepository {
         );
       }
 
+      /// reassign new values of start slot and duration
       final newStart = selectionResult.selectedStart!;
       final newDuration = selectionResult.duration;
 
+      /// Revalidate selectedStart with the new duration
       final validStarts = _validator.getValidStartTimes(
         schedule: _baseSlots,
         duration: newDuration,
         selectedStart: newStart,
       );
 
+      /// Revalidate current selectedStart with the new duration
+      /// to see if it is still valid or not
       final validation = _validator.validateBooking(
         schedule: _baseSlots,
         startTime: newStart,
@@ -174,6 +180,8 @@ class BookingRepositoryImpl implements BookingRepository {
     required BookingDuration duration,
   }) async {
     try {
+      /// first of all, revalidate selectedStart with the new duration
+      /// and make sure it is valid
       final validation = _validator.validateBooking(
         schedule: _baseSlots,
         startTime: startTime,
