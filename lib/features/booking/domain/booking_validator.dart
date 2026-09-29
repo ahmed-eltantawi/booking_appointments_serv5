@@ -42,102 +42,140 @@ class BookingValidator {
     required TimeOfDay? currentStart,
     required BookingDuration currentDuration,
   }) {
-    // if there is no currentStart it will return the tappedTime
+    // if there is no currentStart, which means it is the first tap
     if (currentStart == null) {
-      return SlotSelectionResult(
-        selectedStart: tappedTime,
-        duration: currentDuration,
-        isDeselected: false,
-      );
+      return _handleInitialSelection(tappedTime, currentDuration);
     }
 
-    //* if the currentStart not null, which means there is an active selection before
-
-    // calculate the startMins
+    // make all time calculations in minutes
     final startMins = currentStart.hour * 60 + currentStart.minute;
-
-    // calculate the endMins, if duration is 30 min => .slotCount = 1
-    final currentSlots = currentDuration.slotCount;
-
+    final currentSlots = currentDuration.slotCount; // 1,2,3,4
     final endMins = startMins + currentSlots * 30;
-
-    // calculate the tappedMins
     final tappedMins = tappedTime.hour * 60 + tappedTime.minute;
 
-    // Tapped slot is inside the current selection range [startMins, endMins)
-    // which means the user clicked on an already selected slot
+    // if the tapped time is inside the current selection range
+    // notice we put >= in the start and < in the end
     if (tappedMins >= startMins && tappedMins < endMins) {
-      // calculate the index of the tapped slot
-      final index = (tappedMins - startMins) ~/ 30;
+      return _handleInsideSelection(
+        tappedMins: tappedMins,
+        startMins: startMins,
+        currentSlots: currentSlots,
+        currentStart: currentStart,
+      );
+    }
 
-      // if there is only 1 slot, it will return deselected
-      // for example user click in the same time slot twice
-      if (currentSlots == 1) {
-        return const SlotSelectionResult(
-          selectedStart: null,
-          duration: BookingDuration.thirtyMinutes,
-          isDeselected: true,
-        );
-      }
+    // if the user tapped in the next slot of selection slots
+    // and there are less than 4 slots
+    // it will extend the selection and time duration range
+    if (tappedMins == endMins && currentSlots < 4) {
+      return _handleExtendSelectionAfter(
+        currentSlots: currentSlots,
+        currentStart: currentStart,
+      );
+    }
 
-      // if the user selected more than one slot, then click again
-      // on the first slot, it will reassign the start time to the next slot
-      if (index == 0) {
-        final newStartMins = startMins + 30;
-        final newStart = TimeOfDay(
-          hour: (newStartMins ~/ 60) % 24,
-          minute: newStartMins % 60,
-        );
-        return SlotSelectionResult(
-          selectedStart: newStart,
-          duration: _durationFromSlotCount(currentSlots - 1),
-          isDeselected: false,
-        );
-      }
+    // if the user tapped in the previous slot of selection slots
+    // and there are less than 4 slots
+    // it will extend the selection and time duration range
+    // but in the opposite direction
+    if (tappedMins == startMins - 30 && currentSlots < 4) {
+      return _handleExtendSelectionBefore(
+        currentSlots: currentSlots,
+        tappedTime: tappedTime,
+      );
+    }
 
-      // if the user selected more than one slot, then click again
-      // on any slot except the first slot, it will cut the selection on the right
+    // else if all of these conditions are not true
+    // it will return the tappedTime only
+    return _handleNewSelection(tappedTime);
+  }
+
+  //==============================================================================
+  // these next four methods are helpers for calculateSelectionOnTap
+  // To follow single responsibility principle
+  SlotSelectionResult _handleInitialSelection(
+    TimeOfDay tappedTime,
+    BookingDuration currentDuration,
+  ) {
+    return SlotSelectionResult(
+      selectedStart: tappedTime,
+      duration: currentDuration,
+      isDeselected: false,
+    );
+  }
+
+  SlotSelectionResult _handleInsideSelection({
+    required int tappedMins,
+    required int startMins,
+    required int currentSlots,
+    required TimeOfDay currentStart,
+  }) {
+    final index = (tappedMins - startMins) ~/ 30;
+
+    // if it one slot is selected,
+    // and the user taps on it again, we need to clear the selection
+    if (currentSlots == 1) {
+      return const SlotSelectionResult(
+        selectedStart: null,
+        duration: BookingDuration.thirtyMinutes,
+        isDeselected: true,
+      );
+    }
+
+    // if there more one slot is selected, and the user taps on the first slot,
+    // so we need to deselect the first slot and make the next slot the new start
+    if (index == 0) {
+      final newStartMins = startMins + 30;
+      final newStart = TimeOfDay(
+        hour: (newStartMins ~/ 60) % 24,
+        minute: newStartMins % 60,
+      );
       return SlotSelectionResult(
-        selectedStart: currentStart,
-        duration: _durationFromSlotCount(index),
+        selectedStart: newStart,
+        duration: _durationFromSlotCount(currentSlots - 1),
         isDeselected: false,
       );
     }
 
-    // If the tapped slot is immediately after the current selection,
-    // extend the selection to include it,
-    // but making sure it doesn't overlap 4 slots
-    if (tappedMins == endMins) {
-      if (currentSlots < 4) {
-        return SlotSelectionResult(
-          selectedStart: currentStart,
-          duration: _durationFromSlotCount(currentSlots + 1),
-          isDeselected: false,
-        );
-      }
-    }
+    // if there more one slot is selected, and the user taps on the last slot,
+    // so we need to deselect the last slot and make the previous slot the new start
+    return SlotSelectionResult(
+      selectedStart: currentStart,
+      duration: _durationFromSlotCount(index),
+      isDeselected: false,
+    );
+  }
 
-    // If the tapped slot is immediately before the current selection,
-    // extend the selection to include it,
-    // but making sure it doesn't exceed 4 slots
-    if (tappedMins == startMins - 30) {
-      if (currentSlots < 4) {
-        return SlotSelectionResult(
-          selectedStart: tappedTime,
-          duration: _durationFromSlotCount(currentSlots + 1),
-          isDeselected: false,
-        );
-      }
-    }
+  SlotSelectionResult _handleExtendSelectionAfter({
+    required int currentSlots,
+    required TimeOfDay currentStart,
+  }) {
+    return SlotSelectionResult(
+      selectedStart: currentStart,
+      duration: _durationFromSlotCount(currentSlots + 1),
+      isDeselected: false,
+    );
+  }
 
-    // else the tapped slot is outside the current selection range
-    // the tapped slot will be the start of a new selection whit 30 min duration
+  SlotSelectionResult _handleExtendSelectionBefore({
+    required int currentSlots,
+    required TimeOfDay tappedTime,
+  }) {
+    return SlotSelectionResult(
+      selectedStart: tappedTime,
+      duration: _durationFromSlotCount(currentSlots + 1),
+      isDeselected: false,
+    );
+  }
+
+  SlotSelectionResult _handleNewSelection(TimeOfDay tappedTime) {
     return SlotSelectionResult(
       selectedStart: tappedTime,
       duration: BookingDuration.thirtyMinutes,
       isDeselected: false,
     );
   }
+  //==============================================================================
 
   /// This method is used to calculate booking duration from slot count
   /// then it will return the duration from [BookingDuration] enum
@@ -199,6 +237,8 @@ class BookingValidator {
 
     // we start with 1 instead of 0, and end with length - 1
     // because the first and last slots can't be gaps
+    // i see that because the only rule you can't do xox
+    // which means the first and last slots can't be gaps
     for (var i = 1; i < slots.length - 1; i++) {
       final current = slots[i];
 
