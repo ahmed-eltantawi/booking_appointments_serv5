@@ -38,7 +38,13 @@ class BookingViewBody extends StatelessWidget {
       listener: (context, state) {
         // in the BookingFailure and BookingLoaded cases, show a snackbar
         if (state is BookingFailure) {
-          context.showErrorSnackBar(state.message);
+          String errorMessage = state.message;
+          if (errorMessage == 'Booking operation failed') {
+            errorMessage = l10n.errorBookingFailed;
+          } else if (errorMessage == 'Cache failure occurred') {
+            errorMessage = l10n.errorCacheFailed;
+          }
+          context.showErrorSnackBar(errorMessage);
         } else if (state is BookingLoaded) {
           if (state.isConfirmed) {
             context.showSuccessSnackBar(l10n.bookingSuccessful);

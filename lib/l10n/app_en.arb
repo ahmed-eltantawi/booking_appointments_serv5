@@ -119,6 +119,12 @@
   "@appSubtitle": { "description": "Subtitle shown in the drawer header." },
 
   "copyright": "© 2026 Serv5. All rights reserved.",
-  "@copyright": { "description": "Copyright notice shown at the bottom of the drawer." }
+  "@copyright": { "description": "Copyright notice shown at the bottom of the drawer." },
+
+  "errorBookingFailed": "Booking operation failed. Please try again.",
+  "@errorBookingFailed": { "description": "Generic booking error." },
+
+  "errorCacheFailed": "A local storage error occurred.",
+  "@errorCacheFailed": { "description": "Generic cache error." }
 }
 

@@ -39,6 +39,7 @@
   "themeDark": "المظهر الداكن",
   "settings": "الإعدادات",
   "appSubtitle": "نظام Serv5 للحجز",
-  "copyright": "© 2026 Serv5. جميع الحقوق محفوظة."
+  "copyright": "© 2026 Serv5. جميع الحقوق محفوظة.",
+  "errorBookingFailed": "فشل عملية الحجز. يرجى المحاولة مرة أخرى.",
+  "errorCacheFailed": "حدث خطأ في التخزين المحلي."
 }
-

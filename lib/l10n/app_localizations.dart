@@ -324,6 +324,18 @@ abstract class S {
   /// In en, this message translates to:
   /// **'© 2026 Serv5. All rights reserved.'**
   String get copyright;
+
+  /// Generic booking error.
+  ///
+  /// In en, this message translates to:
+  /// **'Booking operation failed. Please try again.'**
+  String get errorBookingFailed;
+
+  /// Generic cache error.
+  ///
+  /// In en, this message translates to:
+  /// **'A local storage error occurred.'**
+  String get errorCacheFailed;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

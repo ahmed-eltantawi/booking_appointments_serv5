@@ -129,4 +129,11 @@ class SEn extends S {
 
   @override
   String get copyright => '© 2026 Serv5. All rights reserved.';
+
+  @override
+  String get errorBookingFailed =>
+      'Booking operation failed. Please try again.';
+
+  @override
+  String get errorCacheFailed => 'A local storage error occurred.';
 }

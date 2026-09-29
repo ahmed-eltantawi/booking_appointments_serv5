@@ -128,4 +128,10 @@ class SAr extends S {
 
   @override
   String get copyright => '© 2026 Serv5. جميع الحقوق محفوظة.';
+
+  @override
+  String get errorBookingFailed => 'فشل عملية الحجز. يرجى المحاولة مرة أخرى.';
+
+  @override
+  String get errorCacheFailed => 'حدث خطأ في التخزين المحلي.';
 }

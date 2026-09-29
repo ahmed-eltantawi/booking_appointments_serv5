@@ -61,7 +61,7 @@ class BookingRepositoryImpl implements BookingRepository {
         ),
       );
     } catch (e) {
-      return Left(BookingFailure('Failed to load schedule: $e'));
+      return const Left(CacheFailure());
     }
   }
 
@@ -104,7 +104,7 @@ class BookingRepositoryImpl implements BookingRepository {
         ),
       );
     } catch (e) {
-      return Left(BookingFailure('Failed to change duration: $e'));
+      return const Left(BookingFailure());
     }
   }
 
@@ -164,7 +164,7 @@ class BookingRepositoryImpl implements BookingRepository {
         ),
       );
     } catch (e) {
-      return Left(BookingFailure('Failed to select start time: $e'));
+      return const Left(BookingFailure());
     }
   }
 
@@ -233,7 +233,7 @@ class BookingRepositoryImpl implements BookingRepository {
         ),
       );
     } catch (e) {
-      return Left(BookingFailure('Failed to confirm booking: $e'));
+      return const Left(CacheFailure());
     }
   }
 
@@ -256,7 +256,7 @@ class BookingRepositoryImpl implements BookingRepository {
         ),
       );
     } catch (e) {
-      return Left(BookingFailure('Failed to reset schedule: $e'));
+      return const Left(CacheFailure());
     }
   }
 }
