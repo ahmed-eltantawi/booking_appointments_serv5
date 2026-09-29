@@ -11,7 +11,7 @@ import 'package:booking_appointments/features/booking/domain/Entities/time_slot.
 
 /// Concrete implementation of [BookingRepository] handling schedule data state
 /// and delegating validation to [BookingValidator].
-class BookingRepositoryImpl implements BookingRepository {
+final class BookingRepositoryImpl implements BookingRepository {
   BookingRepositoryImpl([
     this._localDataSource,
     List<TimeSlot>? seedSchedule,

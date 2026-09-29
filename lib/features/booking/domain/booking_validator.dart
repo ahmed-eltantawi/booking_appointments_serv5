@@ -8,7 +8,7 @@ const TimeOfDay kDayStartTime = TimeOfDay(hour: 9, minute: 0);
 const TimeOfDay kDayEndTime = TimeOfDay(hour: 18, minute: 0);
 
 /// Encapsulates the resulting start time and duration after processing a slot tap.
-class SlotSelectionResult {
+final class SlotSelectionResult {
   const SlotSelectionResult({
     required this.selectedStart,
     required this.duration,
@@ -29,7 +29,6 @@ class BookingValidator {
   const BookingValidator();
 
   //==============================================================================
-  //! This Method is important one
   ///* It processes a tap on a slot and returns the resulting start time and duration.
   ///* 1. if there is no currentStart it will return the tappedTime
   ///* 2. if the tapped time is inside the current selection range,
@@ -59,6 +58,7 @@ class BookingValidator {
 
     // calculate the endMins, if duration is 30 min => .slotCount = 1
     final currentSlots = currentDuration.slotCount;
+
     final endMins = startMins + currentSlots * 30;
 
     // calculate the tappedMins
@@ -67,6 +67,7 @@ class BookingValidator {
     // Tapped slot is inside the current selection range [startMins, endMins)
     // which means the user clicked on an already selected slot
     if (tappedMins >= startMins && tappedMins < endMins) {
+      // calculate the index of the tapped slot
       final index = (tappedMins - startMins) ~/ 30;
 
       // if there is only 1 slot, it will return deselected
@@ -105,7 +106,7 @@ class BookingValidator {
 
     // If the tapped slot is immediately after the current selection,
     // extend the selection to include it,
-    // but making sure it doesn't exceed 4 slots
+    // but making sure it doesn't overlap 4 slots
     if (tappedMins == endMins) {
       if (currentSlots < 4) {
         return SlotSelectionResult(
