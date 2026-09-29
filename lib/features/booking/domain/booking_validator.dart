@@ -291,6 +291,7 @@ class BookingValidator {
     return validStarts;
   }
 
+  /// checks if the booking is valid
   BookingValidationResult validateBooking({
     required List<TimeSlot> schedule,
     required TimeOfDay? startTime,
