@@ -311,6 +311,7 @@ class BookingValidator {
     );
     if (workingHoursResult != null) return workingHoursResult;
 
+    //2. Check if there is a conflict
     final conflictResult = _validateSlotConflicts(
       schedule,
       startTime,
@@ -318,6 +319,7 @@ class BookingValidator {
     );
     if (conflictResult != null) return conflictResult;
 
+    //3. Check if there is a gap
     final gapResult = _validateGapRule(schedule, startTime, duration);
     if (gapResult != null) return gapResult;
 
@@ -328,11 +330,13 @@ class BookingValidator {
   // Helper methods for validateBooking
   // To follow single responsibility principle
 
+  /// validate working hours
   BookingValidationResult? _validateWorkingHours(
     TimeOfDay startTime,
     BookingDuration duration,
     TimeOfDay dayEndTime,
   ) {
+    // convert start time to minutes
     final startMins = startTime.hour * 60 + startTime.minute;
     final dayStartMins = kDayStartTime.hour * 60 + kDayStartTime.minute;
     final dayEndMins = dayEndTime.hour * 60 + dayEndTime.minute;
@@ -354,6 +358,7 @@ class BookingValidator {
     return null;
   }
 
+  /// validate slot conflicts
   BookingValidationResult? _validateSlotConflicts(
     List<TimeSlot> schedule,
     TimeOfDay startTime,
@@ -393,6 +398,7 @@ class BookingValidator {
     return null;
   }
 
+  /// validate gap
   BookingValidationResult? _validateGapRule(
     List<TimeSlot> schedule,
     TimeOfDay startTime,
@@ -419,6 +425,7 @@ class BookingValidator {
 
     return null;
   }
+  //==============================================================================
 
   /// this method is made for simulating a new booking
   /// it take a copy of the schedule and apply the new booking
