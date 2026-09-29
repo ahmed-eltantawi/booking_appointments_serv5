@@ -7,24 +7,37 @@ import 'package:booking_appointments/features/booking/presentation/widgets/anima
 import 'package:booking_appointments/features/booking/presentation/widgets/app_drawer_widget.dart';
 import 'package:booking_appointments/features/booking/presentation/widgets/booking_view_body.dart';
 
+//==============================================================================
 /// Top-level route widget for the booking feature.
 /// Provides [BookingCubit] to the subtree and delegates layout to [BookingViewBody].
+//==============================================================================
 class BookingView extends StatelessWidget {
   const BookingView({super.key});
 
   @override
   Widget build(BuildContext context) {
     final l10n = S.of(context);
+    
+    // 1. we inject the BookingCubit at the root of the screen
     return BlocProvider(
+      // we get the instance from GetIt and initialize it immediately
       create: (_) => getIt<BookingCubit>()..initialize(),
+      
+      // 2. build the scaffold
       child: Scaffold(
         appBar: AppBar(
           leading: const AnimatedDrawerButton(),
           title: Text(l10n.bookAppointment),
           centerTitle: true,
         ),
+        
+        // 3. setup the side drawer for navigation/settings
         drawer: const AppDrawerWidget(),
-        body: const SafeArea(child: BookingViewBody()),
+        
+        // 4. render the main body inside a SafeArea to avoid notches
+        body: const SafeArea(
+          child: BookingViewBody(),
+        ),
       ),
     );
   }
