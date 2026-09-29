@@ -42,6 +42,9 @@ class BookingRepositoryImpl implements BookingRepository {
         final loadedSlots = await _localDataSource.getSchedule(
           currentUserId: currentUserId,
         );
+
+        // This line make a new list with a new memory address
+        // it take a private copy for a repo
         _baseSlots = List.from(loadedSlots);
       }
 
@@ -51,6 +54,7 @@ class BookingRepositoryImpl implements BookingRepository {
       );
       return Right(
         BookingSchedule(
+          // we use unmodifiable to don't let UI can edit in the time slots
           slots: List.unmodifiable(_baseSlots),
           selectedDuration: _defaultDuration,
           validStartTimes: validStarts,

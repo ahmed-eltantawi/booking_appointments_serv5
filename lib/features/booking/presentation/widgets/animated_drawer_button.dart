@@ -16,6 +16,7 @@ class _AnimatedDrawerButtonState extends State<AnimatedDrawerButton> {
     _isPressedNotifier.value = true;
   }
 
+  /// when user click on the menu button, open the drawer and make some haptic feedback
   void _onTapUp(TapUpDetails details) {
     _isPressedNotifier.value = false;
     HapticFeedback.selectionClick();
